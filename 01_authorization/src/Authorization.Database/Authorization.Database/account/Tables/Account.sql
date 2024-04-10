@@ -5,7 +5,6 @@
     [LegalName]             NVARCHAR (255)   NOT NULL,
     [Email]                 NVARCHAR (100)   NOT NULL,
     [IsActive]              BIT              NOT NULL,
-    [SourceAccountNumber]   VARCHAR (50)     NOT NULL,
     CONSTRAINT [C_TAccount_PK] PRIMARY KEY CLUSTERED ([AccountId] ASC)
 );
 

@@ -5,19 +5,19 @@ using System.Collections.Generic;
 
 namespace Authorization.Infrastructure.Entities;
 
-public partial class AccountEntity
+public partial class Action
 {
-    public int AccountId { get; set; }
+    public int ActionId { get; set; }
 
-    public Guid AccountGlobalUniqueId { get; set; }
+    public string Name { get; set; }
 
-    public string AccountNumber { get; set; }
+    public string Description { get; set; }
 
-    public string LegalName { get; set; }
+    public string Code { get; set; }
 
-    public string Email { get; set; }
-
-    public bool IsActive { get; set; }
+    public string Category { get; set; }
 
     public virtual ICollection<Authorization> Authorization { get; set; } = new List<Authorization>();
+
+    public virtual ICollection<Personna> Personna { get; set; } = new List<Personna>();
 }

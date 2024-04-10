@@ -1,15 +1,14 @@
 ﻿{
    "CodeGenerationMode": 4,
-   "ContextClassName": "AccountContext",
+   "ContextClassName": "AuthorizationContext",
    "ContextNamespace": null,
-   "DefaultDacpacSchema": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "ModelNamespace": null,
    "OutputContextPath": "Context",
    "OutputPath": "Entities",
    "PreserveCasingWithRegex": true,
-   "ProjectRootNamespace": "Pulse.Account.Infrastructure",
+   "ProjectRootNamespace": "Authorization.Infrastructure",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 0,
    "SelectedToBeGenerated": 0,
@@ -20,39 +19,35 @@
          "ObjectType": 0
       },
       {
-         "Name": "[account].[Address]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[account].[Delegation]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[account].[Deployment]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[account].[Hub]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[account].[Naf]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[account].[Phone]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[account].[Role]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[actor].[Contact]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[AccountResource]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[Action]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[Authorization]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[Personna]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[PersonnaAction]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[Resource]",
          "ObjectType": 0
       }
    ],
-   "UiHint": "..\\Account.Database\\Account.Database.sqlproj",
+   "UiHint": null,
    "UncountableWords": null,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
