@@ -5,7 +5,7 @@
 using Microsoft.Data.SqlClient;
 using Polly;
 using Polly.Retry;
-using Pulse.Account.Infrastructure.Context;
+using Authorization.Infrastructure.Context;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;

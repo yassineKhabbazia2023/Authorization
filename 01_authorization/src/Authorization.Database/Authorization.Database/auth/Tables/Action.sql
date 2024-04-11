@@ -3,7 +3,7 @@
     [Name]        VARCHAR (100) NOT NULL,
     [Description] VARCHAR (255) NULL,
     [Code]        VARCHAR (10)  NULL,
-    [Category]    VARCHAR (100) NULL,
+    [Category]    VARCHAR (50) NULL,
     CONSTRAINT [PK_Action] PRIMARY KEY CLUSTERED ([ActionId] ASC)
 );
 

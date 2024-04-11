@@ -4,7 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using Pulse.Account.Infrastructure.Context;
+using Authorization.Infrastructure.Context;
 using Pulse.Account.Infrastructure.Repositories;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Services;
