@@ -7,7 +7,7 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 
-namespace Pulse.Account.Core.Tests.Services
+namespace Pulse.Authorization.Core.Tests.Services
 {
     public class AccountServiceTests
     {

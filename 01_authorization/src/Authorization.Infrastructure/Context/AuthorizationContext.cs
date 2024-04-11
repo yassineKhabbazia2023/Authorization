@@ -2,10 +2,10 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Authorization.Infrastructure.Context;
+namespace Pulse.Authorization.Infrastructure.Context;
 
 public partial class AuthorizationContext : DbContext
 {

@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Authorization.Infrastructure.Entities;
+namespace Pulse.Authorization.Infrastructure.Entities;
 
 public partial class AccountResourceEntity
 {

@@ -6,9 +6,9 @@ using AutoFixture;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Pulse.Account.Infrastructure.Repositories;
+using Pulse.Authorization.Infrastructure.Repositories;
 
-namespace Pulse.Account.Infrastructure.Tests.Repositories
+namespace Pulse.Authorization.Infrastructure.Tests.Repositories
 {
     public class AccountRepositoryTests
     {

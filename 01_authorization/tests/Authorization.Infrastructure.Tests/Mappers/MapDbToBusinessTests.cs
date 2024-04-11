@@ -4,9 +4,9 @@
 
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Pulse.Account.Infrastructure.Mappers;
+using Pulse.Authorization.Infrastructure.Mappers;
 
-namespace Pulse.Account.Infrastructure.Tests.Mappers
+namespace Pulse.Authorization.Infrastructure.Tests.Mappers
 {
     public class MapDbToBusinessTests
     {

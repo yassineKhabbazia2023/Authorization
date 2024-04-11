@@ -4,8 +4,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using Authorization.Infrastructure.Context;
-using Pulse.Account.Infrastructure.Repositories;
+using Pulse.Authorization.Infrastructure.Context;
+using Pulse.Authorization.Infrastructure.Repositories;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Services;
 using IAuthorizationService = Pulse.Authorization.Core.Interfaces.IAuthorizationService;

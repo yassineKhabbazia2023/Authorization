@@ -15,7 +15,7 @@ using Pulse.Authorization.API;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models.Paging;
 
-namespace Account.Api.Tests.Controllers
+namespace Pulse.Authorization.Api.Tests.Controllers
 {
     public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<Startup>>
     {
