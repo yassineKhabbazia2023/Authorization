@@ -1,18 +1,20 @@
-﻿// <copyright file="MapDbToBusinessTests.cs" company="Pulse">
+﻿// <copyright file="AccountRepositoryTests.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
 using AutoFixture;
+using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Microsoft.EntityFrameworkCore;
-using Pulse.Authorization.Infrastructure.Mappers;
+using Newtonsoft.Json;
+using Pulse.Authorization.Infrastructure.Repositories;
 
-namespace Pulse.Authorization.Infrastructure.Tests.Mappers
+namespace Pulse.Authorization.Infrastructure.Tests.Repositories
 {
-    public class MapDbToBusinessTests
+    public class AuthorizationRepositoryTests
     {
         private readonly Fixture _fixture;
 
-        public MapDbToBusinessTests()
+        public AuthorizationRepositoryTests()
         {
             _fixture = new Fixture();
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));

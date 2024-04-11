@@ -2,10 +2,10 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using Pulse.Authorization.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
-using Pulse.Account.Infrastructure.Entities;
 
-namespace Pulse.Account.Infrastructure.Context;
+namespace Pulse.Authorization.Infrastructure.Context;
 
 public partial class AuthorizationContext : DbContext
 {
@@ -16,137 +16,166 @@ public partial class AuthorizationContext : DbContext
 
     public virtual DbSet<AccountEntity> AccountEntity { get; set; }
 
+    public virtual DbSet<AccountResourceEntity> AccountResource { get; set; }
+
+    public virtual DbSet<ActionEntity> Action { get; set; }
+
+    public virtual DbSet<AuthorizationEntity> Authorization { get; set; }
+
+    public virtual DbSet<ContactEntity> ContactEntity { get; set; }
+
+    public virtual DbSet<PersonnaEntity> Personna { get; set; }
+
+    public virtual DbSet<ResourceEntity> Resource { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AccountEntity>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("C_Account_PK");
+            entity.HasKey(e => e.AccountId).HasName("C_TAccount_PK");
 
             entity.ToTable("Account", "account");
 
-            entity.HasIndex(e => e.AccountGlobalUniqueId, "IDX_Account_AccountGlobalUniqueId");
-
-            entity.HasIndex(e => e.HubId, "IDX_Hub_HubId");
-
-            entity.HasIndex(e => e.NafId, "IDX_Naf_NafId");
-
-            entity.HasIndex(e => e.AccountGlobalUniqueId, "UQ_Account_AccountGlobalUniqueId").IsUnique();
-
-            entity.HasIndex(e => e.AccountGlobalUniqueId, "UQ_Phone_PhoneId").IsUnique();
-
-            entity.Property(e => e.AccountId).HasComment("L''identifiant technique");
-            entity.Property(e => e.AccountGlobalUniqueId).HasComment("L''identifiant global de l''entité");
+            entity.Property(e => e.AccountId).ValueGeneratedNever();
             entity.Property(e => e.AccountNumber)
                 .IsRequired()
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.AccountType)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasComment("Le type de l''entité");
-            entity.Property(e => e.AccountingMethod)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasComment("Le type de comptabilité");
-            entity.Property(e => e.ActivityDescription)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasComment("Description de l''activité");
-            entity.Property(e => e.ActivityType)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasComment("Type d''activité");
-            entity.Property(e => e.CommercialName)
-                .HasMaxLength(255)
-                .HasComment("Le  nom commercial de l''entité");
-            entity.Property(e => e.CreatedBy)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasComment("L''identifiant de l''utilisateur ou du système qui a crée l''entité");
-            entity.Property(e => e.CreationDate).HasComment("La date de création");
             entity.Property(e => e.Email)
                 .IsRequired()
-                .HasMaxLength(100)
-                .HasComment("L''adresse mail de l''entité");
-            entity.Property(e => e.FiscalExerciseDuration).HasComment("La durée de l''exercice fiscale");
-            entity.Property(e => e.FiscalExerciseStartDate).HasComment("Début Exercice fiscale");
-            entity.Property(e => e.FiscalSystem)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasComment("Le régime fiscale");
-            entity.Property(e => e.HubId).HasComment("L''identifiant technique du Hub");
-            entity.Property(e => e.IconName)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.IsActive).HasComment("L''entité est-elle activé");
-            entity.Property(e => e.Isin)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasComment("Le ISIN")
-                .HasColumnName("ISIN");
-            entity.Property(e => e.LegalForm)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasComment("La forme juridique de l''entité");
-            entity.Property(e => e.LegalFormCode)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasComment("Le code de la forme juridique");
+                .HasMaxLength(100);
             entity.Property(e => e.LegalName)
                 .IsRequired()
+                .HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<AccountResourceEntity>(entity =>
+        {
+            entity.HasKey(e => new { e.AccountId, e.ResourceId });
+
+            entity.ToTable("AccountResource", "auth");
+        });
+
+        modelBuilder.Entity<ActionEntity>(entity =>
+        {
+            entity.ToTable("Action", "auth");
+
+            entity.Property(e => e.Category)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Code)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.Description)
                 .HasMaxLength(255)
-                .HasComment("La raison social de l''entité");
-            entity.Property(e => e.ModifiedBy)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasComment("L''identifiant de l''utilisateur ou du système qui a effectué la dernière modification");
-            entity.Property(e => e.NafId).HasComment("L''identifiant technique du code Naf");
-            entity.Property(e => e.Sector)
+                .IsUnicode(false);
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<AuthorizationEntity>(entity =>
+        {
+            entity.HasKey(e => new { e.ContactId, e.AccountId, e.ActionId });
+
+            entity.ToTable("Authorization", "auth");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.Authorization)
+                .HasForeignKey(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Authorization_Account");
+
+            entity.HasOne(d => d.Action).WithMany(p => p.Authorization)
+                .HasForeignKey(d => d.ActionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Authorization_Action");
+
+            entity.HasOne(d => d.Contact).WithMany(p => p.Authorization)
+                .HasForeignKey(d => d.ContactId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Authorization_Contact");
+        });
+
+        modelBuilder.Entity<ContactEntity>(entity =>
+        {
+            entity.HasKey(e => e.ContactId).HasName("C_TContact_PK");
+
+            entity.ToTable("Contact", "actor");
+
+            entity.Property(e => e.ContactEmail)
+                .IsRequired()
                 .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasComment("Le secteur");
-            entity.Property(e => e.SectorCode)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasComment("Le code du secteur");
-            entity.Property(e => e.Siret)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasComment("Le Siret");
-            entity.Property(e => e.SourceAccountNumber)
+                .IsUnicode(false);
+            entity.Property(e => e.FirstName)
                 .IsRequired()
                 .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasComment("La source de création de l''entité");
-            entity.Property(e => e.StaffSize).HasComment("Le nombre d''employés de l''entité");
-            entity.Property(e => e.StaffSizeRange)
+                .IsUnicode(false);
+            entity.Property(e => e.LastName)
+                .IsRequired()
                 .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasComment("La plage du nombre de salariés ");
-            entity.Property(e => e.TaxationSystem)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasComment("Le Régime d''imposition");
-            entity.Property(e => e.Turnover)
-                .HasComment("Le chiffre d''affaires")
-                .HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.UpdatedDate).HasComment("La date de la dernière modification");
-            entity.Property(e => e.Vat)
+                .IsUnicode(false);
+            entity.Property(e => e.PersonnaName)
                 .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasComment("La TVA")
-                .HasColumnName("VAT");
-            entity.Property(e => e.Vatintra)
+                .IsUnicode(false);
+            entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasComment("Le numéro de TVA intracommunautaire")
-                .HasColumnName("VATIntra");
-            entity.Property(e => e.Vattype)
+                .IsUnicode(false);
+            entity.Property(e => e.Type)
+                .IsRequired()
                 .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasComment("Type de TVA")
-                .HasColumnName("VATType");
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<PersonnaEntity>(entity =>
+        {
+            entity.ToTable("Personna", "auth");
+
+            entity.Property(e => e.PersonnaId).ValueGeneratedNever();
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Type)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+
+            entity.HasMany(d => d.Action).WithMany(p => p.Personna)
+                .UsingEntity<Dictionary<string, object>>(
+                    "PersonnaAction",
+                    r => r.HasOne<ActionEntity>().WithMany()
+                        .HasForeignKey("ActionId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_PersonnaAction_Action"),
+                    l => l.HasOne<PersonnaEntity>().WithMany()
+                        .HasForeignKey("PersonnaId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_PersonnaAction_Personna"),
+                    j =>
+                    {
+                        j.HasKey("PersonnaId", "ActionId");
+                        j.ToTable("PersonnaAction", "auth");
+                    });
+        });
+
+        modelBuilder.Entity<ResourceEntity>(entity =>
+        {
+            entity.HasKey(e => e.ResourceId).HasName("PK_Ressource");
+
+            entity.ToTable("Resource", "auth");
+
+            entity.Property(e => e.Code)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Url)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
+                .HasForeignKey(d => d.ParentId)
+                .HasConstraintName("FK_Permission_Premission");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -2,7 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-namespace Pulse.Account.Core.Requests
+namespace Pulse.Authorization.Core.Requests
 {
     public class CreateRoleRequest
     {

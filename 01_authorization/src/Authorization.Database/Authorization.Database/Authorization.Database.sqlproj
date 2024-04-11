@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{45a6c44a-d315-40ed-9cff-a638f58ba92b}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
@@ -67,16 +67,17 @@
     <Folder Include="Security\" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="auth\Tables\Ressource.sql" />
     <Build Include="auth\Tables\Action.sql" />
     <Build Include="auth\Tables\PersonnaAction.sql" />
     <Build Include="auth\Tables\Personna.sql" />
     <Build Include="actor\Tables\Contact.sql" />
-    <Build Include="auth\Tables\Permission.sql" />
     <Build Include="account\Tables\Account.sql" />
     <Build Include="Security\account.sql" />
     <Build Include="Security\actor.sql" />
     <Build Include="Security\auth.sql" />
     <Build Include="Security\authorization.sql" />
+    <Build Include="auth\Tables\Resource.sql" />
+    <Build Include="auth\Tables\Authorization.sql" />
+    <Build Include="auth\Tables\AccountResource.sql" />
   </ItemGroup>
 </Project>

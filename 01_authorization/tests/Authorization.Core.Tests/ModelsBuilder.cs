@@ -4,7 +4,7 @@
 
 using AutoFixture;
 
-namespace Pulse.Account.Core.Tests
+namespace Pulse.Authorization.Core.Tests
 {
     public static class ModelsBuilder
     {

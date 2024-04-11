@@ -1,11 +1,11 @@
 ﻿// <copyright file="MapAuthorizationEntityToModel.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
-using Pulse.Account.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Core.Models;
 using Action = Pulse.Authorization.Core.Models.Action;
 
-namespace Pulse.Account.Infrastructure.Mappers
+namespace Pulse.Authorization.Infrastructure.Mappers
 {
     public static class MapAuthorizationEntityToModel
     {

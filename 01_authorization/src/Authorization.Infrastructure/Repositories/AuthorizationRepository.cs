@@ -5,12 +5,12 @@
 using Microsoft.Data.SqlClient;
 using Polly;
 using Polly.Retry;
-using Pulse.Account.Infrastructure.Context;
+using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
 
-namespace Pulse.Account.Infrastructure.Repositories
+namespace Pulse.Authorization.Infrastructure.Repositories
 {
     public class AuthorizationRepository : IAuthorizationRepository
     {
