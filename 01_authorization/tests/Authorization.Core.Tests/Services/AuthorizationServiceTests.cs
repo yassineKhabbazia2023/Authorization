@@ -9,7 +9,7 @@ using Moq;
 
 namespace Pulse.Authorization.Core.Tests.Services
 {
-    public class AccountServiceTests
+    public class AuthorizationServiceTests
     {
         private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
         {

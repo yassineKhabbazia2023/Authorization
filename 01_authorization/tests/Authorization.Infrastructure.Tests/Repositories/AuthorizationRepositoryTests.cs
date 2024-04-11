@@ -10,11 +10,11 @@ using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories
 {
-    public class AccountRepositoryTests
+    public class AuthorizationRepositoryTests
     {
         private readonly Fixture _fixture;
 
-        public AccountRepositoryTests()
+        public AuthorizationRepositoryTests()
         {
             _fixture = new Fixture();
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
