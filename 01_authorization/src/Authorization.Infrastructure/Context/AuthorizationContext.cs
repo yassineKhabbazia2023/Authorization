@@ -2,9 +2,8 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using Authorization.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
-
-using Entities = Authorization.Infrastructure.Entities;
 
 namespace Authorization.Infrastructure.Context;
 
@@ -15,23 +14,23 @@ public partial class AuthorizationContext : DbContext
     {
     }
 
-    public virtual DbSet<Entities.AccountEntity> AccountEntity { get; set; }
+    public virtual DbSet<AccountEntity> AccountEntity { get; set; }
 
-    public virtual DbSet<Entities.AccountResource> AccountResource { get; set; }
+    public virtual DbSet<AccountResourceEntity> AccountResource { get; set; }
 
-    public virtual DbSet<Entities.Action> Action { get; set; }
+    public virtual DbSet<ActionEntity> Action { get; set; }
 
-    public virtual DbSet<Entities.Authorization> Authorization { get; set; }
+    public virtual DbSet<AuthorizationEntity> Authorization { get; set; }
 
-    public virtual DbSet<Entities.ContactEntity> ContactEntity { get; set; }
+    public virtual DbSet<ContactEntity> ContactEntity { get; set; }
 
-    public virtual DbSet<Entities.Personna> Personna { get; set; }
+    public virtual DbSet<PersonnaEntity> Personna { get; set; }
 
-    public virtual DbSet<Entities.Resource> Resource { get; set; }
+    public virtual DbSet<ResourceEntity> Resource { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Entities.AccountEntity>(entity =>
+        modelBuilder.Entity<AccountEntity>(entity =>
         {
             entity.HasKey(e => e.AccountId).HasName("C_TAccount_PK");
 
@@ -50,14 +49,14 @@ public partial class AuthorizationContext : DbContext
                 .HasMaxLength(255);
         });
 
-        modelBuilder.Entity<Entities.AccountResource>(entity =>
+        modelBuilder.Entity<AccountResourceEntity>(entity =>
         {
             entity.HasKey(e => new { e.AccountId, e.ResourceId });
 
             entity.ToTable("AccountResource", "auth");
         });
 
-        modelBuilder.Entity<Entities.Action>(entity =>
+        modelBuilder.Entity<ActionEntity>(entity =>
         {
             entity.ToTable("Action", "auth");
 
@@ -76,7 +75,7 @@ public partial class AuthorizationContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<Entities.Authorization>(entity =>
+        modelBuilder.Entity<AuthorizationEntity>(entity =>
         {
             entity.HasKey(e => new { e.ContactId, e.AccountId, e.ActionId });
 
@@ -98,7 +97,7 @@ public partial class AuthorizationContext : DbContext
                 .HasConstraintName("FK_Authorization_Contact");
         });
 
-        modelBuilder.Entity<Entities.ContactEntity>(entity =>
+        modelBuilder.Entity<ContactEntity>(entity =>
         {
             entity.HasKey(e => e.ContactId).HasName("C_TContact_PK");
 
@@ -128,7 +127,7 @@ public partial class AuthorizationContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<Entities.Personna>(entity =>
+        modelBuilder.Entity<PersonnaEntity>(entity =>
         {
             entity.ToTable("Personna", "auth");
 
@@ -143,11 +142,11 @@ public partial class AuthorizationContext : DbContext
             entity.HasMany(d => d.Action).WithMany(p => p.Personna)
                 .UsingEntity<Dictionary<string, object>>(
                     "PersonnaAction",
-                    r => r.HasOne<Entities.Action>().WithMany()
+                    r => r.HasOne<ActionEntity>().WithMany()
                         .HasForeignKey("ActionId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_PersonnaAction_Action"),
-                    l => l.HasOne<Entities.Personna>().WithMany()
+                    l => l.HasOne<PersonnaEntity>().WithMany()
                         .HasForeignKey("PersonnaId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_PersonnaAction_Personna"),
@@ -158,7 +157,7 @@ public partial class AuthorizationContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<Entities.Resource>(entity =>
+        modelBuilder.Entity<ResourceEntity>(entity =>
         {
             entity.HasKey(e => e.ResourceId).HasName("PK_Ressource");
 

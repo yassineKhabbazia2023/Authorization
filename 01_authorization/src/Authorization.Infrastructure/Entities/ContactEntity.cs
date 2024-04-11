@@ -23,5 +23,5 @@ public partial class ContactEntity
 
     public string Status { get; set; }
 
-    public virtual ICollection<Authorization> Authorization { get; set; } = new List<Authorization>();
+    public virtual ICollection<AuthorizationEntity> Authorization { get; set; } = new List<AuthorizationEntity>();
 }

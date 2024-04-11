@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Authorization.Infrastructure.Entities;
 
-public partial class Personna
+public partial class PersonnaEntity
 {
     public int PersonnaId { get; set; }
 
@@ -13,5 +13,5 @@ public partial class Personna
 
     public string Type { get; set; }
 
-    public virtual ICollection<Action> Action { get; set; } = new List<Action>();
+    public virtual ICollection<ActionEntity> Action { get; set; } = new List<ActionEntity>();
 }

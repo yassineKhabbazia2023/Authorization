@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Authorization.Infrastructure.Entities;
 
-public partial class AccountResource
+public partial class AccountResourceEntity
 {
     public int AccountId { get; set; }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Authorization.Infrastructure.Entities;
 
-public partial class Resource
+public partial class ResourceEntity
 {
     public int ResourceId { get; set; }
 
@@ -19,7 +19,7 @@ public partial class Resource
 
     public bool? Visible { get; set; }
 
-    public virtual ICollection<Resource> InverseParent { get; set; } = new List<Resource>();
+    public virtual ICollection<ResourceEntity> InverseParent { get; set; } = new List<ResourceEntity>();
 
-    public virtual Resource Parent { get; set; }
+    public virtual ResourceEntity Parent { get; set; }
 }

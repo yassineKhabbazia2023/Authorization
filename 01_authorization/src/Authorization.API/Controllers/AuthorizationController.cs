@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
-using Action = Pulse.Authorization.Core.Models.Action;
 
 namespace Pulse.Authorization.API.Controllers
 {

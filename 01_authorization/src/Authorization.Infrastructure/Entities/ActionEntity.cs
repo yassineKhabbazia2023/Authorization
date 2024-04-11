@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Authorization.Infrastructure.Entities;
 
-public partial class Action
+public partial class ActionEntity
 {
     public int ActionId { get; set; }
 
@@ -17,7 +17,7 @@ public partial class Action
 
     public string Category { get; set; }
 
-    public virtual ICollection<Authorization> Authorization { get; set; } = new List<Authorization>();
+    public virtual ICollection<AuthorizationEntity> Authorization { get; set; } = new List<AuthorizationEntity>();
 
-    public virtual ICollection<Personna> Personna { get; set; } = new List<Personna>();
+    public virtual ICollection<PersonnaEntity> Personna { get; set; } = new List<PersonnaEntity>();
 }

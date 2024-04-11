@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Authorization.Infrastructure.Entities;
 
-public partial class Authorization
+public partial class AuthorizationEntity
 {
     public int ContactId { get; set; }
 
@@ -17,7 +17,7 @@ public partial class Authorization
 
     public virtual AccountEntity Account { get; set; }
 
-    public virtual Action Action { get; set; }
+    public virtual ActionEntity Action { get; set; }
 
     public virtual ContactEntity Contact { get; set; }
 }
