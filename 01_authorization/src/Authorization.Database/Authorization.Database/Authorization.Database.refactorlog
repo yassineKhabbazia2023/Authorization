@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="2b4dedae-eb36-4534-b51f-cfb4e79fdfaf" ChangeDateTime="04/12/2024 09:16:51">
+    <Property Name="ElementName" Value="[actor].[Contact].[ContactEmail]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[actor].[Contact]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Email" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="89a8b2e5-f6f8-41ef-885e-1e8ff87acb3d" ChangeDateTime="04/12/2024 09:18:51">
+    <Property Name="ElementName" Value="[actor].[Contact].[PersonnaName]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[actor].[Contact]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Type" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="972220c2-d65d-49aa-b636-68dcddc7d9ed" ChangeDateTime="04/12/2024 09:20:55">
+    <Property Name="ElementName" Value="[actor].[Contact].[Office]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[actor].[Contact]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreationDate" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="739debe1-c165-4576-8515-f57753237452" ChangeDateTime="04/12/2024 09:36:39">
+    <Property Name="ElementName" Value="[auth].[Resource].[Visible]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[auth].[Resource]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsVisible" />
+  </Operation>
+</Operations>

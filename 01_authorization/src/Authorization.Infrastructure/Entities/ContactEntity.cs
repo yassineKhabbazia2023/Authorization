@@ -9,19 +9,23 @@ public partial class ContactEntity
 {
     public int ContactId { get; set; }
 
-    public Guid ContactGlobalUniqueId { get; set; }
+    public Guid? ContactGlobalUniqueId { get; set; }
 
     public string FirstName { get; set; }
 
     public string LastName { get; set; }
 
-    public string ContactEmail { get; set; }
-
-    public string PersonnaName { get; set; }
+    public string Email { get; set; }
 
     public string Type { get; set; }
 
     public string Status { get; set; }
 
-    public virtual ICollection<AuthorizationEntity> Authorization { get; set; } = new List<AuthorizationEntity>();
+    public string PersonaName { get; set; }
+
+    public DateTime CreationDate { get; set; }
+
+    public long IsActive { get; set; }
+
+    public virtual ICollection<AuthorizationEntity> AuthorizationEntity { get; set; } = new List<AuthorizationEntity>();
 }

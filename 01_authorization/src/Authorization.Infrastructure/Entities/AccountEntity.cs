@@ -15,9 +15,7 @@ public partial class AccountEntity
 
     public string LegalName { get; set; }
 
-    public string Email { get; set; }
-
     public bool IsActive { get; set; }
 
-    public virtual ICollection<AuthorizationEntity> Authorization { get; set; } = new List<AuthorizationEntity>();
+    public virtual ICollection<AuthorizationEntity> AuthorizationEntity { get; set; } = new List<AuthorizationEntity>();
 }

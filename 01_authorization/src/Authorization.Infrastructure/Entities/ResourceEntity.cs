@@ -15,9 +15,7 @@ public partial class ResourceEntity
 
     public string Code { get; set; }
 
-    public string Url { get; set; }
-
-    public bool? Visible { get; set; }
+    public bool IsVisible { get; set; }
 
     public virtual ICollection<ResourceEntity> InverseParent { get; set; } = new List<ResourceEntity>();
 

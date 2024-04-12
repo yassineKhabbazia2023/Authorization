@@ -17,7 +17,7 @@ public partial class ActionEntity
 
     public string Category { get; set; }
 
-    public virtual ICollection<AuthorizationEntity> Authorization { get; set; } = new List<AuthorizationEntity>();
+    public virtual ICollection<AuthorizationEntity> AuthorizationEntity { get; set; } = new List<AuthorizationEntity>();
 
     public virtual ICollection<PersonnaEntity> Personna { get; set; } = new List<PersonnaEntity>();
 }

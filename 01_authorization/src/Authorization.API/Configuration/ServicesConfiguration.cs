@@ -26,6 +26,7 @@ namespace Pulse.Authorization.API.Configuration
             ArgumentNullException.ThrowIfNull(configuration);
             var connectionString = configuration["SqlAuthorizationConnectionString"];
             ArgumentNullException.ThrowIfNullOrEmpty(connectionString);
+
             services.AddDbContextPool<AuthorizationContext>(options =>
             {
                 options.UseSqlServer(connectionString, opt =>
@@ -40,10 +41,8 @@ namespace Pulse.Authorization.API.Configuration
 
         public static void RegisterApplicationInsights(this IServiceCollection services, IConfiguration configuration)
         {
-            ArgumentNullException.ThrowIfNull(configuration);
-            var applicationInsightsConexionString = configuration["AuthorizationAppInsight"];
+            var applicationInsightsConexionString = configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
 
-            ArgumentNullException.ThrowIfNullOrEmpty(applicationInsightsConexionString);
             services.AddApplicationInsightsTelemetry(options =>
             {
                 options.ConnectionString = applicationInsightsConexionString;

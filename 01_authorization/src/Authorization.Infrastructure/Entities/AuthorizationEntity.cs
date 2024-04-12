@@ -13,7 +13,7 @@ public partial class AuthorizationEntity
 
     public int ActionId { get; set; }
 
-    public int? CreationDate { get; set; }
+    public int CreationDate { get; set; }
 
     public virtual AccountEntity Account { get; set; }
 

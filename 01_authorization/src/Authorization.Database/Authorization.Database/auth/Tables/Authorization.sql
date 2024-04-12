@@ -2,7 +2,7 @@
     [ContactId]    INT NOT NULL,
     [AccountId]    INT NOT NULL,
     [ActionId]     INT NOT NULL,
-    [CreationDate] INT NULL,
+    [CreationDate] INT NOT NULL,
     CONSTRAINT [PK_Authorization] PRIMARY KEY CLUSTERED ([ContactId] ASC, [AccountId] ASC, [ActionId] ASC),
     CONSTRAINT [FK_Authorization_Account] FOREIGN KEY ([AccountId]) REFERENCES [account].[Account] ([AccountId]),
     CONSTRAINT [FK_Authorization_Action] FOREIGN KEY ([ActionId]) REFERENCES [auth].[Action] ([ActionId]),
