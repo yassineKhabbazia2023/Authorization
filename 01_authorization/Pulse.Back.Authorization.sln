@@ -31,6 +31,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authorization.Api.Tests", "
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Authorization.Database", "src\Authorization.Database\Authorization.Database\Authorization.Database.sqlproj", "{45A6C44A-D315-40ED-9CFF-A638F58BA92B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipelines", "pipelines", "{87BA0FEB-71E8-4378-9698-914788FAF7CD}"
+	ProjectSection(SolutionItems) = preProject
+		Pulse.Back.Authorization.SQL.yaml = Pulse.Back.Authorization.SQL.yaml
+		Pulse.Back.Authorization.yaml = Pulse.Back.Authorization.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
