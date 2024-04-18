@@ -65,6 +65,7 @@
     <Folder Include="account\" />
     <Folder Include="account\Tables\" />
     <Folder Include="Security\" />
+    <Folder Include="postDeployment" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="auth\Tables\Action.sql" />
@@ -82,5 +83,9 @@
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Authorization.Database.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="postDeployment\auth.Resource.sql" />
+    <None Include="postDeployment\auth.Action.sql" />
   </ItemGroup>
 </Project>
