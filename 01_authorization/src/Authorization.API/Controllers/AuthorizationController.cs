@@ -2,8 +2,8 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
 
@@ -24,42 +24,16 @@ namespace Pulse.Authorization.API.Controllers
         /// Récupère la liste des authorizations possibles.
         /// </summary>
         /// <param name="accountId">Identifiant de l'entité morale.</param>
+        /// <param name="contactId">Identifiant du contat.</param>
+        /// <param name="category">Catégorie du ressource.</param>
         /// <returns>Liste des authorizations possibles.</returns>
-        [HttpGet()]
+        [HttpGet("resources")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyCollection<Resource?>))]
-        public async Task<ActionResult<IReadOnlyCollection<Resource?>>> GetRessourcesAsync(int accountId)
+        public async Task<ActionResult<IReadOnlyCollection<Resource?>>> GetRessourcesAsync([FromQuery] int accountId, [Required][FromQuery] int contactId, [FromQuery] string category)
         {
-            var result = await _authorizationService.GetAuthorizationsAsync(accountId);
+            var result = await _authorizationService.GetResourceByAccountIdAsync(accountId, contactId, category);
 
             return Ok(result);
-        }
-
-        /// <summary>
-        /// Récupère la liste des authorizations d'une entité morale.
-        /// </summary>
-        /// <param name="contactId">Identifiant du contat.</param>
-        /// <param name="accountId">Identifiant de l'entité morale.</param>
-        /// <returns>Liste des authorizations d'un contact au sein d'une entité morale.</returns>
-        [HttpGet("{accountId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyCollection<Hub?>))]
-        public async Task<ActionResult<IReadOnlyCollection<Resource?>>> GetAuthorizationsAsync(int contactId, int accountId)
-        {
-
-            return Ok();
-        }
-
-        /// <summary>
-        /// Récupère la liste des authorizations d'un contact sur une entité morale.
-        /// </summary>
-        /// <param name="contactId">Identifiant du contat.</param>
-        /// <param name="accountId">Identifiant de l'entité morale.</param>
-        /// <returns>Liste des authorizations d'un contact au sein d'une entité morale.</returns>
-        [HttpGet("{accountId}/{contactId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyCollection<Resource?>))]
-        public async Task<ActionResult<IReadOnlyCollection<Resource?>>> GetAuthAsyncAsync(int contactId, int accountId)
-        {
-
-            return Ok();
         }
 
         /// <summary>

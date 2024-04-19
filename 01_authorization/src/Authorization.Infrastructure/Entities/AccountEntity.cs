@@ -17,5 +17,7 @@ public partial class AccountEntity
 
     public bool IsActive { get; set; }
 
+    public virtual ICollection<AccountResourceEntity> AccountResourceEntity { get; set; } = new List<AccountResourceEntity>();
+
     public virtual ICollection<AuthorizationEntity> AuthorizationEntity { get; set; } = new List<AuthorizationEntity>();
 }

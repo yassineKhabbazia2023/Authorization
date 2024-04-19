@@ -10,12 +10,12 @@ namespace Pulse.Authorization.Infrastructure.Mappers
     public static class MapAuthorizationEntityToModel
     {
 
-        public static IEnumerable<Resource> MapToResources(this ICollection<AccountEntity> source, int accountId)
+        public static IEnumerable<Resource> MapToResources(this IEnumerable<ResourceEntity> source)
         {
-            return source?.Select(a => a.MapToResource(accountId) !) ?? Enumerable.Empty<Resource>();
+            return source?.Select(a => a.MapToResource() !) ?? Enumerable.Empty<Resource>();
         }
 
-        public static Resource? MapToResource(this AccountEntity source, int accountId)
+        public static Resource? MapToResource(this ResourceEntity source)
         {
             if (source == null)
             {
@@ -24,9 +24,28 @@ namespace Pulse.Authorization.Infrastructure.Mappers
 
             return new Resource
             {
-                ResourceId = 0,
-                Actions = new List<Action> { },
-                ResourceName = string.Empty,
+                ResourceId = source.ResourceId,
+                ParentResourceId = source.ParentId,
+                Name = source.Name,
+                Label = source.Label,
+                Category = source.Category,
+                Childrens = source.InverseParent.Select(c => c.MapToResource()),
+                Actions = source.ActionEntity.Select(a => a.MapToAction()),
+            };
+        }
+
+        public static Action? MapToAction(this ActionEntity source)
+        {
+            if (source == null)
+            {
+                return null;
+            }
+
+            return new Action
+            {
+                ActionId = source.ActionId,
+                Code = source.Code,
+                Name = source.Name,
             };
         }
     }

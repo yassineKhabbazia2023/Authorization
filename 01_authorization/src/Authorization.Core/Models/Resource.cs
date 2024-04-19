@@ -8,12 +8,16 @@ namespace Pulse.Authorization.Core.Models
     {
         public int? ResourceId { get; set; }
 
-        public string? ResourceName { get; set; }
+        public string? Name { get; set; }
+
+        public string? Category { get; set; }
+
+        public string? Label { get; set; }
 
         public int? ParentResourceId { get; set; }
 
-        public IReadOnlyCollection<Action>? Actions { get; set; }
+        public IEnumerable<Action?>? Actions { get; set; }
 
-        public IReadOnlyCollection<Resource>? Childrens { get; set; }
+        public IEnumerable<Resource?>? Childrens { get; set; }
     }
 }

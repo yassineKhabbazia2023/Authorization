@@ -19,6 +19,7 @@ namespace Pulse.Authorization.API.Configuration
         {
             services.AddScoped<IAuthorizationService, AuthorizationService>();
             services.AddScoped<IAuthorizationRepository, AuthorizationRepository>();
+            services.AddScoped<IContactRepository, ContactRepository>();
         }
 
         public static void RegisterDatabase(this IServiceCollection services, IConfiguration configuration)

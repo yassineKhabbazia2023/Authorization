@@ -9,6 +9,6 @@ namespace Pulse.Authorization.Core.Interfaces
 {
     public interface IAuthorizationRepository
     {
-        Task<IReadOnlyCollection<Resource>> GetAuthorizationAsync(int accountId);
+        Task<IEnumerable<Resource>> GetResourceByAccountIdAsync(int? accountId, Contact contact, string categoryName);
     }
 }

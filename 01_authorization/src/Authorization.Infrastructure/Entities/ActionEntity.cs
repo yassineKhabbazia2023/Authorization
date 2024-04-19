@@ -9,6 +9,8 @@ public partial class ActionEntity
 {
     public int ActionId { get; set; }
 
+    public int ResourceId { get; set; }
+
     public string Name { get; set; }
 
     public string Description { get; set; }
@@ -18,6 +20,8 @@ public partial class ActionEntity
     public string Category { get; set; }
 
     public virtual ICollection<AuthorizationEntity> AuthorizationEntity { get; set; } = new List<AuthorizationEntity>();
+
+    public virtual ResourceEntity Resource { get; set; }
 
     public virtual ICollection<PersonnaEntity> Personna { get; set; } = new List<PersonnaEntity>();
 }

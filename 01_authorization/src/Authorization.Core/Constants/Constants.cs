@@ -8,5 +8,9 @@ namespace Pulse.Authorization.Core.Constants
     {
         public static readonly int RETRYTIMESPAN = 3000;
         public static readonly string DISABLEDDELEGATIONSTATUS = "disabled";
+        public static readonly string CONTACTTYPECOLLAB = "Collaborator";
+        public static readonly string CONTACTTYPECLIENT = "Customer";
+        public static readonly string RESOURCETYPEGLOBALE = "globale";
+        public static readonly string RESOURCETYPEALL = "All";
     }
 }

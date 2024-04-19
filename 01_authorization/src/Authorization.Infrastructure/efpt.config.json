@@ -8,7 +8,7 @@
    "OutputContextPath": "Context",
    "OutputPath": "Entities",
    "PreserveCasingWithRegex": true,
-   "ProjectRootNamespace": "Authorization.Infrastructure",
+   "ProjectRootNamespace": "Pulse.Authorization.Infrastructure",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 0,
    "SelectedToBeGenerated": 0,
