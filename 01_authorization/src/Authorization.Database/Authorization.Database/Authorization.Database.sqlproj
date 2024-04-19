@@ -85,6 +85,7 @@
     <RefactorLog Include="Authorization.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
-    <PostDeploy Include="postDeployment\Script.Resource.sql" />
+    <PostDeploy Include="postDeployment\auth.Resource.sql" />
+    <None Include="postDeployment\auth.Action.sql" />
   </ItemGroup>
 </Project>
