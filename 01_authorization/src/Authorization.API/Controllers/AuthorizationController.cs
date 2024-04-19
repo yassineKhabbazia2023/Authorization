@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
+using Pulse.Authorization.Core.Requests;
 
 namespace Pulse.Authorization.API.Controllers
 {
@@ -21,17 +22,16 @@ namespace Pulse.Authorization.API.Controllers
         }
 
         /// <summary>
-        /// Récupère la liste des authorizations possibles.
+        /// Récupère la liste des menus authorisés.
         /// </summary>
         /// <param name="accountId">Identifiant de l'entité morale.</param>
         /// <param name="contactId">Identifiant du contat.</param>
-        /// <param name="category">Catégorie du ressource.</param>
-        /// <returns>Liste des authorizations possibles.</returns>
-        [HttpGet("resources")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyCollection<Resource?>))]
-        public async Task<ActionResult<IReadOnlyCollection<Resource?>>> GetRessourcesAsync([FromQuery] int accountId, [Required][FromQuery] int contactId, [FromQuery] string category)
+        /// <returns>Les menus de la navigation.</returns>
+        [HttpGet("navigations")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyCollection<Navigation?>))]
+        public async Task<ActionResult<NavigationRequest?>> GetNavigationAsync([FromQuery] int accountId, [Required][FromQuery] int contactId)
         {
-            var result = await _authorizationService.GetResourceByAccountIdAsync(accountId, contactId, category);
+            var result = await _authorizationService.GetNavigationsAsync(accountId, contactId);
 
             return Ok(result);
         }

@@ -6,7 +6,7 @@ namespace Pulse.Authorization.Core.Models;
 
 public class Contact
 {
-    public int? ContactId { get; set; }
+    public int ContactId { get; set; }
 
     public Guid? ContactGlobalUniqueId { get; set; }
 
@@ -22,7 +22,5 @@ public class Contact
 
     public string? PersonaName { get; set; }
 
-    public DateTime CreationDate { get; set; }
-
-    public long IsActive { get; set; }
+    public DateTime? CreationDate { get; set; }
 }

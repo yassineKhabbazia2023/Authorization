@@ -44,6 +44,9 @@ public partial class AuthorizationContext : DbContext
             entity.Property(e => e.LegalName)
                 .IsRequired()
                 .HasMaxLength(255);
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<AccountResourceEntity>(entity =>
@@ -70,7 +73,6 @@ public partial class AuthorizationContext : DbContext
             entity.ToTable("Action", "auth");
 
             entity.Property(e => e.Category)
-                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Code)
@@ -139,7 +141,6 @@ public partial class AuthorizationContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Status)
-                .IsRequired()
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.Type)
@@ -190,7 +191,7 @@ public partial class AuthorizationContext : DbContext
 
             entity.Property(e => e.Category)
                 .IsRequired()
-                .HasMaxLength(50)
+                .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.Code)
                 .IsRequired()

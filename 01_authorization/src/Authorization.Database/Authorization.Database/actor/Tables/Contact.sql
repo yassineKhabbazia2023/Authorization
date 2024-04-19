@@ -9,7 +9,7 @@
     [PersonaName]                VARCHAR (50)     NOT NULL,
     [CreationDate] DATETIME2 NULL, 
     CONSTRAINT [C_TContact_PK] PRIMARY KEY CLUSTERED ([ContactId] ASC),
-    CONSTRAINT [CHK_Type] CHECK (Status = 'Collaborator' OR Status = 'Customer'),
+    CONSTRAINT [CHK_Type] CHECK (Type = 'Collaborator' OR Type = 'Customer'),
     CONSTRAINT [CHK_Status] CHECK (Status = 'Connected' OR Status = 'Declared' OR Status = 'Invited' OR Status = 'Revoked')
 );
 

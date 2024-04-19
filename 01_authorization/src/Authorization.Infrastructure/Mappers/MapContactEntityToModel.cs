@@ -26,8 +26,7 @@ public static class MapContactEntityToModel
             LastName = source.LastName,
             Type = source.Type,
             Status = source.Status,
-            PersonaName = source.PersonaName,
-            IsActive = source.IsActive,
+            PersonaName = source.PersonaName
         };
     }
 }

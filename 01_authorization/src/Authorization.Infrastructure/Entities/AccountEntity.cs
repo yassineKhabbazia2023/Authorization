@@ -9,13 +9,13 @@ public partial class AccountEntity
 {
     public int AccountId { get; set; }
 
-    public Guid AccountGlobalUniqueId { get; set; }
+    public Guid? AccountGlobalUniqueId { get; set; }
 
     public string AccountNumber { get; set; }
 
     public string LegalName { get; set; }
 
-    public bool IsActive { get; set; }
+    public string Status { get; set; }
 
     public virtual ICollection<AccountResourceEntity> AccountResourceEntity { get; set; } = new List<AccountResourceEntity>();
 

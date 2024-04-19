@@ -19,8 +19,6 @@ public partial class ResourceEntity
 
     public string Code { get; set; }
 
-    public bool IsVisible { get; set; }
-
     public int? OrderShow { get; set; }
 
     public string Type { get; set; }

@@ -6,7 +6,6 @@
     [Category]       VARCHAR (20)  NOT NULL,
     [Code]       VARCHAR (20)  NOT NULL,
     [OrderShow] INT NULL, 
-    [OrderShow] INT NULL, 
     [Type] VARCHAR(50) NOT NULL, 
     CONSTRAINT [PK_Ressource] PRIMARY KEY CLUSTERED ([ResourceId] ASC),
     CONSTRAINT [FK_Authorization_Authorization] FOREIGN KEY ([ParentId]) REFERENCES [auth].[Resource] ([ResourceId]),

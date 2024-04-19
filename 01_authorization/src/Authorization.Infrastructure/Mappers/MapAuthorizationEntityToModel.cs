@@ -4,33 +4,54 @@
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Core.Models;
 using Action = Pulse.Authorization.Core.Models.Action;
+using Pulse.Authorization.Core.Requests;
+using System.Reflection.Metadata;
+using Pulse.Authorization.Core.Constants;
 
 namespace Pulse.Authorization.Infrastructure.Mappers
 {
     public static class MapAuthorizationEntityToModel
     {
-
-        public static IEnumerable<Resource> MapToResources(this IEnumerable<ResourceEntity> source)
+        public static NavigationRequest MapToNavigationRequest(this IEnumerable<ResourceEntity> source)
         {
-            return source?.Select(a => a.MapToResource() !) ?? Enumerable.Empty<Resource>();
+            NavigationRequest? navigationRequest = new NavigationRequest
+            {
+                OverView = new List<Navigation>(),
+                UnitView = new List<Navigation>(),
+            };
+
+            if (source == null)
+            {
+                return navigationRequest;
+            }
+
+            foreach (var sourceItem in source)
+            {
+                if (sourceItem.Category.Equals(Constants.ResourceTypeGlobale))
+                {
+                    navigationRequest.OverView.Add(sourceItem.MapToNavigation());
+                }
+                else
+                {
+                    navigationRequest.UnitView.Add(sourceItem.MapToNavigation());
+                }
+            }
+
+            return navigationRequest;
         }
 
-        public static Resource? MapToResource(this ResourceEntity source)
+        public static Navigation MapToNavigation(this ResourceEntity source)
         {
             if (source == null)
             {
-                return null;
+                return null!;
             }
 
-            return new Resource
+            return new Navigation
             {
-                ResourceId = source.ResourceId,
-                ParentResourceId = source.ParentId,
                 Name = source.Name,
                 Label = source.Label,
-                Category = source.Category,
-                Childrens = source.InverseParent.Select(c => c.MapToResource()),
-                Actions = source.ActionEntity.Select(a => a.MapToAction()),
+                Childrens = source.InverseParent.Select(c => c.MapToNavigation()),
             };
         }
 

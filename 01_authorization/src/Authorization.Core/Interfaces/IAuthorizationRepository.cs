@@ -2,13 +2,13 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
 using Pulse.Authorization.Core.Models;
+using Pulse.Authorization.Core.Requests;
 
 namespace Pulse.Authorization.Core.Interfaces
 {
     public interface IAuthorizationRepository
     {
-        Task<IEnumerable<Resource>> GetResourceByAccountIdAsync(int? accountId, Contact contact, string categoryName);
+        Task<NavigationRequest> GetNavigationsAsync(int? accountId, Contact contact);
     }
 }
