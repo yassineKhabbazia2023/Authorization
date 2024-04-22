@@ -55,12 +55,12 @@ public class AuthorizationRepositoryTests
             var actionEntityFirst = _fixture.Build<ActionEntity>()
                                        .With(a => a.AuthorizationEntity, new List<AuthorizationEntity>() { authorizationEntityFirst })
                                        .Without(a => a.Resource)
-                                       .Without(a => a.Personna)
+                                       .Without(a => a.PersonnaActionEntity)
                                        .Create();
             var actionEntitySecond = _fixture.Build<ActionEntity>()
                                        .With(a => a.AuthorizationEntity, new List<AuthorizationEntity>() { authorizationEntitySecond })
                                        .Without(a => a.Resource)
-                                       .Without(a => a.Personna)
+                                       .Without(a => a.PersonnaActionEntity)
                                        .Create();
 
             var resourceEntityFirst = _fixture.Build<ResourceEntity>()

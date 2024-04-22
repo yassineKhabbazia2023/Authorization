@@ -21,7 +21,7 @@ public partial class ActionEntity
 
     public virtual ICollection<AuthorizationEntity> AuthorizationEntity { get; set; } = new List<AuthorizationEntity>();
 
-    public virtual ResourceEntity Resource { get; set; }
+    public virtual ICollection<PersonnaActionEntity> PersonnaActionEntity { get; set; } = new List<PersonnaActionEntity>();
 
-    public virtual ICollection<PersonnaEntity> Personna { get; set; } = new List<PersonnaEntity>();
+    public virtual ResourceEntity Resource { get; set; }
 }

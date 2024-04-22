@@ -11,8 +11,6 @@ public partial class AccountResourceEntity
 
     public int ResourceId { get; set; }
 
-    public bool? IsActive { get; set; }
-
     public virtual AccountEntity Account { get; set; }
 
     public virtual ResourceEntity Resource { get; set; }

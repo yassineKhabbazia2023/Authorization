@@ -31,9 +31,19 @@ namespace Pulse.Authorization.Core.Services
                 throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
             }
 
-            if (contact!.Type!.Equals(Constants.Constants.ContactTypeCollab) && accountId == 0)
+            if (accountId == null)
             {
-                accountId = -1;
+                switch (contact!.Type)
+                {
+                    case Constants.Constants.ContactTypeCollab:
+                        accountId = -1;
+                        break;
+                    case Constants.Constants.ContactTypeClient:
+                        accountId = 0;
+                        break;
+                    default:
+                        throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type));
+                }
             }
 
             return await _authorizationRepository.GetNavigationsAsync(accountId, contact);

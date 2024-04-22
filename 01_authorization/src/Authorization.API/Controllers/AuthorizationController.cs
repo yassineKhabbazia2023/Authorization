@@ -29,7 +29,7 @@ namespace Pulse.Authorization.API.Controllers
         /// <returns>Les menus de la navigation.</returns>
         [HttpGet("navigations")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyCollection<Navigation?>))]
-        public async Task<ActionResult<NavigationRequest?>> GetNavigationAsync([FromQuery] int accountId, [Required][FromQuery] int contactId)
+        public async Task<ActionResult<NavigationRequest?>> GetNavigationAsync([FromQuery] int? accountId, [Required][FromQuery] int contactId)
         {
             var result = await _authorizationService.GetNavigationsAsync(accountId, contactId);
 

@@ -42,20 +42,11 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                                                     .Include(r => r.ActionEntity)
                                                     .Include(r => r.InverseParent)
                                                     .ThenInclude(r => r.InverseParent)
-                                                    .Where(r => (r.Type.Equals(contact.Type) || r.Type.Equals(Constants.ResourceTypeAll))
-                                                           && r.AccountResourceEntity.Any(a => a.Account.AuthorizationEntity.Any(auth => auth.ContactId == contact.ContactId)));
-
-                if (contact.Type!.Equals(Constants.ContactTypeClient) && accountId == 0)
-                {
-                    var result = await resource.ToListAsync();
-                    return result.MapToNavigationRequest();
-                }
-                else
-                {
-                    resource = resource.Where(r => r.AccountResourceEntity.Any(a => a.AccountId == accountId));
-                    var result = await resource.ToListAsync();
-                    return result.MapToNavigationRequest();
-                }
+                                                    .Where(r => r.AccountResourceEntity.Any(a => a.Account.AuthorizationEntity.Any(auth => auth.ContactId == contact.ContactId))
+                                                           && r.AccountResourceEntity.Any(a => a.AccountId == accountId)
+                                                           && r.Type.Equals(contact.Type));
+                var result = await resource.ToListAsync();
+                return result.MapToNavigationRequest();
             });
         }
     }

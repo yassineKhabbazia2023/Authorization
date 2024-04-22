@@ -1,4 +1,4 @@
-﻿IF (SELECT count(*) FROM [account].[Account]) = 0
+﻿IF (SELECT count(*) FROM [account].[Account] WHERE [AccountId] IN (-1, 0)) = 0
 BEGIN
 SET IDENTITY_INSERT [account].[Account] ON; 
 

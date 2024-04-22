@@ -31,7 +31,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers
                 {
                     navigationRequest.OverView.Add(sourceItem.MapToNavigation());
                 }
-                else
+                else if (sourceItem.Category.Equals(Constants.ResourceTypeUnitaire))
                 {
                     navigationRequest.UnitView.Add(sourceItem.MapToNavigation());
                 }

@@ -24,6 +24,8 @@ public partial class AuthorizationContext : DbContext
 
     public virtual DbSet<ContactEntity> ContactEntity { get; set; }
 
+    public virtual DbSet<PersonnaActionEntity> PersonnaActionEntity { get; set; }
+
     public virtual DbSet<PersonnaEntity> PersonnaEntity { get; set; }
 
     public virtual DbSet<ResourceEntity> ResourceEntity { get; set; }
@@ -149,6 +151,23 @@ public partial class AuthorizationContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<PersonnaActionEntity>(entity =>
+        {
+            entity.HasKey(e => new { e.PersonnaId, e.ActionId });
+
+            entity.ToTable("PersonnaAction", "auth");
+
+            entity.HasOne(d => d.Action).WithMany(p => p.PersonnaActionEntity)
+                .HasForeignKey(d => d.ActionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PersonnaAction_Action");
+
+            entity.HasOne(d => d.Personna).WithMany(p => p.PersonnaActionEntity)
+                .HasForeignKey(d => d.PersonnaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PersonnaAction_Personna");
+        });
+
         modelBuilder.Entity<PersonnaEntity>(entity =>
         {
             entity.HasKey(e => e.PersonnaId);
@@ -164,23 +183,6 @@ public partial class AuthorizationContext : DbContext
                 .IsRequired()
                 .HasMaxLength(20)
                 .IsUnicode(false);
-
-            entity.HasMany(d => d.Action).WithMany(p => p.Personna)
-                .UsingEntity<Dictionary<string, object>>(
-                    "PersonnaActionEntity",
-                    r => r.HasOne<ActionEntity>().WithMany()
-                        .HasForeignKey("ActionId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_PersonnaAction_Action"),
-                    l => l.HasOne<PersonnaEntity>().WithMany()
-                        .HasForeignKey("PersonnaId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_PersonnaAction_Personna"),
-                    j =>
-                    {
-                        j.HasKey("PersonnaId", "ActionId");
-                        j.ToTable("PersonnaAction", "auth");
-                    });
         });
 
         modelBuilder.Entity<ResourceEntity>(entity =>
