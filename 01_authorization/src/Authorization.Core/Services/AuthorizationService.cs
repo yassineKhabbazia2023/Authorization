@@ -31,7 +31,7 @@ namespace Pulse.Authorization.Core.Services
                 throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
             }
 
-            if (contact!.Type!.Equals(Constants.Constants.ContactTypeCollab) && accountId == null)
+            if (contact!.Type!.Equals(Constants.Constants.ContactTypeCollab) && accountId == 0)
             {
                 accountId = -1;
             }
