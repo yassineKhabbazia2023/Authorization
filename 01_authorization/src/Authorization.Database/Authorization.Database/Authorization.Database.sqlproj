@@ -80,6 +80,7 @@
     <Build Include="auth\Tables\Resource.sql" />
     <Build Include="auth\Tables\Authorization.sql" />
     <Build Include="auth\Tables\AccountResource.sql" />
+    <None Include="postDeployment\account.Account.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Authorization.Database.refactorlog" />

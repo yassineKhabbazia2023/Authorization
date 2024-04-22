@@ -48,13 +48,13 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                 if (contact.Type!.Equals(Constants.ContactTypeClient) && accountId == 0)
                 {
                     var result = await resource.ToListAsync();
-                    return resource.MapToNavigationRequest();
+                    return result.MapToNavigationRequest();
                 }
                 else
                 {
                     resource = resource.Where(r => r.AccountResourceEntity.Any(a => a.AccountId == accountId));
                     var result = await resource.ToListAsync();
-                    return resource.MapToNavigationRequest();
+                    return result.MapToNavigationRequest();
                 }
             });
         }
