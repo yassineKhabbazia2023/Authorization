@@ -46,6 +46,9 @@ public class AuthorizationServiceTests
         _authorizationRepository.Setup(repository => repository.GetContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(menuCodeMocked);
 
+        _authorizationRepository.Setup(repository => repository.GetAccountAuthorizations(It.IsAny<int>()))
+            .ReturnsAsync(menuCodeMocked);
+
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
         contactRepository.Setup(repository => repository.GetContactByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(contactMocked);
