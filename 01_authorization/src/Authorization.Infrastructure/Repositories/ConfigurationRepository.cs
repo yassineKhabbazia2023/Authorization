@@ -34,11 +34,12 @@ public class ConfigurationRepository : IConfigurationRepository
     {
         return await _retryPolicy.ExecuteAsync(async () =>
         {
-            var authorization = _authorizationContext.AuthorizationEntity
-                                    .Include(a => a.AccountAuthorization)
-                                    .Where(a => a.ContactAuthorization.Any(c => c.ContactId == contactId)
-                                            && a.AccountAuthorization.Any(a => a.AccountId == accountId)
-                                            && a.Configurable == true);
+            var authorization = _authorizationContext
+                     .ContactAuthorization
+                     .Include(x => x.Authorization)
+                     .Where(x => x.ContactId == contactId && x.AccountId == accountId && x.Authorization.Configurable == true)
+                     .Select(x => x.Authorization)
+                     .Distinct();
 
             var result = await authorization.ToListAsync();
 

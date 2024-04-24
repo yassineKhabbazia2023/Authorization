@@ -21,9 +21,9 @@ public partial class AuthorizationEntity
 
     public bool? Configurable { get; set; }
 
-    public virtual ICollection<AccountAuthorization> AccountAuthorization { get; set; } = new List<AccountAuthorization>();
-
     public virtual ICollection<ContactAuthorization> ContactAuthorization { get; set; } = new List<ContactAuthorization>();
 
-    public virtual ICollection<PersonaAuthorization> PersonaAuthorization { get; set; } = new List<PersonaAuthorization>();
+    public virtual ICollection<AccountEntity> Account { get; set; } = new List<AccountEntity>();
+
+    public virtual ICollection<Persona> Persona { get; set; } = new List<Persona>();
 }

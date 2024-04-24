@@ -28,11 +28,6 @@
             "Columns": [ ],
             "Name": "Authorization",
             "NewName": "AuthorizationEntity"
-         },
-         {
-            "Columns": [ ],
-            "Name": "Resource",
-            "NewName": "ResourceEntity"
          }
       ],
       "UseSchemaName": false

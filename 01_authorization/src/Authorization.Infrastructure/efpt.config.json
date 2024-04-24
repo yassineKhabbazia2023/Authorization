@@ -41,10 +41,6 @@
       {
          "Name": "[auth].[PersonaAuthorization]",
          "ObjectType": 0
-      },
-      {
-         "Name": "[auth].[Resource]",
-         "ObjectType": 0
       }
    ],
    "UiHint": null,
@@ -59,7 +55,7 @@
    "UseHierarchyId": false,
    "UseInflector": false,
    "UseLegacyPluralizer": false,
-   "UseManyToManyEntity": true,
+   "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
    "UseNoNavigations": false,
    "UseNoObjectFilter": false,

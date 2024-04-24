@@ -14,8 +14,6 @@ public partial class AuthorizationContext : DbContext
     {
     }
 
-    public virtual DbSet<AccountAuthorization> AccountAuthorization { get; set; }
-
     public virtual DbSet<AccountEntity> AccountEntity { get; set; }
 
     public virtual DbSet<AuthorizationEntity> AuthorizationEntity { get; set; }
@@ -26,29 +24,8 @@ public partial class AuthorizationContext : DbContext
 
     public virtual DbSet<Persona> Persona { get; set; }
 
-    public virtual DbSet<PersonaAuthorization> PersonaAuthorization { get; set; }
-
-    public virtual DbSet<ResourceEntity> ResourceEntity { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AccountAuthorization>(entity =>
-        {
-            entity.HasKey(e => new { e.AccountId, e.AuthorizationId });
-
-            entity.ToTable("AccountAuthorization", "auth");
-
-            entity.HasOne(d => d.Account).WithMany(p => p.AccountAuthorization)
-                .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AccountAuthorization_Account");
-
-            entity.HasOne(d => d.Authorization).WithMany(p => p.AccountAuthorization)
-                .HasForeignKey(d => d.AuthorizationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AccountAuthorization_Authorization");
-        });
-
         modelBuilder.Entity<AccountEntity>(entity =>
         {
             entity.HasKey(e => e.AccountId).HasName("C_TAccount_PK");
@@ -66,6 +43,23 @@ public partial class AuthorizationContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+
+            entity.HasMany(d => d.Authorization).WithMany(p => p.Account)
+                .UsingEntity<Dictionary<string, object>>(
+                    "AccountAuthorization",
+                    r => r.HasOne<AuthorizationEntity>().WithMany()
+                        .HasForeignKey("AuthorizationId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_AccountAuthorization_Authorization"),
+                    l => l.HasOne<AccountEntity>().WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_AccountAuthorization_Account"),
+                    j =>
+                    {
+                        j.HasKey("AccountId", "AuthorizationId");
+                        j.ToTable("AccountAuthorization", "auth");
+                    });
         });
 
         modelBuilder.Entity<AuthorizationEntity>(entity =>
@@ -166,55 +160,23 @@ public partial class AuthorizationContext : DbContext
                 .IsRequired()
                 .HasMaxLength(20)
                 .IsUnicode(false);
-        });
 
-        modelBuilder.Entity<PersonaAuthorization>(entity =>
-        {
-            entity.HasKey(e => new { e.PersonaId, e.AuthorizationId });
-
-            entity.ToTable("PersonaAuthorization", "auth");
-
-            entity.HasOne(d => d.Authorization).WithMany(p => p.PersonaAuthorization)
-                .HasForeignKey(d => d.AuthorizationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PersonaAuthorization_Authorization");
-
-            entity.HasOne(d => d.Persona).WithMany(p => p.PersonaAuthorization)
-                .HasForeignKey(d => d.PersonaId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PersonaAuthorization_Personna");
-        });
-
-        modelBuilder.Entity<ResourceEntity>(entity =>
-        {
-            entity.HasKey(e => e.ResourceId).HasName("PK_Ressource");
-
-            entity.ToTable("Resource", "auth");
-
-            entity.Property(e => e.Category)
-                .IsRequired()
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.Code)
-                .IsRequired()
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.Label)
-                .IsRequired()
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Type)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
-                .HasForeignKey(d => d.ParentId)
-                .HasConstraintName("FK_Authorization_Authorization");
+            entity.HasMany(d => d.Authorization).WithMany(p => p.Persona)
+                .UsingEntity<Dictionary<string, object>>(
+                    "PersonaAuthorization",
+                    r => r.HasOne<AuthorizationEntity>().WithMany()
+                        .HasForeignKey("AuthorizationId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_PersonaAuthorization_Authorization"),
+                    l => l.HasOne<Persona>().WithMany()
+                        .HasForeignKey("PersonaId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_PersonaAuthorization_Personna"),
+                    j =>
+                    {
+                        j.HasKey("PersonaId", "AuthorizationId");
+                        j.ToTable("PersonaAuthorization", "auth");
+                    });
         });
 
         OnModelCreatingPartial(modelBuilder);

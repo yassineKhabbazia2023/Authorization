@@ -15,5 +15,5 @@ public partial class Persona
 
     public string Description { get; set; }
 
-    public virtual ICollection<PersonaAuthorization> PersonaAuthorization { get; set; } = new List<PersonaAuthorization>();
+    public virtual ICollection<AuthorizationEntity> Authorization { get; set; } = new List<AuthorizationEntity>();
 }

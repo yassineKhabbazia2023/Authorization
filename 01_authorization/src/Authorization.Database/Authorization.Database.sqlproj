@@ -75,7 +75,6 @@
     <Build Include="Security\actor.sql" />
     <Build Include="Security\auth.sql" />
     <Build Include="Security\authorization.sql" />
-    <Build Include="auth\Tables\Resource.sql" />
     <Build Include="auth\Tables\ContactAuthorization.sql" />
     <None Include="postDeployment\account.Account.sql" />
     <Build Include="auth\Tables\AccountAuthorization.sql" />
@@ -87,7 +86,6 @@
     <RefactorLog Include="Authorization.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
-    <PostDeploy Include="postDeployment\auth.Resource.sql" />
     <None Include="postDeployment\auth.Authorization.sql" />
   </ItemGroup>
 </Project>
