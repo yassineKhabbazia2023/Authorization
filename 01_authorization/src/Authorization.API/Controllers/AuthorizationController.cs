@@ -5,7 +5,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Pulse.Authorization.Core.Interfaces;
-using Pulse.Authorization.Core.Models;
 
 namespace Pulse.Authorization.API.Controllers;
 
@@ -27,7 +26,7 @@ public class AuthorizationController : ControllerBase
     /// <param name="accountId">Identifiant de l'entité morale.</param>
     /// <returns>Liste des codes de menu.</returns>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyCollection<Navigation?>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<string>))]
     public async Task<ActionResult<IList<string>>> GetContactAuthorization([Required][FromQuery] int contactId, [FromQuery] int? accountId)
     {
         var result = await _authorizationService.GetContactAuthorization(contactId, accountId);

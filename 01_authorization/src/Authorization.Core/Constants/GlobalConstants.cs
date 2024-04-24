@@ -8,9 +8,6 @@ namespace Pulse.Authorization.Core.Constants
     {
         public static readonly int RetryTimespan = 3000;
         public static readonly string DisabledDelegationStatus = "disabled";
-        public static readonly string ResourceTypeGlobale = "globale";
-        public static readonly string ResourceTypeUnitaire = "unitaire";
-        public static readonly string ResourceTypeAll = "All";
 
         public static readonly int DefaultAccountIdCollab = -1;
         public static readonly int DefaultAccountIdCustomer = 0;
