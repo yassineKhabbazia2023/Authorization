@@ -40,7 +40,7 @@ public class AuthorizationService : IAuthorizationService
             return await GetCollabAuthorization(contactId, accountId);
         }
 
-        throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type);
+        throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type));
     }
 
     private async Task<List<string>> GetCustomerAuthorization(int contactId, int? accountId)
@@ -50,7 +50,7 @@ public class AuthorizationService : IAuthorizationService
             return await _authorizationRepository.GetContactAuthorizations(contactId, GlobalConstants.DefaultAccountIdCustomer);
         }
 
-        return await _authorizationRepository.GetContactAuthorizations(contactId, accountId);
+        return await _authorizationRepository.GetContactAuthorizations(contactId, (int)accountId);
     }
 
     private async Task<List<string>> GetCollabAuthorization(int contactId, int? accountId)
@@ -60,6 +60,6 @@ public class AuthorizationService : IAuthorizationService
             return await _authorizationRepository.GetContactAuthorizations(contactId, GlobalConstants.DefaultAccountIdCollab);
         }
 
-        return await _authorizationRepository.GetContactAuthorizations(contactId, accountId);
+        return await _authorizationRepository.GetContactAuthorizations(contactId, (int)accountId);
     }
 }

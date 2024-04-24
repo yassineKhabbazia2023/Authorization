@@ -14,50 +14,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers
     {
         public static IEnumerable<Configuration> MapAuthorizationToConfiguration(this IEnumerable<AuthorizationEntity> sources)
         {
-            return sources.Aggregate();
-        }
-
-        public static NavigationRequest MapToNavigationRequest(this IEnumerable<ResourceEntity> source)
-        {
-            NavigationRequest? navigationRequest = new NavigationRequest
-            {
-                OverView = new List<Navigation>(),
-                UnitView = new List<Navigation>(),
-            };
-
-            if (source == null)
-            {
-                return navigationRequest;
-            }
-
-            foreach (var sourceItem in source)
-            {
-                if (sourceItem.Category.Equals(GlobalConstants.ResourceTypeGlobale))
-                {
-                    navigationRequest.OverView.Add(sourceItem.MapToNavigation());
-                }
-                else if (sourceItem.Category.Equals(GlobalConstants.ResourceTypeUnitaire))
-                {
-                    navigationRequest.UnitView.Add(sourceItem.MapToNavigation());
-                }
-            }
-
-            return navigationRequest;
-        }
-
-        public static Navigation MapToNavigation(this ResourceEntity source)
-        {
-            if (source == null)
-            {
-                return null!;
-            }
-
-            return new Navigation
-            {
-                Name = source.Name,
-                Label = source.Label,
-                Childrens = source.InverseParent.Select(c => c.MapToNavigation()),
-            };
+            return Enumerable.Empty<Configuration>();
         }
     }
 }

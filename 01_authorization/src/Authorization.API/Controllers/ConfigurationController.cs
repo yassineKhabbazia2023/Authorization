@@ -1,4 +1,4 @@
-﻿// <copyright file="AdministrationController.cs" company="Pulse">
+﻿// <copyright file="ConfigurationController.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
@@ -9,13 +9,13 @@ using ConfigurationModel = Pulse.Authorization.Core.Models.Configuration;
 
 namespace Pulse.Authorization.API.Controllers;
 
-[Route("api/authorizations/administration")]
+[Route("api/authorizations/configuration")]
 [ApiController]
-public class AdministrationController : ControllerBase
+public class ConfigurationController : ControllerBase
 {
     private readonly IConfigurationService _configurationService;
 
-    public AdministrationController(IConfigurationService configurationService)
+    public ConfigurationController(IConfigurationService configurationService)
     {
         _configurationService = configurationService;
     }
@@ -30,8 +30,6 @@ public class AdministrationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ConfigurationModel?>))]
     public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetConfigurationAsync([Required][FromQuery] int contactId, [FromQuery] int? accountId)
     {
-        //var result = await _configurationService.GetConfigurationAsync(contactId, accountId);
-
         return Ok();
     }
 

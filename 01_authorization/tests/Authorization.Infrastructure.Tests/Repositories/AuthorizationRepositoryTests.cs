@@ -35,87 +35,58 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var accountEntity = _fixture.Build<AccountEntity>()
-                            .Without(a => a.AccountResourceEntity)
-                            .Without(a => a.AuthorizationEntity)
-                            .Create();
-            var contactEntity = _fixture.Build<ContactEntity>()
-                            .Without(a => a.AuthorizationEntity)
-                            .Create();
-            var authorizationEntityFirst = _fixture.Build<AuthorizationEntity>()
-                                              .With(auth => auth.Account, accountEntity)
-                                              .With(auth => auth.Contact, contactEntity)
-                                              .Without(auth => auth.Action)
-                                              .Create();
-            var authorizationEntitySecond = _fixture.Build<AuthorizationEntity>()
-                                             .With(auth => auth.Account, accountEntity)
-                                             .With(auth => auth.Contact, contactEntity)
-                                             .Without(auth => auth.Action)
-                                             .Create();
-            var actionEntityFirst = _fixture.Build<ActionEntity>()
-                                       .With(a => a.AuthorizationEntity, new List<AuthorizationEntity>() { authorizationEntityFirst })
-                                       .Without(a => a.Resource)
-                                       .Without(a => a.PersonnaActionEntity)
-                                       .Create();
-            var actionEntitySecond = _fixture.Build<ActionEntity>()
-                                       .With(a => a.AuthorizationEntity, new List<AuthorizationEntity>() { authorizationEntitySecond })
-                                       .Without(a => a.Resource)
-                                       .Without(a => a.PersonnaActionEntity)
-                                       .Create();
+            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorization>()
+                            .With(a => a.Authorization)
+                            .With(a => a.ContactId, 123)
+                            .With(a => a.AccountId, 456)
+                            .Without(a => a.Contact)
+                            .Without(a => a.Account)
+                            .CreateMany(3);
 
-            var resourceEntityFirst = _fixture.Build<ResourceEntity>()
-                            .With(r => r.ActionEntity, new List<ActionEntity>() { actionEntityFirst })
-                            .With(r => r.Category, GlobalConstants.ResourceTypeUnitaire)
-                            .With(r => r.Type, contactEntity.Type)
-                            .Without(a => a.Parent)
-                            .Without(a => a.InverseParent)
-                            .Without(a => a.ActionEntity)
-                            .Without(a => a.AccountResourceEntity)
-                            .Create();
-            var resourceEntitySecond = _fixture.Build<ResourceEntity>()
-                            .With(r => r.ActionEntity, new List<ActionEntity>() { actionEntitySecond })
-                            .With(r => r.Category, GlobalConstants.ResourceTypeGlobale)
-                            .With(r => r.Type, contactEntity.Type)
-                            .Without(a => a.Parent)
-                            .Without(a => a.InverseParent)
-                            .Without(a => a.ActionEntity)
-                            .Without(a => a.AccountResourceEntity)
-                            .Create();
+            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
 
-            var accountResourceEntityFirst = _fixture.Build<AccountResourceEntity>()
-                                        .With(a => a.Resource, resourceEntityFirst)
-                                        .With(a => a.Account, accountEntity)
-                                        .Create();
-
-            var accountResourceEntitySecond = _fixture.Build<AccountResourceEntity>()
-                                        .With(a => a.Resource, resourceEntitySecond)
-                                        .With(a => a.Account, accountEntity)
-                                        .Create();
-
-            var accountResourceEntity = new List<AccountResourceEntity>()
-            {
-                accountResourceEntityFirst,
-                accountResourceEntitySecond
-            };
-
-            context.AccountResourceEntity.AddRange(accountResourceEntity);
+            context.ContactAuthorization.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
-
-            var expectedNavigationRequest = new NavigationRequest
-            {
-                UnitView = new List<Navigation>() { resourceEntityFirst.MapToNavigation() },
-                OverView = new List<Navigation>() { resourceEntitySecond.MapToNavigation() }
-            };
 
             var repository = new AuthorizationRepository(context);
 
-            var receivedNavigationRequest = await repository.GetNavigationsAsync(accountEntity.AccountId, contactEntity.MapToContact());
+            var contactId = contactAuthorizationAccountEntity.First().ContactId;
+            var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var navigationExpectJson = JsonConvert.SerializeObject(expectedNavigationRequest);
-            var navigationResultJson = JsonConvert.SerializeObject(receivedNavigationRequest);
-            Assert.Equal(navigationExpectJson, navigationResultJson);
-            Assert.NotNull(receivedNavigationRequest);
+            var receivedAuthorization = await repository.GetContactAuthorizations(contactId, accountId);
 
+            var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
+            var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
+            Assert.Equal(authExpectJson, authResultJson);
+            Assert.NotNull(receivedAuthorization);
+        }
+    }
+
+    [Fact]
+    public async Task GetNavigationsAsync_Return_Empty()
+    {
+        using (var context = new AuthorizationContext(_options))
+        {
+            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorization>()
+                            .With(a => a.Authorization)
+                            .With(a => a.ContactId, 123)
+                            .With(a => a.AccountId, 456)
+                            .Without(a => a.Contact)
+                            .CreateMany(3);
+
+            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
+
+            context.ContactAuthorization.AddRange(contactAuthorizationAccountEntity);
+            await context.SaveChangesAsync();
+
+            var repository = new AuthorizationRepository(context);
+
+            var contactId = contactAuthorizationAccountEntity.First().ContactId;
+            var accountId = contactAuthorizationAccountEntity.First().AccountId;
+
+            var receivedAuthorization = await repository.GetContactAuthorizations(999, 888);
+
+            Assert.Empty(receivedAuthorization);
         }
     }
 }

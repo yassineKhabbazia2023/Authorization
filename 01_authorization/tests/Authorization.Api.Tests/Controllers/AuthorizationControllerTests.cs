@@ -2,17 +2,13 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
-using Pulse.Authorization.Core.Models;
 using AutoFixture;
-using Kpmg.ExceptionMiddleware.AdvancedException;
 using Pulse.Authorization.API;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.API.Controllers;
-using Pulse.Authorization.Core.Requests;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 
 namespace Pulse.Authorization.Api.Tests.Controllers;
@@ -20,11 +16,6 @@ namespace Pulse.Authorization.Api.Tests.Controllers;
 public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<Startup>>
 {
     private readonly Fixture _fixture;
-    private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    };
 
     public AuthorizationControllerTests()
     {
@@ -39,15 +30,15 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
         // Arrange
         var accountId = 6000;
         var contactId = 3;
-        var expected = _fixture.Create<NavigationRequest>();
+        var expected = _fixture.Create<List<string>>();
 
         var authorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
-        authorizationService.Setup(service => service.GetNavigationsAsync(It.IsAny<int>(), It.IsAny<int>()))
+        authorizationService.Setup(service => service.GetContactAuthorization(It.IsAny<int>(), It.IsAny<int?>()))
             .ReturnsAsync(expected);
         var authorizationController = new AuthorizationController(authorizationService.Object);
 
         // Act
-        var result = await authorizationController.GetNavigationAsync(accountId, contactId);
+        var result = await authorizationController.GetContactAuthorization(contactId, accountId);
 
         // Assert
         Assert.Equal(expected, (result.Result as OkObjectResult)?.Value);
@@ -65,7 +56,7 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
         var authorizationController = new AuthorizationController(authorizationService.Object);
 
         // Act
-        var act = async () => await authorizationController.GetNavigationAsync(accountId, contactId);
+        var act = async () => await authorizationController.GetContactAuthorization(contactId, accountId);
 
         // Assert
         var exception = Assert.ThrowsAsync<NotFoundException>(act);
