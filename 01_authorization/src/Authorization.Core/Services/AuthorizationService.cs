@@ -6,47 +6,59 @@ using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Requests;
-using Action = Pulse.Authorization.Core.Models.Action;
 
-namespace Pulse.Authorization.Core.Services
+namespace Pulse.Authorization.Core.Services;
+
+public class AuthorizationService : IAuthorizationService
 {
-    public class AuthorizationService : IAuthorizationService
+    private readonly IAuthorizationRepository _authorizationRepository;
+    private readonly IContactRepository _contactRepository;
+
+    public AuthorizationService(IAuthorizationRepository authorizationRepository, IContactRepository contactRepository)
     {
-        private readonly IAuthorizationRepository _authorizationRepository;
-        private readonly IContactRepository _contactRepository;
+        _authorizationRepository = authorizationRepository;
+        _contactRepository = contactRepository;
+    }
 
-        public AuthorizationService(IAuthorizationRepository authorizationRepository, IContactRepository contactRepository)
+    public async Task<List<string>> GetContactAuthorization(int contactId, int? accountId)
+    {
+        var contact = await _contactRepository.GetContactByIdAsync(contactId);
+
+        if (contact == null)
         {
-            _authorizationRepository = authorizationRepository;
-            _contactRepository = contactRepository;
+            throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
         }
 
-        public async Task<NavigationRequest> GetNavigationsAsync(int? accountId, int contactId)
+        List<string> contactAuthorization = new ();
+
+        switch (contact!.Type)
         {
-            var contact = await _contactRepository.GetContactByIdAsync(contactId);
-
-            if (contact == null)
-            {
-                throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
-            }
-
-            if (accountId == null)
-            {
-                switch (contact!.Type)
-                {
-                    case Constants.Constants.ContactTypeCollab:
-                        accountId = -1;
-                        break;
-                    case Constants.Constants.ContactTypeClient:
-                        accountId = 0;
-                        break;
-                    default:
-                        throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type));
-                }
-            }
-
-            return await _authorizationRepository.GetNavigationsAsync(accountId, contact);
+            case Constants.Constants.ContactTypeCustomer:
+                contactAuthorization = await GetCustomerAuthorization(contactId, accountId);
+                break;
+            case Constants.Constants.ContactTypeCollab:
+                contactAuthorization = await GetCollabAuthorization(contactId, accountId);
+                break;
+            default:
+                throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type));
         }
+
+        return contactAuthorization;
+    }
+
+    public async Task<List<string>> GetCustomerAuthorization(int contactId, int? accountId)
+    {
+        var contactAuthorization = await _authorizationRepository.GetContactAuthorizations(contactId, accountId);
+
+        return contactAuthorization;
+    }
+
+    public async Task<List<string>> GetCollabAuthorization(int contactId, int? accountId)
+    {
+        var contactAuthorization = await _authorizationRepository.GetContactAuthorizations(contactId, accountIdTemp);
+
+        var collabAuthorization = await _authorizationRepository.GetContactAuthorizations(contactId, accountId);
+
+        return contactAuthorization.Intersect(collabAuthorization).ToList();
     }
 }

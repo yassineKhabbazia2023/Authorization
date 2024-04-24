@@ -12,6 +12,11 @@ namespace Pulse.Authorization.Infrastructure.Mappers
 {
     public static class MapAuthorizationEntityToModel
     {
+        public static IEnumerable<Configuration> MapAuthorizationToConfiguration(this IEnumerable<AuthorizationEntity> sources)
+        {
+            return sources.Aggregate();
+        }
+
         public static NavigationRequest MapToNavigationRequest(this IEnumerable<ResourceEntity> source)
         {
             NavigationRequest? navigationRequest = new NavigationRequest
@@ -52,21 +57,6 @@ namespace Pulse.Authorization.Infrastructure.Mappers
                 Name = source.Name,
                 Label = source.Label,
                 Childrens = source.InverseParent.Select(c => c.MapToNavigation()),
-            };
-        }
-
-        public static Action? MapToAction(this ActionEntity source)
-        {
-            if (source == null)
-            {
-                return null;
-            }
-
-            return new Action
-            {
-                ActionId = source.ActionId,
-                Code = source.Code,
-                Name = source.Name,
             };
         }
     }

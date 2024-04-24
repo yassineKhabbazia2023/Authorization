@@ -23,11 +23,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "[auth].[AccountResource]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[auth].[Action]",
+         "Name": "[auth].[AccountAuthorization]",
          "ObjectType": 0
       },
       {
@@ -35,11 +31,15 @@
          "ObjectType": 0
       },
       {
-         "Name": "[auth].[Personna]",
+         "Name": "[auth].[ContactAuthorization]",
          "ObjectType": 0
       },
       {
-         "Name": "[auth].[PersonnaAction]",
+         "Name": "[auth].[Persona]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[PersonaAuthorization]",
          "ObjectType": 0
       },
       {

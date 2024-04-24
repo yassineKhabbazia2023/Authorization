@@ -8,10 +8,14 @@ namespace Pulse.Authorization.Core.Constants
     {
         public static readonly int RetryTimespan = 3000;
         public static readonly string DisabledDelegationStatus = "disabled";
-        public const string ContactTypeCollab = "Collaborator";
-        public const string ContactTypeClient = "Customer";
         public static readonly string ResourceTypeGlobale = "globale";
         public static readonly string ResourceTypeUnitaire = "unitaire";
         public static readonly string ResourceTypeAll = "All";
+
+        public static readonly int DefaultAccountIdCollab = -1;
+        public static readonly int DefaultAccountIdCustomer = 0;
+
+        public const string ContactTypeCollab = "Collaborator";
+        public const string ContactTypeCustomer = "Customer";
     }
 }

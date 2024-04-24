@@ -6,7 +6,7 @@
     <Name>Authorization.Database</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
-    <ProjectGuid>{45a6c44a-d315-40ed-9cff-a638f58ba92b}</ProjectGuid>
+    <ProjectGuid>{75a06639-b554-4793-a5e3-7c8a5a0e0e94}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
@@ -68,9 +68,7 @@
     <Folder Include="postDeployment" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="auth\Tables\Action.sql" />
-    <Build Include="auth\Tables\PersonnaAction.sql" />
-    <Build Include="auth\Tables\Personna.sql" />
+    <Build Include="auth\Tables\Authorization.sql" />
     <Build Include="actor\Tables\Contact.sql" />
     <Build Include="account\Tables\Account.sql" />
     <Build Include="Security\account.sql" />
@@ -78,15 +76,18 @@
     <Build Include="Security\auth.sql" />
     <Build Include="Security\authorization.sql" />
     <Build Include="auth\Tables\Resource.sql" />
-    <Build Include="auth\Tables\Authorization.sql" />
-    <Build Include="auth\Tables\AccountResource.sql" />
+    <Build Include="auth\Tables\ContactAuthorization.sql" />
     <None Include="postDeployment\account.Account.sql" />
+    <Build Include="auth\Tables\AccountAuthorization.sql" />
+    <Build Include="auth\Tables\Persona.sql" />
+    <Build Include="auth\Tables\PersonaAuthorization.sql" />
+    <None Include="postDeployment\auth.Persona.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Authorization.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="postDeployment\auth.Resource.sql" />
-    <None Include="postDeployment\auth.Action.sql" />
+    <None Include="postDeployment\auth.Authorization.sql" />
   </ItemGroup>
 </Project>

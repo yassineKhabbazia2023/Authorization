@@ -2,13 +2,9 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Requests;
+namespace Pulse.Authorization.Core.Interfaces;
 
-namespace Pulse.Authorization.Core.Interfaces
+public interface IAuthorizationRepository
 {
-    public interface IAuthorizationRepository
-    {
-        Task<NavigationRequest> GetNavigationsAsync(int? accountId, Contact contact);
-    }
+    Task<List<string>> GetContactAuthorizations(int contactId, int? accountId);
 }

@@ -70,4 +70,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="Category" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="89254d3b-6e8c-4337-b31c-116f2be9f2ed" ChangeDateTime="04/23/2024 09:39:32">
+    <Property Name="ElementName" Value="[auth].[AccountResource].[ResourceId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[auth].[AccountResource]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ActionId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="52be2c11-826a-45c5-81b7-6a5464bbb215" ChangeDateTime="04/23/2024 10:05:15">
+    <Property Name="ElementName" Value="[auth].[Persona].[Type]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[auth].[Persona]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ContactTypeId" />
+  </Operation>
 </Operations>

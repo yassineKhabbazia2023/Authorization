@@ -8,10 +8,7 @@ using Polly.Retry;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Interfaces;
-using Pulse.Authorization.Core.Models;
 using Microsoft.EntityFrameworkCore;
-using Pulse.Authorization.Infrastructure.Mappers;
-using Pulse.Authorization.Core.Requests;
 
 namespace Pulse.Authorization.Infrastructure.Repositories
 {
@@ -31,22 +28,20 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                         sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(Constants.RetryTimespan));
         }
 
-        public async Task<NavigationRequest> GetNavigationsAsync(int? accountId, Contact contact)
+        public async Task<List<string>> GetContactAuthorizations(int contactId, int? accountId)
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var resource = _authorizationContext.ResourceEntity.AsNoTracking()
-                                                    .Include(r => r.AccountResourceEntity)
-                                                    .ThenInclude(ar => ar.Account)
-                                                    .ThenInclude(ac => ac.AuthorizationEntity)
-                                                    .Include(r => r.ActionEntity)
-                                                    .Include(r => r.InverseParent)
-                                                    .ThenInclude(r => r.InverseParent)
-                                                    .Where(r => r.AccountResourceEntity.Any(a => a.Account.AuthorizationEntity.Any(auth => auth.ContactId == contact.ContactId))
-                                                           && r.AccountResourceEntity.Any(a => a.AccountId == accountId)
-                                                           && r.Type.Equals(contact.Type));
-                var result = await resource.ToListAsync();
-                return result.MapToNavigationRequest();
+                var authorization = _authorizationContext.AuthorizationEntity
+                                        .Include(a => a.AccountAuthorization)
+                                        .Include(a => a.ContactAuthorization)
+                                        .Where(a => a.ContactAuthorization.Any(c => c.ContactId == contactId)
+                                                && a.AccountAuthorization.Any(a => a.AccountId == accountId))
+                                        .Select(a => a.Code)
+                                        .Distinct();
+
+                var result = await authorization.ToListAsync();
+                return result;
             });
         }
     }

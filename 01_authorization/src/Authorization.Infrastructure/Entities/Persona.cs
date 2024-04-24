@@ -5,13 +5,15 @@ using System.Collections.Generic;
 
 namespace Pulse.Authorization.Infrastructure.Entities;
 
-public partial class PersonnaEntity
+public partial class Persona
 {
-    public int PersonnaId { get; set; }
+    public int PersonaId { get; set; }
 
     public string Name { get; set; }
 
     public string Type { get; set; }
 
-    public virtual ICollection<PersonnaActionEntity> PersonnaActionEntity { get; set; } = new List<PersonnaActionEntity>();
+    public string Description { get; set; }
+
+    public virtual ICollection<PersonaAuthorization> PersonaAuthorization { get; set; } = new List<PersonaAuthorization>();
 }

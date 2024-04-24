@@ -17,7 +17,7 @@ public partial class AccountEntity
 
     public string Status { get; set; }
 
-    public virtual ICollection<AccountResourceEntity> AccountResourceEntity { get; set; } = new List<AccountResourceEntity>();
+    public virtual ICollection<AccountAuthorization> AccountAuthorization { get; set; } = new List<AccountAuthorization>();
 
-    public virtual ICollection<AuthorizationEntity> AuthorizationEntity { get; set; } = new List<AuthorizationEntity>();
+    public virtual ICollection<ContactAuthorization> ContactAuthorization { get; set; } = new List<ContactAuthorization>();
 }

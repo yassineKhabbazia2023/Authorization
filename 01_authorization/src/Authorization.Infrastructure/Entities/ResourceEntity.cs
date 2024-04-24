@@ -23,10 +23,6 @@ public partial class ResourceEntity
 
     public string Type { get; set; }
 
-    public virtual ICollection<AccountResourceEntity> AccountResourceEntity { get; set; } = new List<AccountResourceEntity>();
-
-    public virtual ICollection<ActionEntity> ActionEntity { get; set; } = new List<ActionEntity>();
-
     public virtual ICollection<ResourceEntity> InverseParent { get; set; } = new List<ResourceEntity>();
 
     public virtual ResourceEntity Parent { get; set; }

@@ -26,28 +26,8 @@
       "Tables": [
          {
             "Columns": [ ],
-            "Name": "AccountResource",
-            "NewName": "AccountResourceEntity"
-         },
-         {
-            "Columns": [ ],
-            "Name": "Action",
-            "NewName": "ActionEntity"
-         },
-         {
-            "Columns": [ ],
             "Name": "Authorization",
             "NewName": "AuthorizationEntity"
-         },
-         {
-            "Columns": [ ],
-            "Name": "Personna",
-            "NewName": "PersonnaEntity"
-         },
-         {
-            "Columns": [ ],
-            "Name": "PersonnaAction",
-            "NewName": "PersonnaActionEntity"
          },
          {
             "Columns": [ ],
