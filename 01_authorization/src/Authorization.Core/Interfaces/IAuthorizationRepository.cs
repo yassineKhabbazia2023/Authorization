@@ -2,13 +2,11 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
-using Pulse.Authorization.Core.Models;
+namespace Pulse.Authorization.Core.Interfaces;
 
-namespace Pulse.Authorization.Core.Interfaces
+public interface IAuthorizationRepository
 {
-    public interface IAuthorizationRepository
-    {
-        Task<IReadOnlyCollection<Resource>> GetAuthorizationAsync(int accountId);
-    }
+    Task<List<string>> GetContactAuthorizations(int contactId, int accountId);
+
+    Task<List<string>> GetAccountAuthorizations(int accountId);
 }

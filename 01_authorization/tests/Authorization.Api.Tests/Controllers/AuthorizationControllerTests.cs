@@ -1,34 +1,64 @@
-﻿// <copyright file="AccountControllerTests.cs" company="Pulse">
+﻿// <copyright file="AuthorizationControllerTests.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
-using Pulse.Authorization.Core.Models;
 using AutoFixture;
-using Microsoft.AspNetCore.JsonPatch;
-using FluentAssertions;
-using Kpmg.ExceptionMiddleware.AdvancedException;
 using Pulse.Authorization.API;
 using Pulse.Authorization.Core.Interfaces;
-using Pulse.Authorization.Core.Models.Paging;
+using Pulse.Authorization.API.Controllers;
+using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 
-namespace Pulse.Authorization.Api.Tests.Controllers
+namespace Pulse.Authorization.Api.Tests.Controllers;
+
+public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<Startup>>
 {
-    public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<Startup>>
-    {
-        private readonly Mock<IAuthorizationService> _authorizationService;
-        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
+    private readonly Fixture _fixture;
 
-        public AuthorizationControllerTests()
-        {
-            _authorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
-        }
+    public AuthorizationControllerTests()
+    {
+        _fixture = new Fixture();
+        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
+        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+    }
+
+    [Fact]
+    public async Task GetNavigationAsync_Should_Returns_ResourceList()
+    {
+        // Arrange
+        var accountId = 6000;
+        var contactId = 3;
+        var expected = _fixture.Create<List<string>>();
+
+        var authorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
+        authorizationService.Setup(service => service.GetContactAuthorization(It.IsAny<int>(), It.IsAny<int?>()))
+            .ReturnsAsync(expected);
+        var authorizationController = new AuthorizationController(authorizationService.Object);
+
+        // Act
+        var result = await authorizationController.GetContactAuthorization(contactId, accountId);
+
+        // Assert
+        Assert.Equal(expected, (result.Result as OkObjectResult)?.Value);
+        Assert.Equal(200, (result.Result as OkObjectResult)?.StatusCode);
+    }
+
+    [Fact]
+    public void GetNavigationAsync_Should_Throw_TechnicalException()
+    {
+        // Arrange
+        var accountId = 6000;
+        var contactId = 3;
+
+        var authorizationService = new Mock<IAuthorizationService>();
+        var authorizationController = new AuthorizationController(authorizationService.Object);
+
+        // Act
+        var act = async () => await authorizationController.GetContactAuthorization(contactId, accountId);
+
+        // Assert
+        var exception = Assert.ThrowsAsync<NotFoundException>(act);
     }
 }

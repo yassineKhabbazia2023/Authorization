@@ -8,7 +8,7 @@ using Polly.Retry;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Interfaces;
-using Pulse.Authorization.Core.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Pulse.Authorization.Infrastructure.Repositories
 {
@@ -17,17 +17,47 @@ namespace Pulse.Authorization.Infrastructure.Repositories
         private readonly AuthorizationContext _authorizationContext;
         private readonly AsyncRetryPolicy _retryPolicy;
 
-        public AuthorizationRepository(AuthorizationContext accountContext)
+        public AuthorizationRepository(AuthorizationContext authorizationContext)
         {
-            _authorizationContext = accountContext;
+            _authorizationContext = authorizationContext;
 
             _retryPolicy = Policy
                     .Handle<SqlException>()
                     .WaitAndRetryAsync(
                         retryCount: 1,
-                        sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(Constants.RETRYTIMESPAN));
+                        sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
         }
 
-        public Task<IReadOnlyCollection<Resource>> GetAuthorizationAsync(int accountId) => throw new NotImplementedException();
+        public async Task<List<string>> GetContactAuthorizations(int contactId, int accountId)
+        {
+            return await _retryPolicy.ExecuteAsync(async () =>
+            {
+                var contactAuthorizationCodes = _authorizationContext
+                        .ContactAuthorization
+                        .Include(x => x.Authorization)
+                        .Where(x => x.ContactId == contactId && x.AccountId == accountId)
+                        .Select(x => x.Authorization.Code)
+                        .Distinct();
+
+                var result = await contactAuthorizationCodes.ToListAsync();
+                return result;
+            });
+        }
+
+        public async Task<List<string>> GetAccountAuthorizations(int accountId)
+        {
+            return await _retryPolicy.ExecuteAsync(async () =>
+            {
+                var contactAuthorizationCodes = _authorizationContext
+                        .AccountAuthorization
+                        .Include(x => x.Authorization)
+                        .Where(x => x.AccountId == accountId)
+                        .Select(x => x.Authorization.Code)
+                        .Distinct();
+
+                var result = await contactAuthorizationCodes.ToListAsync();
+                return result;
+            });
+        }
     }
 }

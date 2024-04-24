@@ -7,17 +7,23 @@ namespace Pulse.Authorization.Infrastructure.Entities;
 
 public partial class AuthorizationEntity
 {
-    public int ContactId { get; set; }
+    public int AuthorizationId { get; set; }
 
-    public int AccountId { get; set; }
+    public string Name { get; set; }
 
-    public int ActionId { get; set; }
+    public string Description { get; set; }
 
-    public int CreationDate { get; set; }
+    public string Code { get; set; }
 
-    public virtual AccountEntity Account { get; set; }
+    public string Label { get; set; }
 
-    public virtual ActionEntity Action { get; set; }
+    public string Category { get; set; }
 
-    public virtual ContactEntity Contact { get; set; }
+    public bool? Configurable { get; set; }
+
+    public virtual ICollection<AccountAuthorization> AccountAuthorization { get; set; } = new List<AccountAuthorization>();
+
+    public virtual ICollection<ContactAuthorization> ContactAuthorization { get; set; } = new List<ContactAuthorization>();
+
+    public virtual ICollection<Persona> Persona { get; set; } = new List<Persona>();
 }
