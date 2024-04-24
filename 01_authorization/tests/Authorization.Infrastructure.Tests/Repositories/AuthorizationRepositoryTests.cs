@@ -65,7 +65,7 @@ public class AuthorizationRepositoryTests
 
             var resourceEntityFirst = _fixture.Build<ResourceEntity>()
                             .With(r => r.ActionEntity, new List<ActionEntity>() { actionEntityFirst })
-                            .With(r => r.Category, Constants.ResourceTypeUnitaire)
+                            .With(r => r.Category, GlobalConstants.ResourceTypeUnitaire)
                             .With(r => r.Type, contactEntity.Type)
                             .Without(a => a.Parent)
                             .Without(a => a.InverseParent)
@@ -74,7 +74,7 @@ public class AuthorizationRepositoryTests
                             .Create();
             var resourceEntitySecond = _fixture.Build<ResourceEntity>()
                             .With(r => r.ActionEntity, new List<ActionEntity>() { actionEntitySecond })
-                            .With(r => r.Category, Constants.ResourceTypeGlobale)
+                            .With(r => r.Category, GlobalConstants.ResourceTypeGlobale)
                             .With(r => r.Type, contactEntity.Type)
                             .Without(a => a.Parent)
                             .Without(a => a.InverseParent)

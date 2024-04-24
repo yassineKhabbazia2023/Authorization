@@ -6,6 +6,7 @@ using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
+using Pulse.Authorization.Core.Constants;
 
 namespace Pulse.Authorization.Core.Services;
 
@@ -29,36 +30,36 @@ public class AuthorizationService : IAuthorizationService
             throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
         }
 
-        List<string> contactAuthorization = new ();
-
-        switch (contact!.Type)
+        if (contact!.Type == GlobalConstants.ContactTypeCustomer)
         {
-            case Constants.Constants.ContactTypeCustomer:
-                contactAuthorization = await GetCustomerAuthorization(contactId, accountId);
-                break;
-            case Constants.Constants.ContactTypeCollab:
-                contactAuthorization = await GetCollabAuthorization(contactId, accountId);
-                break;
-            default:
-                throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type));
+            return await GetCustomerAuthorization(contactId, accountId);
         }
 
-        return contactAuthorization;
+        if (contact!.Type == GlobalConstants.ContactTypeCollab)
+        {
+            return await GetCollabAuthorization(contactId, accountId);
+        }
+
+        throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type);
     }
 
-    public async Task<List<string>> GetCustomerAuthorization(int contactId, int? accountId)
+    private async Task<List<string>> GetCustomerAuthorization(int contactId, int? accountId)
     {
-        var contactAuthorization = await _authorizationRepository.GetContactAuthorizations(contactId, accountId);
+        if (accountId == null)
+        {
+            return await _authorizationRepository.GetContactAuthorizations(contactId, GlobalConstants.DefaultAccountIdCustomer);
+        }
 
-        return contactAuthorization;
+        return await _authorizationRepository.GetContactAuthorizations(contactId, accountId);
     }
 
-    public async Task<List<string>> GetCollabAuthorization(int contactId, int? accountId)
+    private async Task<List<string>> GetCollabAuthorization(int contactId, int? accountId)
     {
-        var contactAuthorization = await _authorizationRepository.GetContactAuthorizations(contactId, accountIdTemp);
+        if (accountId == null)
+        {
+            return await _authorizationRepository.GetContactAuthorizations(contactId, GlobalConstants.DefaultAccountIdCollab);
+        }
 
-        var collabAuthorization = await _authorizationRepository.GetContactAuthorizations(contactId, accountId);
-
-        return contactAuthorization.Intersect(collabAuthorization).ToList();
+        return await _authorizationRepository.GetContactAuthorizations(contactId, accountId);
     }
 }

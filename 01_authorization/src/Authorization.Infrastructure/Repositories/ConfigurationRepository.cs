@@ -27,7 +27,7 @@ public class ConfigurationRepository : IConfigurationRepository
                 .Handle<SqlException>()
                 .WaitAndRetryAsync(
                     retryCount: 1,
-                    sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(Constants.RetryTimespan));
+                    sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
     }
 
     public async Task<IEnumerable<Configuration>> GetContactAuthorizations(int contactId, int? accountId)

@@ -25,22 +25,21 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                     .Handle<SqlException>()
                     .WaitAndRetryAsync(
                         retryCount: 1,
-                        sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(Constants.RetryTimespan));
+                        sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
         }
 
-        public async Task<List<string>> GetContactAuthorizations(int contactId, int? accountId)
+        public async Task<List<string>> GetContactAuthorizations(int contactId, int accountId)
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var authorization = _authorizationContext.AuthorizationEntity
-                                        .Include(a => a.AccountAuthorization)
-                                        .Include(a => a.ContactAuthorization)
-                                        .Where(a => a.ContactAuthorization.Any(c => c.ContactId == contactId)
-                                                && a.AccountAuthorization.Any(a => a.AccountId == accountId))
-                                        .Select(a => a.Code)
-                                        .Distinct();
+                var contactAuthorizationCodes = _authorizationContext
+                        .ContactAuthorization
+                        .Include(x => x.Authorization)
+                        .Where(x => x.ContactId == contactId && x.AccountId == accountId)
+                        .Select(x => x.Authorization.Code)
+                        .Distinct();
 
-                var result = await authorization.ToListAsync();
+                var result = await contactAuthorizationCodes.ToListAsync();
                 return result;
             });
         }

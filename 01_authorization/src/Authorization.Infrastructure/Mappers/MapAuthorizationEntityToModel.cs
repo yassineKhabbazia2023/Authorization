@@ -32,11 +32,11 @@ namespace Pulse.Authorization.Infrastructure.Mappers
 
             foreach (var sourceItem in source)
             {
-                if (sourceItem.Category.Equals(Constants.ResourceTypeGlobale))
+                if (sourceItem.Category.Equals(GlobalConstants.ResourceTypeGlobale))
                 {
                     navigationRequest.OverView.Add(sourceItem.MapToNavigation());
                 }
-                else if (sourceItem.Category.Equals(Constants.ResourceTypeUnitaire))
+                else if (sourceItem.Category.Equals(GlobalConstants.ResourceTypeUnitaire))
                 {
                     navigationRequest.UnitView.Add(sourceItem.MapToNavigation());
                 }

@@ -27,7 +27,7 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                     .Handle<SqlException>()
                     .WaitAndRetryAsync(
                         retryCount: 1,
-                        sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(Constants.RetryTimespan));
+                        sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
         }
 
         public async Task<Contact> GetContactByIdAsync(int contactId)
