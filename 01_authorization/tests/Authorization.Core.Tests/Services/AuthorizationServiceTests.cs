@@ -32,8 +32,8 @@ public class AuthorizationServiceTests
     }
 
     [Theory]
-    [InlineData(GlobalConstants.ContactTypeCollab)]
-    [InlineData(GlobalConstants.ContactTypeCustomer)]
+    [InlineData("Collaborator")]
+    [InlineData("Customer")]
     [InlineData("Wrong-Type")]
     public async Task GetNavigationAsync_Should_ReturnsResourceList(string contactType)
     {
@@ -51,7 +51,6 @@ public class AuthorizationServiceTests
             .ReturnsAsync(contactMocked);
 
         var authorizationService = new AuthorizationService(_authorizationRepository.Object, contactRepository.Object);
-
 
         if (contactType.Equals("Wrong-Type"))
         {

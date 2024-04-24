@@ -2,12 +2,11 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using Pulse.Authorization.Core.Requests;
+using Pulse.Authorization.Core.Models;
 
-namespace Pulse.Authorization.Core.Interfaces
+namespace Pulse.Authorization.Core.Interfaces;
+
+public interface IConfigurationRepository
 {
-    public interface IConfigurationRepository
-    {
-        
-    }
+    Task<IEnumerable<Configuration>> GetContactAuthorizations(int contactId, int? accountId);
 }

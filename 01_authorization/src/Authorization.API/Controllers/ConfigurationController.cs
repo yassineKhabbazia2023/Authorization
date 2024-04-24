@@ -13,5 +13,4 @@ namespace Pulse.Authorization.API.Controllers;
 [ApiController]
 public class ConfigurationController : ControllerBase
 {
-
 }
