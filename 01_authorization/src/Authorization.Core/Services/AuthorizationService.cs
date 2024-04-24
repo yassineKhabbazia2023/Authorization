@@ -55,11 +55,15 @@ public class AuthorizationService : IAuthorizationService
 
     private async Task<List<string>> GetCollabAuthorization(int contactId, int? accountId)
     {
+        var collabAuthorization = await _authorizationRepository.GetContactAuthorizations(contactId, GlobalConstants.DefaultAccountIdCollab);
+
         if (accountId == null)
         {
-            return await _authorizationRepository.GetContactAuthorizations(contactId, GlobalConstants.DefaultAccountIdCollab);
+            return collabAuthorization;
         }
 
-        return await _authorizationRepository.GetContactAuthorizations(contactId, (int)accountId);
+        var accountAuthorization = await _authorizationRepository.GetAccountAuthorizations((int)accountId);
+
+        return collabAuthorization.Intersect(accountAuthorization).ToList();
     }
 }

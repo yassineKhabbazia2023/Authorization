@@ -31,7 +31,7 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
-    public async Task GetNavigationsAsync_Return_Navigation()
+    public async Task GetContactAuthorizationsAsync_Return_Navigation()
     {
         using (var context = new AuthorizationContext(_options))
         {
@@ -54,6 +54,35 @@ public class AuthorizationRepositoryTests
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
             var receivedAuthorization = await repository.GetContactAuthorizations(contactId, accountId);
+
+            var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
+            var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
+            Assert.Equal(authExpectJson, authResultJson);
+            Assert.NotNull(receivedAuthorization);
+        }
+    }
+
+    [Fact]
+    public async Task GetAccountAuthorizations_Return_Navigation()
+    {
+        using (var context = new AuthorizationContext(_options))
+        {
+            var accountAuthorizationAccountEntity = _fixture.Build<AccountAuthorization>()
+                            .With(a => a.Authorization)
+                            .With(a => a.AccountId, 456)
+                            .Without(a => a.Account)
+                            .CreateMany(3);
+
+            var expectedAuthorization = accountAuthorizationAccountEntity.Select(c => c.Authorization.Code);
+
+            context.AccountAuthorization.AddRange(accountAuthorizationAccountEntity);
+            await context.SaveChangesAsync();
+
+            var repository = new AuthorizationRepository(context);
+
+            var accountId = accountAuthorizationAccountEntity.First().AccountId;
+
+            var receivedAuthorization = await repository.GetAccountAuthorizations(accountId);
 
             var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
             var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);

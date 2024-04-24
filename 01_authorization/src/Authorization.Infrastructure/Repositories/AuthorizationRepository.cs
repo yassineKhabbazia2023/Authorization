@@ -43,5 +43,21 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                 return result;
             });
         }
+
+        public async Task<List<string>> GetAccountAuthorizations(int accountId)
+        {
+            return await _retryPolicy.ExecuteAsync(async () =>
+            {
+                var contactAuthorizationCodes = _authorizationContext
+                        .AccountAuthorization
+                        .Include(x => x.Authorization)
+                        .Where(x => x.AccountId == accountId)
+                        .Select(x => x.Authorization.Code)
+                        .Distinct();
+
+                var result = await contactAuthorizationCodes.ToListAsync();
+                return result;
+            });
+        }
     }
 }

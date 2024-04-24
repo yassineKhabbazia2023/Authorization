@@ -14,6 +14,8 @@ public partial class AuthorizationContext : DbContext
     {
     }
 
+    public virtual DbSet<AccountAuthorization> AccountAuthorization { get; set; }
+
     public virtual DbSet<AccountEntity> AccountEntity { get; set; }
 
     public virtual DbSet<AuthorizationEntity> AuthorizationEntity { get; set; }
@@ -26,6 +28,23 @@ public partial class AuthorizationContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AccountAuthorization>(entity =>
+        {
+            entity.HasKey(e => new { e.AccountId, e.AuthorizationId });
+
+            entity.ToTable("AccountAuthorization", "auth");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.AccountAuthorization)
+                .HasForeignKey(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AccountAuthorization_Account");
+
+            entity.HasOne(d => d.Authorization).WithMany(p => p.AccountAuthorization)
+                .HasForeignKey(d => d.AuthorizationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AccountAuthorization_Authorization");
+        });
+
         modelBuilder.Entity<AccountEntity>(entity =>
         {
             entity.HasKey(e => e.AccountId).HasName("C_TAccount_PK");
@@ -43,23 +62,6 @@ public partial class AuthorizationContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .IsUnicode(false);
-
-            entity.HasMany(d => d.Authorization).WithMany(p => p.Account)
-                .UsingEntity<Dictionary<string, object>>(
-                    "AccountAuthorization",
-                    r => r.HasOne<AuthorizationEntity>().WithMany()
-                        .HasForeignKey("AuthorizationId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_AccountAuthorization_Authorization"),
-                    l => l.HasOne<AccountEntity>().WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_AccountAuthorization_Account"),
-                    j =>
-                    {
-                        j.HasKey("AccountId", "AuthorizationId");
-                        j.ToTable("AccountAuthorization", "auth");
-                    });
         });
 
         modelBuilder.Entity<AuthorizationEntity>(entity =>
