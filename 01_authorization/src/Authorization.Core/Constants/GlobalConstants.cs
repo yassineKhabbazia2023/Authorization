@@ -15,7 +15,7 @@ namespace Pulse.Authorization.Core.Constants
         public static readonly int DefaultAccountIdCollab = -1;
         public static readonly int DefaultAccountIdCustomer = 0;
 
-        public const string ContactTypeCollab = "Collaborator";
-        public const string ContactTypeCustomer = "Customer";
+        public static readonly string ContactTypeCollab = "Collaborator";
+        public static readonly string ContactTypeCustomer = "Customer";
     }
 }
