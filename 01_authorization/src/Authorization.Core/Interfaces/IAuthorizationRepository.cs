@@ -6,9 +6,9 @@ namespace Pulse.Authorization.Core.Interfaces;
 
 public interface IAuthorizationRepository
 {
-    Task<List<string>> GetContactAuthorizations(int contactId);
+    Task<List<string>> GetContactAuthorizationAsync(int contactId);
 
-    Task<List<string>> GetAccountAuthorizations(int accountId);
+    Task<List<string>> GetAccountAuthorizationAsync(int accountId);
 
-    Task<List<string>> GetContactAndAccountAuthorizations(int contactId, int accountId);
+    Task<List<string>> GetContactAccountAuthorizationsAsync(int contactId, int accountId);
 }

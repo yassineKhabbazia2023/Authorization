@@ -21,7 +21,7 @@ public class AuthorizationService : IAuthorizationService
         _contactRepository = contactRepository;
     }
 
-    public async Task<List<string>> GetContactAuthorization(int contactId, int? accountId)
+    public async Task<List<string>> GetContactAuthorizationAsync(int contactId, int? accountId)
     {
         var contact = await _contactRepository.GetContactByIdAsync(contactId);
 
@@ -32,37 +32,37 @@ public class AuthorizationService : IAuthorizationService
 
         if (contact!.Type == GlobalConstants.ContactTypeCustomer)
         {
-            return await GetCustomerAuthorization(contactId, accountId);
+            return await GetCustomerAuthorizationAsync(contactId, accountId);
         }
 
         if (contact!.Type == GlobalConstants.ContactTypeCollab)
         {
-            return await GetCollabAuthorization(contactId, accountId);
+            return await GetCollabAuthorizationAsync(contactId, accountId);
         }
 
         throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type));
     }
 
-    private async Task<List<string>> GetCustomerAuthorization(int contactId, int? accountId)
+    private async Task<List<string>> GetCustomerAuthorizationAsync(int contactId, int? accountId)
     {
         if (accountId == null)
         {
-            return await _authorizationRepository.GetContactAuthorizations(contactId);
+            return await _authorizationRepository.GetContactAuthorizationAsync(contactId);
         }
 
-        return await _authorizationRepository.GetContactAndAccountAuthorizations(contactId, (int)accountId);
+        return await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, accountId.Value);
     }
 
-    private async Task<List<string>> GetCollabAuthorization(int contactId, int? accountId)
+    private async Task<List<string>> GetCollabAuthorizationAsync(int contactId, int? accountId)
     {
-        var collabAuthorization = await _authorizationRepository.GetContactAndAccountAuthorizations(contactId, GlobalConstants.DefaultAccountIdCollab);
+        var collabAuthorization = await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, GlobalConstants.DefaultAccountIdCollab);
 
         if (accountId == null)
         {
             return collabAuthorization;
         }
 
-        var accountAuthorization = await _authorizationRepository.GetAccountAuthorizations((int)accountId);
+        var accountAuthorization = await _authorizationRepository.GetAccountAuthorizationAsync(accountId.Value);
 
         return collabAuthorization.Intersect(accountAuthorization).ToList();
     }

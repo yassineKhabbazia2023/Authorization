@@ -53,7 +53,7 @@ public class AuthorizationRepositoryTests
             var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactAndAccountAuthorizations(contactId, accountId);
+            var receivedAuthorization = await repository.GetContactAccountAuthorizationsAsync(contactId, accountId);
 
             var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
             var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
@@ -82,7 +82,7 @@ public class AuthorizationRepositoryTests
 
             var accountId = accountAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetAccountAuthorizations(accountId);
+            var receivedAuthorization = await repository.GetAccountAuthorizationAsync(accountId);
 
             var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
             var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
@@ -113,7 +113,7 @@ public class AuthorizationRepositoryTests
             var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactAndAccountAuthorizations(999, 888);
+            var receivedAuthorization = await repository.GetContactAccountAuthorizationsAsync(999, 888);
 
             Assert.Empty(receivedAuthorization);
         }
@@ -141,7 +141,7 @@ public class AuthorizationRepositoryTests
             var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactAuthorizations(contactId);
+            var receivedAuthorization = await repository.GetContactAuthorizationAsync(contactId);
 
             var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
             var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
