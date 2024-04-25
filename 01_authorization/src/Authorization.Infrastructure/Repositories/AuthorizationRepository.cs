@@ -28,7 +28,7 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                         sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
         }
 
-        public async Task<List<string>> GetContactAuthorizations(int contactId, int accountId)
+        public async Task<List<string>> GetContactAndAccountAuthorizations(int contactId, int accountId)
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
@@ -52,6 +52,22 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                         .AccountAuthorization
                         .Include(x => x.Authorization)
                         .Where(x => x.AccountId == accountId)
+                        .Select(x => x.Authorization.Code)
+                        .Distinct();
+
+                var result = await contactAuthorizationCodes.ToListAsync();
+                return result;
+            });
+        }
+
+        public async Task<List<string>> GetContactAuthorizations(int contactId)
+        {
+            return await _retryPolicy.ExecuteAsync(async () =>
+            {
+                var contactAuthorizationCodes = _authorizationContext
+                        .ContactAuthorization
+                        .Include(x => x.Authorization)
+                        .Where(x => x.ContactId == contactId)
                         .Select(x => x.Authorization.Code)
                         .Distinct();
 

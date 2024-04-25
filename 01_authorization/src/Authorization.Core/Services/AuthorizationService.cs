@@ -47,15 +47,15 @@ public class AuthorizationService : IAuthorizationService
     {
         if (accountId == null)
         {
-            return await _authorizationRepository.GetContactAuthorizations(contactId, GlobalConstants.DefaultAccountIdCustomer);
+            return await _authorizationRepository.GetContactAuthorizations(contactId);
         }
 
-        return await _authorizationRepository.GetContactAuthorizations(contactId, (int)accountId);
+        return await _authorizationRepository.GetContactAndAccountAuthorizations(contactId, (int)accountId);
     }
 
     private async Task<List<string>> GetCollabAuthorization(int contactId, int? accountId)
     {
-        var collabAuthorization = await _authorizationRepository.GetContactAuthorizations(contactId, GlobalConstants.DefaultAccountIdCollab);
+        var collabAuthorization = await _authorizationRepository.GetContactAndAccountAuthorizations(contactId, GlobalConstants.DefaultAccountIdCollab);
 
         if (accountId == null)
         {

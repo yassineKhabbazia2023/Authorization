@@ -31,7 +31,7 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
-    public async Task GetContactAuthorizationsAsync_Return_Navigation()
+    public async Task GetContactAndAccountAuthorizations_Return_AuthorizationCode()
     {
         using (var context = new AuthorizationContext(_options))
         {
@@ -53,7 +53,7 @@ public class AuthorizationRepositoryTests
             var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactAuthorizations(contactId, accountId);
+            var receivedAuthorization = await repository.GetContactAndAccountAuthorizations(contactId, accountId);
 
             var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
             var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
@@ -63,7 +63,7 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
-    public async Task GetAccountAuthorizations_Return_Navigation()
+    public async Task GetAccountAuthorizations_Return_AuthorizationCode()
     {
         using (var context = new AuthorizationContext(_options))
         {
@@ -92,7 +92,7 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
-    public async Task GetNavigationsAsync_Return_Empty()
+    public async Task GetContactAndAccountAuthorizationsAsync_Return_Empty()
     {
         using (var context = new AuthorizationContext(_options))
         {
@@ -113,9 +113,40 @@ public class AuthorizationRepositoryTests
             var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactAuthorizations(999, 888);
+            var receivedAuthorization = await repository.GetContactAndAccountAuthorizations(999, 888);
 
             Assert.Empty(receivedAuthorization);
+        }
+    }
+
+    [Fact]
+    public async Task GetContactAuthorizationsAsync_Return_AuthorizationCode()
+    {
+        using (var context = new AuthorizationContext(_options))
+        {
+            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorization>()
+                            .With(a => a.Authorization)
+                            .With(a => a.ContactId, 123)
+                            .Without(a => a.Contact)
+                            .Without(a => a.Account)
+                            .CreateMany(3);
+
+            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
+
+            context.ContactAuthorization.AddRange(contactAuthorizationAccountEntity);
+            await context.SaveChangesAsync();
+
+            var repository = new AuthorizationRepository(context);
+
+            var contactId = contactAuthorizationAccountEntity.First().ContactId;
+            var accountId = contactAuthorizationAccountEntity.First().AccountId;
+
+            var receivedAuthorization = await repository.GetContactAuthorizations(contactId);
+
+            var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
+            var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
+            Assert.Equal(authExpectJson, authResultJson);
+            Assert.NotNull(receivedAuthorization);
         }
     }
 }

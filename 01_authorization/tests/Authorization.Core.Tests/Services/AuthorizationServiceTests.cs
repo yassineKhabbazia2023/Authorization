@@ -43,7 +43,7 @@ public class AuthorizationServiceTests
         var contactMocked = _fixture.Build<Contact>()
                                     .With(c => c.Type, contactType)
                                     .Create();
-        _authorizationRepository.Setup(repository => repository.GetContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()))
+        _authorizationRepository.Setup(repository => repository.GetContactAndAccountAuthorizations(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(menuCodeMocked);
 
         _authorizationRepository.Setup(repository => repository.GetAccountAuthorizations(It.IsAny<int>()))
@@ -81,7 +81,7 @@ public class AuthorizationServiceTests
         // Arrange
         var accountId = 123;
         var resourceMocked = _fixture.Create<List<string>>();
-        _authorizationRepository.Setup(repository => repository.GetContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()))
+        _authorizationRepository.Setup(repository => repository.GetContactAndAccountAuthorizations(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(resourceMocked);
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
