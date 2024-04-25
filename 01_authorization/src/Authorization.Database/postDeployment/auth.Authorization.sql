@@ -1,6 +1,5 @@
 ﻿IF (SELECT count(*) FROM [auth].[Authorization]) = 0
 BEGIN
-SET IDENTITY_INSERT [auth].[Authorization] ON; 
 	INSERT INTO [auth].[Authorization] ([Name], [Description], [Code], [Label], [Category], [Configurable]) VALUES 
 		('Super Admin', '', 'CLADMI001', 'Droit Super Admin client', 'CltGESTION', '0'),
 		('View User', '', 'CLUSER001', 'Consulter les utilisateurs', 'CltGESTION', '1'),
@@ -42,5 +41,4 @@ SET IDENTITY_INSERT [auth].[Authorization] ON;
 		('Mirror report', '', 'CORAPP001', 'Accéder aux rapports BI ', 'ColMIRROIR', '1'),
 		('Mirror kpi', '', 'COKPI0001', 'Accéder aux indicateurs', 'ColMIRROIR', '0'),
 		('Mirror bank', '', 'COBank001', 'Accéder aux données bancaires', 'ColMIRROIR', '0')
-SET IDENTITY_INSERT [auth].[Authorization] OFF;
 END
