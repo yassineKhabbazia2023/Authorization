@@ -27,9 +27,9 @@ public class AuthorizationController : ControllerBase
     /// <returns>Liste des codes de menu.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<string>))]
-    public async Task<ActionResult<IList<string>>> GetContactAuthorization([Required][FromQuery] int contactId, [FromQuery] int? accountId)
+    public async Task<ActionResult<IList<string>>> GetContactAuthorizationAsync([Required][FromQuery] int contactId, [FromQuery] int? accountId)
     {
-        var result = await _authorizationService.GetContactAuthorization(contactId, accountId);
+        var result = await _authorizationService.GetContactAuthorizationAsync(contactId, accountId);
 
         return Ok(result);
     }
