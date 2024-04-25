@@ -2,17 +2,12 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System;
 using AutoFixture;
-using Kpmg.ExceptionMiddleware.AdvancedException;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Moq;
-using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Models.Paging;
-using Pulse.Authorization.Core.Requests;
 using Pulse.Authorization.Core.Services;
 
 namespace Pulse.Authorization.Core.Tests.Services;
@@ -38,19 +33,24 @@ public class AuthorizationServiceTests
     public async Task GetNavigationAsync_Should_ReturnsResourceList(string contactType)
     {
         // Arrange
-        var accountId = 123;
+        var accountId = contactType.Equals("Collaborator") ? -1 : 123;
+        var contactId = 456;
         var menuCodeMocked = _fixture.Create<List<string>>();
         var contactMocked = _fixture.Build<Contact>()
                                     .With(c => c.Type, contactType)
+                                    .With(c => c.ContactId, contactId)
                                     .Create();
-        _authorizationRepository.Setup(repository => repository.GetContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()))
+        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, accountId))
             .ReturnsAsync(menuCodeMocked);
 
-        _authorizationRepository.Setup(repository => repository.GetAccountAuthorizations(It.IsAny<int>()))
+        _authorizationRepository.Setup(repository => repository.GetAccountAuthorizationAsync(accountId))
+            .ReturnsAsync(menuCodeMocked);
+
+        _authorizationRepository.Setup(repository => repository.GetContactAuthorizationAsync(contactId))
             .ReturnsAsync(menuCodeMocked);
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(It.IsAny<int>()))
+        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
         var authorizationService = new AuthorizationService(_authorizationRepository.Object, contactRepository.Object);
@@ -58,17 +58,17 @@ public class AuthorizationServiceTests
         if (contactType.Equals("Wrong-Type"))
         {
             // Act
-            var act = async () => await authorizationService.GetContactAuthorization(contactMocked.ContactId, accountId);
+            var act = async () => await authorizationService.GetContactAuthorizationAsync(contactId, accountId);
 
             // Assert
             var exception = await Assert.ThrowsAsync<NotFoundException>(act);
             Assert.Equal(Errors.NotFoundContactTypeCode, exception.Code);
-            Assert.Equal(string.Format(Errors.NotFoundContactTypeMessage, contactMocked.ContactId, "Wrong-Type"), exception.Message);
+            Assert.Equal(string.Format(Errors.NotFoundContactTypeMessage, contactId, "Wrong-Type"), exception.Message);
         }
         else
         {
             // Act
-            var resources = await authorizationService.GetContactAuthorization(contactMocked.ContactId, accountId);
+            var resources = await authorizationService.GetContactAuthorizationAsync(contactId, accountId);
 
             // Assert
             Assert.Equal(menuCodeMocked, resources);
@@ -80,18 +80,19 @@ public class AuthorizationServiceTests
     {
         // Arrange
         var accountId = 123;
+        var contactId = 234;
         var resourceMocked = _fixture.Create<List<string>>();
-        _authorizationRepository.Setup(repository => repository.GetContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()))
+        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, accountId))
             .ReturnsAsync(resourceMocked);
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(It.IsAny<int>()))
+        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync((Contact)null!);
 
         var authorizationService = new AuthorizationService(_authorizationRepository.Object, contactRepository.Object);
 
         // Act
-        var act = async () => await authorizationService.GetContactAuthorization(234, accountId);
+        var act = async () => await authorizationService.GetContactAuthorizationAsync(contactId, accountId);
 
         // Assert
         var exception = await Assert.ThrowsAsync<NotFoundException>(act);

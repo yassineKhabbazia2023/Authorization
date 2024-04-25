@@ -1,5 +1,9 @@
-﻿IF NOT EXISTS (SELECT * FROM [account].[Account] WHERE AccountId = 1)
+﻿IF (SELECT count(*) FROM [account].[Account] WHERE [AccountId] = -1) = 0
 BEGIN
+	INSERT INTO [account].[Account] ([AccountId], [AccountGlobalUniqueId], [AccountNumber], [LegalName], [Status]) 
+	VALUES 
+	(-1, N'e45770e9-db63-46e1-b588-461569a80f9f', N'11111111', N'Menu-globale-collab', N'ToDeploy')
+
 	INSERT INTO [account].Account (AccountId, LegalName, AccountNumber, AccountGlobalUniqueId, Status)
 	VALUES
 	(1,'Nayeli Walls','2024199226','2c24848b-f6c6-4627-b943-6ec97c0264b4', 'ToDeploy'),
