@@ -87,5 +87,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="postDeployment\auth.Authorization.sql" />
+    <None Include="postDeployment\actor.Contact.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.PostDeployment.sql" />
   </ItemGroup>
 </Project>
