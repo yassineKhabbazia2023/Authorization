@@ -50,7 +50,7 @@ public class ConfigurationRepositoryTests
             var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactConfigurationAsync(contactId, accountId);
+            var receivedAuthorization = await repository.GetContactAccountConfigurationAsync(contactId, accountId);
 
             var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
             var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
@@ -81,7 +81,7 @@ public class ConfigurationRepositoryTests
             var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactConfigurationAsync(999, 888);
+            var receivedAuthorization = await repository.GetContactAccountConfigurationAsync(999, 888);
 
             Assert.Empty(receivedAuthorization);
         }

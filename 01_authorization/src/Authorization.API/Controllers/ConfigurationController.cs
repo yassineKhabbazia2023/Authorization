@@ -28,7 +28,7 @@ public class ConfigurationController : ControllerBase
     /// <returns>La liste des configurations.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ConfigurationModel?>))]
-    public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetConfigurationAsync([Required][FromQuery] int contactId, [Required][FromQuery] int accountId)
+    public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetContactAccountConfigurationAsync([Required][FromQuery] int contactId, [Required][FromQuery] int accountId)
     {
         var configuration = await _configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
         return Ok(configuration);
@@ -38,13 +38,14 @@ public class ConfigurationController : ControllerBase
     /// Modifier une authorization pour un contact sur une entité morale.
     /// </summary>
     /// <param name="contactId">Identifiant du contact.</param>
-    /// <param name="personaId">Identifiant du persona.</param>
+    /// <param name="accountId">Identifiant de l'entité.</param>
+    /// <param name="configuration">La liste des nouvelles configurations du contact sur l'entité.</param>
     /// <returns>Http 200.</returns>
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult UpdateContactPersonaAsync(int contactId, int personaId)
+    public ActionResult UpdateContactAuthorizationAsync(int contactId, int accountId, IList<ConfigurationModel> configuration)
     {
         return Ok();
     }

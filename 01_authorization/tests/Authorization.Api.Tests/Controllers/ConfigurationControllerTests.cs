@@ -39,7 +39,7 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
         var configurationController = new ConfigurationController(configurationService.Object);
 
         // Act
-        var result = await configurationController.GetConfigurationAsync(contactId, accountId);
+        var result = await configurationController.GetContactAccountConfigurationAsync(contactId, accountId);
 
         // Assert
         Assert.Equal(expected, (result.Result as OkObjectResult)?.Value);
@@ -57,7 +57,7 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
         var configurationController = new ConfigurationController(configurationService.Object);
 
         // Act
-        var act = async () => await configurationController.GetConfigurationAsync(contactId, accountId);
+        var act = async () => await configurationController.GetContactAccountConfigurationAsync(contactId, accountId);
 
         // Assert
         var exception = Assert.ThrowsAsync<NotFoundException>(act);

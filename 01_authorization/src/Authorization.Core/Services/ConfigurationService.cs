@@ -29,6 +29,6 @@ public class ConfigurationService : IConfigurationService
             throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
         }
 
-        return await _configurationRepository.GetContactConfigurationAsync(contactId, accountId);
+        return await _configurationRepository.GetContactAccountConfigurationAsync(contactId, accountId);
     }
 }

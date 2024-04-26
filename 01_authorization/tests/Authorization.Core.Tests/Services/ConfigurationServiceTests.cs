@@ -36,7 +36,7 @@ public class ConfigurationServiceTests
         var contactMocked = _fixture.Build<Contact>()
                                     .With(c => c.ContactId, contactId)
                                     .Create();
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAccountConfigurationAsync(contactId, accountId))
             .ReturnsAsync(menuCodeMocked);
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
@@ -59,7 +59,7 @@ public class ConfigurationServiceTests
         var accountId = 123;
         var contactId = 234;
         var resourceMocked = _fixture.Create<List<Configuration>>();
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAccountConfigurationAsync(contactId, accountId))
             .ReturnsAsync(resourceMocked);
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
