@@ -35,33 +35,16 @@ public class ConfigurationController : ControllerBase
     }
 
     /// <summary>
-    /// Ajouter une authorization pour un contact sur une entité morale.
-    /// </summary>
-    /// <param name="contactId">Identifiant du contact.</param>
-    /// <param name="accountId">Identifiant de l'entité morale.</param>
-    /// <param name="configurations">Liste des configurations.</param>
-    /// <returns>Http 200.</returns>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> CreateConfigurationAsync(int contactId, int? accountId, [FromBody] IEnumerable<ConfigurationModel> configurations)
-    {
-        return Ok();
-    }
-
-    /// <summary>
     /// Modifier une authorization pour un contact sur une entité morale.
     /// </summary>
     /// <param name="contactId">Identifiant du contact.</param>
     /// <param name="personaId">Identifiant du persona.</param>
-    /// <param name="accountId">Identifiant de l'entité morale.</param>
     /// <returns>Http 200.</returns>
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> UpdateConfigurationPersonaAsync(int contactId, int personaId, int? accountId)
+    public ActionResult UpdateConfigurationPersonaAsync(int contactId, int personaId)
     {
         return Ok();
     }
