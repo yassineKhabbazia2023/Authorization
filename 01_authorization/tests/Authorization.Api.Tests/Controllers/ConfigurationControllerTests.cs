@@ -34,7 +34,7 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
         var expected = _fixture.Create<List<Configuration>>();
 
         var configurationService = new Mock<IConfigurationService>(MockBehavior.Strict);
-        configurationService.Setup(service => service.GetContactConfigurationAsync(contactId, accountId))
+        configurationService.Setup(service => service.GetContactAccountConfigurationAsync(contactId, accountId))
             .ReturnsAsync(expected);
         var configurationController = new ConfigurationController(configurationService.Object);
 

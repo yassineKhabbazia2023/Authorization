@@ -46,7 +46,7 @@ public class ConfigurationServiceTests
         var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
 
         // Act
-        var resources = await configurationService.GetContactConfigurationAsync(contactId, accountId);
+        var resources = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
 
         // Assert
         Assert.Equal(menuCodeMocked, resources);
@@ -69,7 +69,7 @@ public class ConfigurationServiceTests
         var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
 
         // Act
-        var act = async () => await configurationService.GetContactConfigurationAsync(contactId, accountId);
+        var act = async () => await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
 
         // Assert
         var exception = await Assert.ThrowsAsync<NotFoundException>(act);

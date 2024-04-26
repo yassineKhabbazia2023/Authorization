@@ -30,7 +30,7 @@ public class ConfigurationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ConfigurationModel?>))]
     public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetConfigurationAsync([Required][FromQuery] int contactId, [Required][FromQuery] int accountId)
     {
-        var configuration = await _configurationService.GetContactConfigurationAsync(contactId, accountId);
+        var configuration = await _configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
         return Ok(configuration);
     }
 
@@ -44,7 +44,7 @@ public class ConfigurationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult UpdateConfigurationPersonaAsync(int contactId, int personaId)
+    public ActionResult UpdateContactPersonaAsync(int contactId, int personaId)
     {
         return Ok();
     }

@@ -20,7 +20,7 @@ public class ConfigurationService : IConfigurationService
         _contactRepository = contactRepository;
     }
 
-    public async Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId, int accountId)
+    public async Task<IEnumerable<Configuration>> GetContactAccountConfigurationAsync(int contactId, int accountId)
     {
         var contact = await _contactRepository.GetContactByIdAsync(contactId);
 
