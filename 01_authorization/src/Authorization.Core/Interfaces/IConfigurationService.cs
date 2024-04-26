@@ -8,5 +8,5 @@ namespace Pulse.Authorization.Core.Interfaces;
 
 public interface IConfigurationService
 {
-    Task<IEnumerable<Configuration>> GetContactAuthorizations(int contactId, int? accountId);
+    Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId, int accountId);
 }

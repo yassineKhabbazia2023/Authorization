@@ -6,7 +6,6 @@ using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Requests;
 
 namespace Pulse.Authorization.Core.Services;
 
@@ -21,8 +20,15 @@ public class ConfigurationService : IConfigurationService
         _contactRepository = contactRepository;
     }
 
-    public async Task<IEnumerable<Configuration>> GetContactAuthorizations(int contactId, int? accountId)
+    public async Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId, int accountId)
     {
-        return null;
+        var contact = await _contactRepository.GetContactByIdAsync(contactId);
+
+        if (contact == null)
+        {
+            throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
+        }
+
+        return await _configurationRepository.GetContactConfigurationAsync(contactId, accountId);
     }
 }

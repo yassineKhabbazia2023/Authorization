@@ -30,14 +30,16 @@ public class ConfigurationRepository : IConfigurationRepository
                     sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
     }
 
-    public async Task<IEnumerable<Configuration>> GetConfigurationAsync(int contactId, int? accountId)
+    public async Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId, int accountId)
     {
         return await _retryPolicy.ExecuteAsync(async () =>
         {
             var authorization = _authorizationContext
                      .ContactAuthorization
                      .Include(x => x.Authorization)
-                     .Where(x => x.ContactId == contactId && x.AccountId == accountId && x.Authorization.Configurable == true)
+                     .Where(x => x.ContactId == contactId
+                            && x.AccountId == accountId
+                            && x.Authorization.Configurable == true)
                      .Select(x => x.Authorization)
                      .Distinct();
 

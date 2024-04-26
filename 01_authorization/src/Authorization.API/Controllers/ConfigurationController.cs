@@ -26,11 +26,12 @@ public class ConfigurationController : ControllerBase
     /// <param name="contactId">Identifiant du contat.</param>
     /// <param name="accountId">Identifiant de l'entité morale.</param>
     /// <returns>La liste des configurations.</returns>
-    [HttpGet("")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ConfigurationModel?>))]
-    public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetConfigurationAsync([Required][FromQuery] int contactId, [FromQuery] int? accountId)
+    public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetConfigurationAsync([Required][FromQuery] int contactId, [Required][FromQuery] int accountId)
     {
-        return Ok();
+        var configuration = await _configurationService.GetContactConfigurationAsync(contactId, accountId);
+        return Ok(configuration);
     }
 
     /// <summary>
@@ -40,7 +41,7 @@ public class ConfigurationController : ControllerBase
     /// <param name="accountId">Identifiant de l'entité morale.</param>
     /// <param name="configurations">Liste des configurations.</param>
     /// <returns>Http 200.</returns>
-    [HttpPost("")]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

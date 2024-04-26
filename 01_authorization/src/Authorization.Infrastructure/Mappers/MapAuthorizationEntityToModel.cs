@@ -3,6 +3,7 @@
 // </copyright>
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Core.Models;
+using ActionModel = Pulse.Authorization.Core.Models.Action;
 
 namespace Pulse.Authorization.Infrastructure.Mappers;
 
@@ -10,6 +11,21 @@ public static class MapAuthorizationEntityToModel
 {
     public static IEnumerable<Configuration> MapAuthorizationToConfiguration(this IEnumerable<AuthorizationEntity> sources)
     {
-        return Enumerable.Empty<Configuration>();
+        return sources.GroupBy(auth => auth.Category)
+                      .Select(auth => new Configuration()
+                      {
+                          Category = auth.Key,
+                          Actions = auth.Select(item => item.MapAuthorizationToAction())
+                      });
+    }
+
+    public static ActionModel MapAuthorizationToAction(this AuthorizationEntity source)
+    {
+        return new ActionModel()
+        {
+            Name = source.Name,
+            Label = source.Label,
+            Code = source.Code
+        };
     }
 }

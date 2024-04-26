@@ -1,4 +1,4 @@
-﻿// <copyright file="AuthorizationControllerTests.cs" company="Pulse">
+﻿// <copyright file="ConfigurationControllerTests.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
@@ -10,14 +10,15 @@ using Pulse.Authorization.API;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.API.Controllers;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Pulse.Authorization.Core.Models;
 
 namespace Pulse.Authorization.Api.Tests.Controllers;
 
-public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<Startup>>
+public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<Startup>>
 {
     private readonly Fixture _fixture;
 
-    public AuthorizationControllerTests()
+    public ConfigurationControllerTests()
     {
         _fixture = new Fixture();
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
@@ -25,20 +26,20 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
-    public async Task GetContactAuthorizationAsync_Should_Returns_AuthorizationCodeList()
+    public async Task GetConfigurationAsync_Should_Returns_ConfigurationList()
     {
         // Arrange
         var accountId = 6000;
         var contactId = 3;
-        var expected = _fixture.Create<List<string>>();
+        var expected = _fixture.Create<List<Configuration>>();
 
-        var authorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
-        authorizationService.Setup(service => service.GetContactAuthorizationAsync(contactId, accountId))
+        var configurationService = new Mock<IConfigurationService>(MockBehavior.Strict);
+        configurationService.Setup(service => service.GetContactConfigurationAsync(contactId, accountId))
             .ReturnsAsync(expected);
-        var authorizationController = new AuthorizationController(authorizationService.Object);
+        var configurationController = new ConfigurationController(configurationService.Object);
 
         // Act
-        var result = await authorizationController.GetContactAuthorizationAsync(contactId, accountId);
+        var result = await configurationController.GetConfigurationAsync(contactId, accountId);
 
         // Assert
         Assert.Equal(expected, (result.Result as OkObjectResult)?.Value);
@@ -46,17 +47,17 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
-    public void GetContactAuthorizationAsync_Should_Throw_TechnicalException()
+    public void GetConfigurationAsync_Should_Throw_TechnicalException()
     {
         // Arrange
         var accountId = 6000;
         var contactId = 3;
 
-        var authorizationService = new Mock<IAuthorizationService>();
-        var authorizationController = new AuthorizationController(authorizationService.Object);
+        var configurationService = new Mock<IConfigurationService>();
+        var configurationController = new ConfigurationController(configurationService.Object);
 
         // Act
-        var act = async () => await authorizationController.GetContactAuthorizationAsync(contactId, accountId);
+        var act = async () => await configurationController.GetConfigurationAsync(contactId, accountId);
 
         // Assert
         var exception = Assert.ThrowsAsync<NotFoundException>(act);
