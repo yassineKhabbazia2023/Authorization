@@ -26,7 +26,7 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
-    public async Task GetConfigurationAsync_Should_Returns_ConfigurationList()
+    public async Task GetContactAccountConfigurationAsync_Should_Returns_ConfigurationList()
     {
         // Arrange
         var accountId = 6000;
@@ -47,7 +47,7 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
-    public void GetConfigurationAsync_Should_Throw_TechnicalException()
+    public void GetContactAccountConfigurationAsync_Should_Throw_TechnicalException()
     {
         // Arrange
         var accountId = 6000;
@@ -61,5 +61,25 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
 
         // Assert
         var exception = Assert.ThrowsAsync<NotFoundException>(act);
+    }
+
+    [Fact]
+    public async Task GetConfigurationAsync_Should_Returns_ConfigurationList()
+    {
+        // Arrange
+        var accountId = 6000;
+        var expected = _fixture.Create<List<Configuration>>();
+
+        var configurationService = new Mock<IConfigurationService>(MockBehavior.Strict);
+        configurationService.Setup(service => service.GetAccountConfigurationAsync(accountId))
+            .ReturnsAsync(expected);
+        var configurationController = new ConfigurationController(configurationService.Object);
+
+        // Act
+        var result = await configurationController.GetAccountConfigurationAsync(accountId);
+
+        // Assert
+        Assert.Equal(expected, (result.Result as OkObjectResult)?.Value);
+        Assert.Equal(200, (result.Result as OkObjectResult)?.StatusCode);
     }
 }

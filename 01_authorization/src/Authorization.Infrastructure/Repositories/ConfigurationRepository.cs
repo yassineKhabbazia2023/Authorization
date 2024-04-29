@@ -48,4 +48,22 @@ public class ConfigurationRepository : IConfigurationRepository
             return result.MapAuthorizationToConfiguration();
         });
     }
+
+    public async Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId)
+    {
+        return await _retryPolicy.ExecuteAsync(async () =>
+        {
+            var authorization = _authorizationContext
+                     .ContactAuthorization
+                     .Include(x => x.Authorization)
+                     .Where(x => x.AccountId == accountId
+                            && x.Authorization.Configurable == true)
+                     .Select(x => x.Authorization)
+                     .Distinct();
+
+            var result = await authorization.ToListAsync();
+
+            return result.MapAuthorizationToConfiguration();
+        });
+    }
 }

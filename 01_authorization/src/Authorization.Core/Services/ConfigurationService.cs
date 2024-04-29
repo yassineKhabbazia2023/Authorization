@@ -31,4 +31,9 @@ public class ConfigurationService : IConfigurationService
 
         return await _configurationRepository.GetContactAccountConfigurationAsync(contactId, accountId);
     }
+
+    public async Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId)
+    {
+        return await _configurationRepository.GetAccountConfigurationAsync(accountId);
+    }
 }

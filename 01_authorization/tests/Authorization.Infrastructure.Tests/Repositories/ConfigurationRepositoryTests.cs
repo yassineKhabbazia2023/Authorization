@@ -28,7 +28,7 @@ public class ConfigurationRepositoryTests
     }
 
     [Fact]
-    public async Task GetContactConfigurationAsync_Return_Authorization()
+    public async Task GetContactAccountConfigurationAsync_Return_Authorization()
     {
         using (var context = new AuthorizationContext(_options))
         {
@@ -60,28 +60,55 @@ public class ConfigurationRepositoryTests
     }
 
     [Fact]
-    public async Task GetContactConfigurationAsyncAsync_Return_Empty()
+    public async Task GetContactAccountConfigurationAsync_Return_Empty()
+    {
+        using (var context = new AuthorizationContext(_options))
+        {
+            var repository = new ConfigurationRepository(context);
+
+            var receivedAuthorization = await repository.GetContactAccountConfigurationAsync(999, 888);
+
+            Assert.Empty(receivedAuthorization);
+        }
+    }
+
+    [Fact]
+    public async Task GetAccountConfigurationAsync_Return_Authorization()
     {
         using (var context = new AuthorizationContext(_options))
         {
             var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorization>()
                             .With(a => a.Authorization)
-                            .With(a => a.ContactId, 123)
                             .With(a => a.AccountId, 456)
-                            .Without(a => a.Contact)
+                            .Without(a => a.Account)
                             .CreateMany(3);
 
-            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
+            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization).MapAuthorizationToConfiguration();
 
             context.ContactAuthorization.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
             var repository = new ConfigurationRepository(context);
 
-            var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactAccountConfigurationAsync(999, 888);
+            var receivedAuthorization = await repository.GetAccountConfigurationAsync(accountId);
+
+            var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
+            var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
+            Assert.Equal(authExpectJson, authResultJson);
+            Assert.NotNull(receivedAuthorization);
+        }
+    }
+
+    [Fact]
+    public async Task GetAccountConfigurationAsync_Return_Empty()
+    {
+        using (var context = new AuthorizationContext(_options))
+        {
+            var repository = new ConfigurationRepository(context);
+
+            var receivedAuthorization = await repository.GetAccountConfigurationAsync(888);
 
             Assert.Empty(receivedAuthorization);
         }

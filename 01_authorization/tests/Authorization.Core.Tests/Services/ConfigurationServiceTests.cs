@@ -27,7 +27,7 @@ public class ConfigurationServiceTests
     }
 
     [Fact]
-    public async Task GetContactConfigurationAsync_Should_ReturnsConfigurationList()
+    public async Task GetContactAccountConfigurationAsync_Should_ReturnsConfigurationList()
     {
         // Arrange
         var accountId = 123;
@@ -53,7 +53,7 @@ public class ConfigurationServiceTests
     }
 
     [Fact]
-    public async Task GetNavigationAsync_Should_Throw_NotFoundException()
+    public async Task GetContactAccountConfigurationAsync_Should_Throw_NotFoundException()
     {
         // Arrange
         var accountId = 123;
@@ -75,5 +75,23 @@ public class ConfigurationServiceTests
         var exception = await Assert.ThrowsAsync<NotFoundException>(act);
         Assert.Equal(Errors.NotFoundContactCode, exception.Code);
         Assert.Equal(string.Format(Errors.NotFoundContactMessage, 234), exception.Message);
+    }
+
+    [Fact]
+    public async Task GetAccountConfigurationAsync_Should_ReturnsConfigurationList()
+    {
+        // Arrange
+        var accountId = 123;
+        var menuCodeMocked = _fixture.Create<List<Configuration>>();
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+            .ReturnsAsync(menuCodeMocked);
+
+        var configurationService = new ConfigurationService(_configurationRepository.Object, null!);
+
+        // Act
+        var resources = await configurationService.GetAccountConfigurationAsync(accountId);
+
+        // Assert
+        Assert.Equal(menuCodeMocked, resources);
     }
 }
