@@ -3,8 +3,8 @@
 // </copyright>
 
 using AutoFixture;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Mappers;
@@ -28,62 +28,76 @@ public class ConfigurationRepositoryTests
     }
 
     [Fact]
-    public async Task GetContactConfigurationAsync_Return_Authorization()
+    public async Task GetAccountConfigurationAsync_WhenAccountHasAuthorization_ShouldReturnsConfigurations()
     {
-        using (var context = new AuthorizationContext(_options))
+        // Arrange
+        using var context = new AuthorizationContext(_options);
+        var accountId = 456;
+        var accoutEntity = new AccountEntity
         {
-            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorization>()
-                            .With(a => a.Authorization)
-                            .With(a => a.ContactId, 123)
-                            .With(a => a.AccountId, 456)
-                            .Without(a => a.Contact)
-                            .Without(a => a.Account)
-                            .CreateMany(3);
+            AccountId = accountId,
+            AccountNumber = "AAZZEEE4578",
+            LegalName = "Test",
+            AccountGlobalUniqueId = Guid.NewGuid(),
+        };
 
-            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization).MapAuthorizationToConfiguration();
+        var accountAuthorizations = _fixture.Build<AccountAuthorization>()
+                .With(a => a.Authorization)
+                .With(a => a.AccountId, accountId)
+                .With(a => a.Account, accoutEntity)
+                .CreateMany(10);
 
-            context.ContactAuthorization.AddRange(contactAuthorizationAccountEntity);
-            await context.SaveChangesAsync();
-
-            var repository = new ConfigurationRepository(context);
-
-            var contactId = contactAuthorizationAccountEntity.First().ContactId;
-            var accountId = contactAuthorizationAccountEntity.First().AccountId;
-
-            var receivedAuthorization = await repository.GetContactConfigurationAsync(contactId, accountId);
-
-            var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
-            var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
-            Assert.Equal(authExpectJson, authResultJson);
-            Assert.NotNull(receivedAuthorization);
+        foreach (var auth in accountAuthorizations)
+        {
+            auth.Authorization.Configurable = true;
         }
+
+        await context.AccountAuthorization.AddRangeAsync(accountAuthorizations);
+        await context.SaveChangesAsync();
+
+        var expectedAuthorization = accountAuthorizations
+            .Select(c => c.Authorization)
+            .MapAuthorizationToConfiguration();
+
+        var repository = new ConfigurationRepository(context);
+
+        // Act
+        var receivedAuthorization = await repository.GetAccountConfigurationAsync(accountId);
+
+        // Assert
+        receivedAuthorization.Should().BeEquivalentTo(expectedAuthorization);
     }
 
     [Fact]
-    public async Task GetContactConfigurationAsyncAsync_Return_Empty()
+    public async Task GetContacttConfigurationAsync_WhenContactHasAuthorization_ShouldReturnsConfigurations()
     {
-        using (var context = new AuthorizationContext(_options))
+        // Arrange
+        using var context = new AuthorizationContext(_options);
+        var contactAuthorizations = _fixture.Build<ContactAuthorization>()
+                        .With(a => a.Authorization)
+                        .With(a => a.ContactId, 123)
+                        .With(a => a.AccountId, 456)
+                        .Without(a => a.Contact)
+                        .CreateMany(10);
+
+        foreach (var auth in contactAuthorizations)
         {
-            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorization>()
-                            .With(a => a.Authorization)
-                            .With(a => a.ContactId, 123)
-                            .With(a => a.AccountId, 456)
-                            .Without(a => a.Contact)
-                            .CreateMany(3);
-
-            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
-
-            context.ContactAuthorization.AddRange(contactAuthorizationAccountEntity);
-            await context.SaveChangesAsync();
-
-            var repository = new ConfigurationRepository(context);
-
-            var contactId = contactAuthorizationAccountEntity.First().ContactId;
-            var accountId = contactAuthorizationAccountEntity.First().AccountId;
-
-            var receivedAuthorization = await repository.GetContactConfigurationAsync(999, 888);
-
-            Assert.Empty(receivedAuthorization);
+            auth.Authorization.Configurable = true;
         }
+
+        var expectedAuthorization = contactAuthorizations
+            .Select(c => c.Authorization)
+            .MapAuthorizationToConfiguration();
+
+        context.ContactAuthorization.AddRange(contactAuthorizations);
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        // Act
+        var receivedAuthorization = await repository.GetContactConfigurationAsync(123);
+
+        // Assert
+        receivedAuthorization.Should().BeEquivalentTo(expectedAuthorization);
     }
 }

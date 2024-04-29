@@ -11,21 +11,22 @@ public static class MapAuthorizationEntityToModel
 {
     public static IEnumerable<Configuration> MapAuthorizationToConfiguration(this IEnumerable<AuthorizationEntity> sources)
     {
-        return sources == null ? Enumerable.Empty<Configuration>() : sources.GroupBy(auth => auth.Category)
-                      .Select(auth => new Configuration()
+        return sources == null ? Enumerable.Empty<Configuration>() :
+                       sources.GroupBy(auth => auth.Category)
+                      .Select(auth => new Configuration
                       {
                           Category = auth.Key,
-                          Actions = auth.Select(item => item.MapAuthorizationToAction()) !
+                          Actions = auth.Select(item => item.MapAuthorizationToAction())!
                       });
     }
 
     public static ActionModel? MapAuthorizationToAction(this AuthorizationEntity source)
     {
-        return source == null ? null : new ActionModel()
+        return source == null ? null : new ActionModel
         {
             Name = source.Name,
             Label = source.Label,
-            Code = source.Code
+            Code = source.Code,
         };
     }
 }

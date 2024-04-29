@@ -44,7 +44,7 @@ public class ConfigurationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult UpdateContactPersonaAsync(int contactId, int personaId)
+    public ActionResult UpdateContactPersonaAsync(int contactId, int? accountId, IList<int> actions)
     {
         return Ok();
     }

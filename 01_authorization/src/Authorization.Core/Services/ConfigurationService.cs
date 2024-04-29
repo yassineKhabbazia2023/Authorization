@@ -3,6 +3,7 @@
 // </copyright>
 
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
@@ -20,7 +21,7 @@ public class ConfigurationService : IConfigurationService
         _contactRepository = contactRepository;
     }
 
-    public async Task<IEnumerable<Configuration>> GetContactAccountConfigurationAsync(int contactId, int accountId)
+    public async Task<IEnumerable<Configuration>> GetContactAccountConfigurationAsync(int contactId, int? accountId)
     {
         var contact = await _contactRepository.GetContactByIdAsync(contactId);
 
@@ -29,6 +30,39 @@ public class ConfigurationService : IConfigurationService
             throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
         }
 
-        return await _configurationRepository.GetContactConfigurationAsync(contactId, accountId);
+        IEnumerable<Configuration> configurations;
+
+        if (contact!.Type == ContactType.Customer.ToString())
+        {
+            configurations = await _configurationRepository.GetAccountConfigurationAsync(accountId!.Value);
+        }
+        else if (contact!.Type == ContactType.Collaborator.ToString())
+        {
+            configurations = await _configurationRepository.GetAccountConfigurationAsync(GlobalConstants.DefaultAccountIdCollab);
+        }
+        else
+        {
+            throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type));
+        }
+
+        var contactAuthorization = await _configurationRepository.GetContactConfigurationAsync(contactId);
+
+        if (contactAuthorization?.Any() == true)
+        {
+            foreach (var accountConf in configurations)
+            {
+                var contactConfig = contactAuthorization.FirstOrDefault(x => x.Category.Equals(accountConf.Category));
+
+                if (contactConfig?.Actions?.Any() == true)
+                {
+                    foreach (var action in accountConf.Actions)
+                    {
+                        action.Enabled = contactConfig.Actions.Any(x => x.ActionId == action.ActionId);
+                    }
+                }
+            }
+        }
+
+        return configurations;
     }
 }

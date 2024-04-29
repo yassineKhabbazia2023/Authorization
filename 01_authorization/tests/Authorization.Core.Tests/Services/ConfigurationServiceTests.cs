@@ -2,78 +2,272 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Reflection.Emit;
+using System.Xml.Linq;
+using System;
 using AutoFixture;
+using FluentAssertions;
+using FluentAssertions.Equivalency;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Moq;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Services;
+using Pulse.Authorization.Core.Constants;
 
 namespace Pulse.Authorization.Core.Tests.Services;
 
 public class ConfigurationServiceTests
 {
     private readonly Mock<IConfigurationRepository> _configurationRepository;
-
+    private readonly Mock<IContactRepository> _contactRepository;
     private readonly Fixture _fixture;
 
     public ConfigurationServiceTests()
     {
-        _configurationRepository = new Mock<IConfigurationRepository>(MockBehavior.Strict);
+        _configurationRepository = new Mock<IConfigurationRepository>();
+        _contactRepository = new Mock<IContactRepository>();
         _fixture = new Fixture();
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
     }
 
     [Fact]
-    public async Task GetContactConfigurationAsync_Should_ReturnsConfigurationList()
+    public async Task GetContactAccountConfigurationAsync_ContactNotFound_ThrowsNotFoundException()
+    {
+        // Arrange
+        int contactId = 1;
+        int accountId = 1;
+        _contactRepository.Setup(x => x.GetContactByIdAsync(contactId)).ReturnsAsync((Contact)null!);
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<NotFoundException>(async () =>
+        {
+            await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
+        });
+    }
+
+    [Fact]
+    public async Task GetContactAccountConfigurationAsync_WhenContactTypeIsCustomer_ShouldReturnsContactConfigurations()
     {
         // Arrange
         var accountId = 123;
         var contactId = 456;
-        var menuCodeMocked = _fixture.Create<List<Configuration>>();
+
         var contactMocked = _fixture.Build<Contact>()
                                     .With(c => c.ContactId, contactId)
+                                    .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
-            .ReturnsAsync(menuCodeMocked);
+
+        var accountAuthorizations = new List<Configuration>
+        {
+            new Configuration
+            {
+                Category = "CltGESTION",
+                Actions = new List<Models.Action>
+                {
+                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
+                    new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
+                    new Models.Action { ActionId = 3, Code = "CLUSER002", Name = "Add User" },
+                    new Models.Action { ActionId = 4, Code = "CLUSER002", Name = "Add User" },
+                    new Models.Action { ActionId = 5, Code = "CLUSER003", Name = "Delete User" },
+                    new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
+                    new Models.Action { ActionId = 7, Code = "CLINFO001", Name = "View informations" },
+                }
+            }
+        };
+
+        var contactAuthorizations = new List<Configuration>
+        {
+                new Configuration
+                {
+                    Category = "CltGESTION",
+                    Actions = new List<Models.Action>
+                    {
+                        new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
+                        new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
+                    }
+                }
+        };
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+            .ReturnsAsync(accountAuthorizations);
+
+        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
+            .ReturnsAsync(contactAuthorizations);
+
         var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
 
         // Act
-        var resources = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
+        var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
 
         // Assert
-        Assert.Equal(menuCodeMocked, resources);
+        var permissions = eligibleContactAuthorizations.FirstOrDefault();
+        permissions!.Category.Should().Be("CltGESTION");
+        permissions.Actions.Count().Should().Be(7);
+        foreach (var action in permissions.Actions)
+        {
+            if (action.ActionId == 2 || action.ActionId == 6)
+            {
+                action.Enabled.Should().BeTrue();
+            }
+            else
+            {
+                action.Enabled.Should().BeFalse();
+            }
+        }
     }
 
     [Fact]
-    public async Task GetNavigationAsync_Should_Throw_NotFoundException()
+    public async Task GetContactAccountConfigurationAsync_WhenContactTypeIsCollaborator_ShouldReturnsContactConfigurations()
     {
         // Arrange
         var accountId = 123;
-        var contactId = 234;
-        var resourceMocked = _fixture.Create<List<Configuration>>();
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
-            .ReturnsAsync(resourceMocked);
+        var contactId = 456;
+
+        var contactMocked = _fixture.Build<Contact>()
+                                    .With(c => c.ContactId, contactId)
+                                     .With(c => c.Type, ContactType.Collaborator.ToString())
+                                    .Create();
+
+        var accountAuthorizations = new List<Configuration>
+        {
+            new Configuration
+            {
+                Category = "ColADMIN",
+                Actions = new List<Models.Action>
+                {
+                    new Models.Action { ActionId = 1, Code = "COADMI001", Name = "View collabs" },
+                    new Models.Action { ActionId = 1, Code = "COADMI002", Name = "Delete collab" },
+                    new Models.Action { ActionId = 1, Code = "COADMI003", Name = "Update right collab" },
+
+                },
+            },
+            new Configuration
+            {
+                Category = "ColESC",
+                Actions = new List<Models.Action>
+                {
+                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
+                }
+            },
+            new Configuration
+            {
+                Category = "ColOFFRE",
+                Actions = new List<Models.Action>
+                {
+                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
+                }
+            },
+            new Configuration
+            {
+                Category = "ColMIRROIR",
+                Actions = new List<Models.Action>
+                {
+                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
+                }
+            }
+        };
+
+        var contactAuthorizations = new List<Configuration>
+        {
+                new Configuration
+                {
+                    Category = "CltGESTION",
+                    Actions = new List<Models.Action>
+                    {
+                        new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
+                        new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
+                    }
+                }
+        };
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
-            .ReturnsAsync((Contact)null!);
+            .ReturnsAsync(contactMocked);
+
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+            .ReturnsAsync(accountAuthorizations);
+
+        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
+            .ReturnsAsync(contactAuthorizations);
 
         var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
 
         // Act
-        var act = async () => await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
+        var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
 
         // Assert
-        var exception = await Assert.ThrowsAsync<NotFoundException>(act);
-        Assert.Equal(Errors.NotFoundContactCode, exception.Code);
-        Assert.Equal(string.Format(Errors.NotFoundContactMessage, 234), exception.Message);
+        var permissions = eligibleContactAuthorizations.FirstOrDefault();
+        permissions!.Category.Should().Be("CltGESTION");
+        permissions.Actions.Count().Should().Be(7);
+        foreach (var action in permissions.Actions)
+        {
+            if (action.ActionId == 2 || action.ActionId == 6)
+            {
+                action.Enabled.Should().BeTrue();
+            }
+            else
+            {
+                action.Enabled.Should().BeFalse();
+            }
+        }
     }
+
+    //[Fact]
+    //public async Task GetContactConfigurationAsync_WhenContactHasAuthorization_ShouldReturnsConfigurations()
+    //{
+    //    // Arrange
+    //    var accountId = 123;
+    //    var contactId = 456;
+    //    var menuCodeMocked = _fixture.Create<List<Configuration>>();
+    //    var contactMocked = _fixture.Build<Contact>()
+    //                                .With(c => c.ContactId, contactId)
+    //                                .Create();
+    //    _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
+    //        .ReturnsAsync(menuCodeMocked);
+
+    //    var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
+    //    contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+    //        .ReturnsAsync(contactMocked);
+
+    //    var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
+
+    //    // Act
+    //    var resources = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
+
+    //    // Assert
+    //    Assert.Equal(menuCodeMocked, resources);
+    //}
+
+    //[Fact]
+    //public async Task GetNavigationAsync_Should_Throw_NotFoundException()
+    //{
+    //    // Arrange
+    //    var accountId = 123;
+    //    var contactId = 234;
+    //    var resourceMocked = _fixture.Create<List<Configuration>>();
+    //    _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
+    //        .ReturnsAsync(resourceMocked);
+
+    //    var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
+    //    contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+    //        .ReturnsAsync((Contact)null!);
+
+    //    var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
+
+    //    // Act
+    //    var act = async () => await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
+
+    //    // Assert
+    //    var exception = await Assert.ThrowsAsync<NotFoundException>(act);
+    //    Assert.Equal(Errors.NotFoundContactCode, exception.Code);
+    //    Assert.Equal(string.Format(Errors.NotFoundContactMessage, 234), exception.Message);
+    //}
 }

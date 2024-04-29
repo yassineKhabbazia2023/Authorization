@@ -30,12 +30,12 @@ public class AuthorizationService : IAuthorizationService
             throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
         }
 
-        if (contact!.Type == GlobalConstants.ContactTypeCustomer)
+        if (contact!.Type == ContactType.Customer.ToString())
         {
             return await GetCustomerAuthorizationAsync(contactId, accountId);
         }
 
-        if (contact!.Type == GlobalConstants.ContactTypeCollab)
+        if (contact!.Type == ContactType.Collaborator.ToString())
         {
             return await GetCollabAuthorizationAsync(contactId, accountId);
         }
