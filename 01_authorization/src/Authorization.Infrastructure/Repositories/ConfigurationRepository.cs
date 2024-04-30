@@ -11,6 +11,9 @@ using Pulse.Authorization.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Infrastructure.Mappers;
+using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Pulse.Authorization.Core.Exceptions;
+using System.Data;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
 
@@ -63,6 +66,37 @@ public class ConfigurationRepository : IConfigurationRepository
             var result = await authorization.ToListAsync();
 
             return result.MapAuthorizationToConfiguration();
+        });
+    }
+
+    public async Task DeleteContactAccountAuthorization(int contactId, int accountId, IEnumerable<int> actionId)
+    {
+
+    }
+
+    public async Task CreateContactAccountAuthorization(int contactId, int accountId, IEnumerable<int> actionId)
+    {
+        await _retryPolicy.ExecuteAsync(async () =>
+        {
+            if (!_authorizationContext.AccountEntity.Any(x => x.AccountId == accountId))
+            {
+                throw new NotFoundException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId));
+            }
+
+            if (!_authorizationContext.ContactEntity.Any(x => x.ContactId == contactId))
+            {
+                throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
+            }
+
+            //var contactAuthorizationEntities 
+
+            //if (contactAuthorizationEntities.Any())
+            //{
+            //    await _authorizationContext.ContactAuthorization.AddRangeAsync(roleEntities);
+            //}
+
+            //await _authorizationContext.ContactAuthorization.AddRangeAsync(delegationEntities);
+            //await _authorizationContext.SaveChangesAsync();
         });
     }
 }
