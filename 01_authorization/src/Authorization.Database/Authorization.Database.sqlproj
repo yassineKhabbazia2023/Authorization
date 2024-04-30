@@ -66,6 +66,7 @@
     <Folder Include="account\Tables\" />
     <Folder Include="Security\" />
     <Folder Include="postDeployment" />
+    <Folder Include="ScriptRec" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="auth\Tables\Authorization.sql" />
@@ -87,5 +88,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="postDeployment\auth.Authorization.sql" />
+    <None Include="postDeployment\actor.Contact.sql" />
+    <None Include="ScriptRec\actor.Contact.ExpertDigitaux.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.PostDeployment.sql" />
   </ItemGroup>
 </Project>

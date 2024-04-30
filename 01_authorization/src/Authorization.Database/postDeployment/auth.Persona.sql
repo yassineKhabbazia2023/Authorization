@@ -1,6 +1,5 @@
 ﻿IF (SELECT count(*) FROM [auth].[Persona]) = 0
 BEGIN
-SET IDENTITY_INSERT [auth].[Persona] ON; 
 	INSERT [auth].[Persona] ([PersonaId], [Name], [Description], [Type]) VALUES 
 		(1, N'ADMIN / Dirigeant', N'', 2),
 		(2, N'ADMIN / Associé', N'', 2),
@@ -24,5 +23,4 @@ SET IDENTITY_INSERT [auth].[Persona] ON;
 		(20, N'Collaborateur BI', N'', 1),
 		(21, N'Collaborateur', N'', 1),
 		(22, N'Customer', N'', 2)
-SET IDENTITY_INSERT [auth].[Persona] OFF;
 END
