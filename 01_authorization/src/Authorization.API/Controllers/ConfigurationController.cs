@@ -33,20 +33,4 @@ public class ConfigurationController : ControllerBase
         var configuration = await _configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
         return Ok(configuration);
     }
-
-    /// <summary>
-    /// Modifier une authorization pour un contact sur une entité morale.
-    /// </summary>
-    /// <param name="contactId">Identifiant du contact.</param>
-    /// <param name="accountId">Identifiant de l'entité.</param>
-    /// <param name="actions">La liste des nouvelles configurations du contact sur l'entité.</param>
-    /// <returns>Http 200.</returns>
-    [HttpPut]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult UpdateContactPersonaAsync(int contactId, int? accountId, IList<int> actions)
-    {
-        return Ok();
-    }
 }
