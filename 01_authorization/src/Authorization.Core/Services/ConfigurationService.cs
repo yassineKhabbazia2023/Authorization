@@ -3,6 +3,7 @@
 // </copyright>
 
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Microsoft.Extensions.Configuration;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
@@ -47,6 +48,13 @@ public class ConfigurationService : IConfigurationService
 
         var contactAuthorization = await _configurationRepository.GetContactConfigurationAsync(contactId);
 
+        EnableContactConfiguration(configurations, contactAuthorization);
+
+        return configurations;
+    }
+
+    private void EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
+    {
         if (contactAuthorization?.Any() == true)
         {
             foreach (var accountConf in configurations)
@@ -62,7 +70,5 @@ public class ConfigurationService : IConfigurationService
                 }
             }
         }
-
-        return configurations;
     }
 }
