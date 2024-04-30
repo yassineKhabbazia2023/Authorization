@@ -25,7 +25,7 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
-    public async Task GetNavigationAsync_Should_Returns_ResourceList()
+    public async Task GetContactAuthorizationAsync_Should_Returns_AuthorizationCodeList()
     {
         // Arrange
         var accountId = 6000;
@@ -46,7 +46,7 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
-    public void GetNavigationAsync_Should_Throw_TechnicalException()
+    public void GetContactAuthorizationAsync_Should_Throw_TechnicalException()
     {
         // Arrange
         var accountId = 6000;
