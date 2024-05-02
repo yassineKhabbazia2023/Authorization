@@ -11,6 +11,10 @@ using Pulse.Authorization.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Infrastructure.Mappers;
+using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Pulse.Authorization.Core.Exceptions;
+using System.Data;
+using Pulse.Authorization.Infrastructure.Entities;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
 
@@ -63,6 +67,85 @@ public class ConfigurationRepository : IConfigurationRepository
             var result = await authorization.ToListAsync();
 
             return result.MapAuthorizationToConfiguration();
+        });
+    }
+
+    private async Task<IEnumerable<AuthorizationEntity>> GetAuthorizationEntitiesByCodeAsync(IEnumerable<string> codes)
+    {
+        return await _retryPolicy.ExecuteAsync(async () =>
+        {
+            var contactAuthorization = await _authorizationContext
+                     .AuthorizationEntity
+                     .Where(x => codes.Contains(x.Code))
+                     .Select(x => x)
+                     .Distinct()
+                     .ToListAsync();
+
+            return contactAuthorization;
+        });
+    }
+
+    public async Task<IEnumerable<ContactAuthorization>> GetContactAccountConfigurationAsync(int contactId, int accountId)
+    {
+        return await _retryPolicy.ExecuteAsync(async () =>
+        {
+            var contactAuthorization = await _authorizationContext
+                     .ContactAuthorization
+                     .Include(x => x.Authorization)
+                     .Where(x => x.ContactId == contactId
+                                && x.AccountId == accountId)
+                     .Select(x => x)
+                     .Distinct()
+                     .ToListAsync();
+
+            return contactAuthorization;
+        });
+    }
+
+    public async Task<int> DeleteContactAccountAuthorizationAsync(IEnumerable<ContactAuthorization> contactAuthorizations)
+    {
+        int result = 0;
+        await _retryPolicy.ExecuteAsync(async () =>
+        {
+            if (contactAuthorizations.Any())
+            {
+                _authorizationContext.ContactAuthorization.RemoveRange(contactAuthorizations);
+                result = await _authorizationContext.SaveChangesAsync();
+            }
+        });
+
+        return result;
+    }
+
+    public async Task UpdateContactAccountAuthorizationAsync(int contactId, int accountId, IEnumerable<string> codes)
+    {
+        await _retryPolicy.ExecuteAsync(async () =>
+        {
+            var oldContactAuthorizationEntities = await GetContactAccountConfigurationAsync(contactId, accountId);
+
+            if (oldContactAuthorizationEntities.Any())
+            {
+                int deleted = await DeleteContactAccountAuthorizationAsync(oldContactAuthorizationEntities);
+
+                if (deleted > 0)
+                {
+                    var authorizationByCode = await GetAuthorizationEntitiesByCodeAsync(codes);
+                    var newContactAuthorizationEntities = authorizationByCode.Select(auth => new ContactAuthorization()
+                    {
+                        AccountId = accountId,
+                        ContactId = contactId,
+                        AuthorizationId = auth.AuthorizationId,
+                        CreationDate = DateTime.UtcNow
+                    });
+
+                    await _authorizationContext.ContactAuthorization.AddRangeAsync(newContactAuthorizationEntities);
+                    await _authorizationContext.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                throw new NotFoundException(Errors.NotFoundContactAccountAuthCode, string.Format(Errors.NotFoundContactAccountAuthCode, contactId, string.Join('-', codes), accountId));
+            }
         });
     }
 }

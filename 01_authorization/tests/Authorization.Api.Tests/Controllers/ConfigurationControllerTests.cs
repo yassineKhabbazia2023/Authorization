@@ -45,4 +45,24 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
         Assert.Equal(expected, (result.Result as OkObjectResult)?.Value);
         Assert.Equal(200, (result.Result as OkObjectResult)?.StatusCode);
     }
+
+    [Fact]
+    public async Task UpdateContactAccountAuthorizationAsync_Should_Returns_Ok()
+    {
+        // Arrange
+        var accountId = 6000;
+        var contactId = 3;
+        var listCode = _fixture.Create<List<string>>();
+
+        var configurationService = new Mock<IConfigurationService>(MockBehavior.Strict);
+        configurationService.Setup(service => service.UpdateContactAccountAuthorizationAsync(contactId, accountId, listCode))
+            .Returns(Task.CompletedTask);
+        var configurationController = new ConfigurationController(configurationService.Object);
+
+        // Act
+        var result = await configurationController.UpdateContactAccountAuthorizationAsync(contactId, accountId, listCode);
+
+        // Assert
+        Assert.Equal(200, (result as OkResult)?.StatusCode);
+    }
 }

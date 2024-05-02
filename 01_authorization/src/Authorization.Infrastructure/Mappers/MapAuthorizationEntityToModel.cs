@@ -9,6 +9,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers;
 
 public static class MapAuthorizationEntityToModel
 {
+    // add test
     public static IEnumerable<Configuration> MapAuthorizationToConfiguration(this IEnumerable<AuthorizationEntity> sources)
     {
         return sources == null ? Enumerable.Empty<Configuration>() :

@@ -4,7 +4,9 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Microsoft.EntityFrameworkCore;
+using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Mappers;
@@ -99,5 +101,132 @@ public class ConfigurationRepositoryTests
 
         // Assert
         receivedAuthorization.Should().BeEquivalentTo(expectedAuthorization);
+    }
+
+    [Fact]
+    public async Task DeleteContactAccountAuthorizationAsync_ShouldReturn_OK()
+    {
+        // Arrange
+        var contactId = 123;
+        var accountId = 456;
+        using var context = new AuthorizationContext(_options);
+        var contactAuthorizations = _fixture.Build<ContactAuthorization>()
+                        .With(a => a.Authorization)
+                        .With(a => a.ContactId, contactId)
+                        .With(a => a.AccountId, accountId)
+                        .Without(a => a.Contact)
+                        .CreateMany(10);
+
+        var expectedCode = contactAuthorizations.Select(x => x.Authorization.Code);
+
+        context.ContactAuthorization.AddRange(contactAuthorizations);
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        // Act
+        await repository.DeleteContactAccountAuthorizationAsync(contactAuthorizations);
+        var receivedAuthorization = await repository.GetContactAccountConfigurationAsync(contactId, accountId);
+
+        // Assert
+        receivedAuthorization.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task UpdateContactAccountAuthorizationAsync_ShouldReturn_OK()
+    {
+        // Arrange
+        var contactId = 123;
+        var accountId = 456;
+        using var context = new AuthorizationContext(_options);
+        var accountEntity = _fixture.Build<AccountEntity>()
+                            .With(a => a.AccountId, accountId)
+                            .Without(a => a.AccountAuthorization)
+                            .Without(a => a.ContactAuthorization)
+                            .Create();
+        var contactEntity = _fixture.Build<ContactEntity>()
+                            .With(a => a.ContactId, contactId)
+                            .Without(a => a.ContactAuthorization)
+                            .Create();
+        var oldAuthorizationEntity = _fixture.Build<AuthorizationEntity>()
+                        .Without(a => a.ContactAuthorization)
+                        .Without(a => a.AccountAuthorization)
+                        .CreateMany(3)
+                        .ToList();
+        var oldContactAuthorizations = _fixture.Build<ContactAuthorization>()
+                        .With(a => a.ContactId, contactId)
+                        .With(a => a.AccountId, accountId)
+                        .Without(a => a.Contact)
+                        .Without(a => a.Account)
+                        .Without(a => a.Authorization)
+                        .CreateMany(3)
+                        .ToList();
+        oldContactAuthorizations.ForEach(auth => auth.Authorization = oldAuthorizationEntity[oldContactAuthorizations.IndexOf(auth)]);
+
+        var newAuthorizationEntity = _fixture.Build<AuthorizationEntity>()
+                        .Without(a => a.ContactAuthorization)
+                        .Without(a => a.AccountAuthorization)
+                        .CreateMany(3)
+                        .ToList();
+        var newContactAuthorizations = _fixture.Build<ContactAuthorization>()
+                        .With(a => a.ContactId, contactId)
+                        .With(a => a.AccountId, accountId)
+                        .Without(a => a.Contact)
+                        .Without(a => a.Authorization)
+                        .CreateMany(3)
+                        .ToList();
+        newContactAuthorizations.ForEach(auth => auth.Authorization = newAuthorizationEntity[newContactAuthorizations.IndexOf(auth)]);
+
+        var newExpectedCode = newContactAuthorizations.Select(x => x.Authorization.Code);
+
+        context.AccountEntity.Add(accountEntity);
+        context.ContactEntity.Add(contactEntity);
+        context.ContactAuthorization.AddRange(oldContactAuthorizations);
+        context.AuthorizationEntity.AddRange(newAuthorizationEntity);
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        // Act
+        await repository.UpdateContactAccountAuthorizationAsync(contactId, accountId, newExpectedCode);
+        var newAuthorization = await repository.GetContactAccountConfigurationAsync(contactId, accountId);
+
+        // Assert
+        newAuthorization.Should().NotBeNullOrEmpty();
+        newAuthorization.Select(x => x.Authorization.Code).Should().BeEquivalentTo(newExpectedCode);
+        newAuthorization.Select(x => x.AuthorizationId).Should().BeEquivalentTo(newAuthorizationEntity.Select(x => x.AuthorizationId));
+    }
+
+    [Fact]
+    public async Task UpdateContactAccountAuthorizationAsync_ShouldThrow_NotFoundException()
+    {
+        // Arrange
+        var contactId = 123;
+        var accountId = 456;
+        var codes = new List<string>() { "DDD", "EEE" };
+        using var context = new AuthorizationContext(_options);
+        var accountEntity = _fixture.Build<AccountEntity>()
+                            .With(a => a.AccountId, accountId)
+                            .Without(a => a.AccountAuthorization)
+                            .Without(a => a.ContactAuthorization)
+                            .Create();
+        var contactEntity = _fixture.Build<ContactEntity>()
+                            .With(a => a.ContactId, contactId)
+                            .Without(a => a.ContactAuthorization)
+                            .Create();
+
+        context.AccountEntity.Add(accountEntity);
+        context.ContactEntity.Add(contactEntity);
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        // Act
+        var act = async () => await repository.UpdateContactAccountAuthorizationAsync(contactId, accountId, codes);
+
+        // Assert
+        var exception = await Assert.ThrowsAsync<NotFoundException>(act);
+        Assert.Equal(Errors.NotFoundContactAccountAuthCode, exception.Code);
+        Assert.Equal(string.Format(Errors.NotFoundContactAccountAuthCode, contactId, string.Join('-', codes), accountId), exception.Message);
     }
 }
