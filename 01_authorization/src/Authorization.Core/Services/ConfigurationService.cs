@@ -53,7 +53,7 @@ public class ConfigurationService : IConfigurationService
         return configurations;
     }
 
-    private void EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
+    private static void EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
     {
         if (contactAuthorization?.Any() == true)
         {
@@ -70,5 +70,19 @@ public class ConfigurationService : IConfigurationService
                 }
             }
         }
+    }
+
+    public async Task UpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IEnumerable<string> codes)
+    {
+        var contact = await _contactRepository.GetContactByIdAsync(contactId);
+
+        if (contact == null)
+        {
+            throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
+        }
+
+        accountId = accountId ?? (contact.Type!.Equals(ContactType.Collaborator.ToString()) ? -1 : throw new NotFoundException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId)));
+
+        await _configurationRepository.UpdateContactAccountAuthorizationAsync(contactId, accountId.Value, codes);
     }
 }

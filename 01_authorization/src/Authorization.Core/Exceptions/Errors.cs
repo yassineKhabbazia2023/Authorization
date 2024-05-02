@@ -14,5 +14,8 @@ namespace Pulse.Authorization.Core.Exceptions
 
         public static readonly string NotFoundContactTypeCode = "AUT003";
         public static readonly string NotFoundContactTypeMessage = "Le contact avec l'identifiant {0} et de type {1} n'est pas reconnu";
+
+        public static readonly string NotFoundContactAccountAuthCode = "AUT004";
+        public static readonly string NotFoundContactAccountAuthMessage = "Le contact avec l'identifiant {0} ne possède pas ces authorizations: {1} sur l'entité {2}";
     }
 }
