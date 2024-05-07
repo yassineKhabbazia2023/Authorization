@@ -3,7 +3,6 @@
 // </copyright>
 
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
-using Microsoft.Extensions.Configuration;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
@@ -48,28 +47,29 @@ public class ConfigurationService : IConfigurationService
 
         var contactAuthorization = await _configurationRepository.GetContactConfigurationAsync(contactId);
 
-        EnableContactConfiguration(configurations, contactAuthorization);
-
-        return configurations;
+        return EnableContactConfiguration(configurations, contactAuthorization);
     }
 
-    private static void EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
+    private static List<Configuration> EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
     {
-        if (contactAuthorization?.Any() == true)
+        var tConfigurations = new List<Configuration>();
+        foreach(var accountConf in configurations.ToArray())
         {
-            foreach (var accountConf in configurations)
+            var actions = accountConf.Actions.ToArray();
+            foreach (var action in actions)
             {
-                var contactConfig = contactAuthorization.FirstOrDefault(x => x.Category.Equals(accountConf.Category));
-
-                if (contactConfig?.Actions?.Any() == true)
+                var cat = contactAuthorization.FirstOrDefault(a => a.Category == accountConf.Category);
+                if (cat != null)
                 {
-                    foreach (var action in accountConf.Actions)
-                    {
-                        action.Enabled = contactConfig.Actions.Any(x => x.ActionId == action.ActionId);
-                    }
+                    action.Enabled = cat.Actions.Any(ac => ac.ActionId == action.ActionId);
                 }
             }
+
+            accountConf.Actions = actions;
+            tConfigurations.Add(accountConf);
         }
+
+        return tConfigurations;
     }
 
     public async Task UpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IEnumerable<string> codes)

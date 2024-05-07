@@ -28,6 +28,7 @@ public static class MapAuthorizationEntityToModel
             Name = source.Name,
             Label = source.Label,
             Code = source.Code,
+            ActionId = source.AuthorizationId,
         };
     }
 }

@@ -23,7 +23,7 @@ public class ConfigurationController : ControllerBase
     /// <summary>
     /// Récupère la configuration des authorizations d'un contact sur un account.
     /// </summary>
-    /// <param name="contactId">Identifiant du contat.</param>
+    /// <param name="contactId">Identifiant du contact.</param>
     /// <param name="accountId">Identifiant de l'entité morale.</param>
     /// <returns>La liste des configurations.</returns>
     [HttpGet]
