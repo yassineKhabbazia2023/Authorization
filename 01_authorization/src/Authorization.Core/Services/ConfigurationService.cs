@@ -50,7 +50,7 @@ public class ConfigurationService : IConfigurationService
         return EnableContactConfiguration(configurations, contactAuthorization);
     }
 
-    private IEnumerable<Configuration> EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
+    private static IList<Configuration> EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
     {
         var tConfigurations = new List<Configuration>();
         for (var i = 0; i < configurations.ToArray().Length; i++)
