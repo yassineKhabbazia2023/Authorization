@@ -50,18 +50,19 @@ public class ConfigurationService : IConfigurationService
         return EnableContactConfiguration(configurations, contactAuthorization);
     }
 
-    private static IList<Configuration> EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
+    private static List<Configuration> EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
     {
         var tConfigurations = new List<Configuration>();
-        for (var i = 0; i < configurations.ToArray().Length; i++)
+        foreach(var accountConf in configurations.ToArray())
         {
-            var accountConf = configurations.ToArray()[i];
             var actions = accountConf.Actions.ToArray();
-            for (var x = 0; x < actions.Length; x++)
+            foreach (var action in actions)
             {
-                var action = actions[x];
-
-                action.Enabled = contactAuthorization.Any(a => a.Category == accountConf.Category && a.Actions.Any(ac => ac.ActionId == action.ActionId));
+                var cat = contactAuthorization.FirstOrDefault(a => a.Category == accountConf.Category);
+                if (cat != null)
+                {
+                    action.Enabled = cat.Actions.Any(ac => ac.ActionId == action.ActionId);
+                }
             }
 
             accountConf.Actions = actions;
