@@ -33,9 +33,14 @@ public class AuthorizationServiceTests
     public async Task GetNavigationAsync_Should_ReturnsResourceList(string contactType)
     {
         // Arrange
-        var accountId = contactType.Equals("Collaborator") ? -1 : 123;
+        var accountId = 123;
         var contactId = 456;
         var menuCodeMocked = _fixture.Create<List<string>>();
+        var menuCodeMockedDefault = _fixture.Create<List<string>>();
+        var menuCodeMockedContact = _fixture.Create<List<string>>();
+        var menuCodeMockedAccount = contactType.Equals("Collaborator")
+            ? menuCodeMockedDefault.Concat(menuCodeMocked).ToList()
+            : menuCodeMocked;
         var contactMocked = _fixture.Build<Contact>()
                                     .With(c => c.Type, contactType)
                                     .With(c => c.ContactId, contactId)
@@ -43,11 +48,14 @@ public class AuthorizationServiceTests
         _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, accountId))
             .ReturnsAsync(menuCodeMocked);
 
+        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, -1))
+           .ReturnsAsync(menuCodeMockedDefault);
+
         _authorizationRepository.Setup(repository => repository.GetAccountAuthorizationAsync(accountId))
-            .ReturnsAsync(menuCodeMocked);
+            .ReturnsAsync(menuCodeMockedAccount);
 
         _authorizationRepository.Setup(repository => repository.GetContactAuthorizationAsync(contactId))
-            .ReturnsAsync(menuCodeMocked);
+            .ReturnsAsync(menuCodeMockedContact);
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
@@ -71,7 +79,7 @@ public class AuthorizationServiceTests
             var resources = await authorizationService.GetContactAuthorizationAsync(contactId, accountId);
 
             // Assert
-            Assert.Equal(menuCodeMocked, resources);
+            Assert.Equal(menuCodeMockedAccount, resources);
         }
     }
 
