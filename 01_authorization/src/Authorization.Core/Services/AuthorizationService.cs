@@ -7,6 +7,7 @@ using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Constants;
+using System.Collections.Generic;
 
 namespace Pulse.Authorization.Core.Services;
 
@@ -60,6 +61,10 @@ public class AuthorizationService : IAuthorizationService
         if (accountId == null)
         {
             return collabAuthorization;
+        }
+        else
+        {
+            collabAuthorization.AddRange(await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, accountId.Value));
         }
 
         var accountAuthorization = await _authorizationRepository.GetAccountAuthorizationAsync(accountId.Value);
