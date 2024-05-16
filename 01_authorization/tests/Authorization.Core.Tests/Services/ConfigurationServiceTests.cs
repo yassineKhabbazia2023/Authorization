@@ -11,6 +11,7 @@ using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Services;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
+using Kpmg.ExceptionMiddleware.AdvancedException;
 
 namespace Pulse.Authorization.Core.Tests.Services;
 
@@ -409,7 +410,7 @@ public class ConfigurationServiceTests
     }
 
     [Fact]
-    public async Task UpdateContactAccountAuthorizationAsync_ShouldReturnTaskCompleted()
+    public async Task CreateOrUpdateContactAccountAuthorizationAsync_ShouldReturnTaskCompleted()
     {
         // Arrange
         var accountId = 123;
@@ -426,21 +427,21 @@ public class ConfigurationServiceTests
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.UpdateContactAccountAuthorizationAsync(contactId, accountId, codes))
+        _configurationRepository.Setup(repository => repository.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, codes))
             .Returns(Task.CompletedTask)
             .Verifiable();
 
         var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
 
         // Act
-        await configurationService.UpdateContactAccountAuthorizationAsync(contactId, accountId, codes);
+        await configurationService.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, codes);
 
         // Assert
         _configurationRepository.Verify();
     }
 
     [Fact]
-    public async Task UpdateContactAccountAuthorizationAsync_GivenWrongAccountId_ShouldThrow_NotFoundException()
+    public async Task CreateOrUpdateContactAccountAuthorizationAsync_GivenWrongAccountId_ShouldThrow_NotFoundException()
     {
         // Arrange
         var contactId = 456;
@@ -456,22 +457,19 @@ public class ConfigurationServiceTests
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.UpdateContactAccountAuthorizationAsync(contactId, 999, codes))
-            .Returns(Task.CompletedTask);
-
         var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
 
         // Act
-        var act = async () => await configurationService.UpdateContactAccountAuthorizationAsync(contactId, null, codes);
+        var act = async () => await configurationService.CreateOrUpdateContactAccountAuthorizationAsync(contactId, null, codes);
 
         // Assert
-        var exception = await Assert.ThrowsAsync<NotFoundException>(act);
+        var exception = await Assert.ThrowsAsync<BadRequestException>(act);
         Assert.Equal(Errors.NotFoundAccountCode, exception.Code);
-        Assert.Equal(string.Format(Errors.NotFoundAccountMessage, string.Empty), exception.Message);
+        Assert.Equal(Errors.NotFoundAccountMessage, exception.Message);
     }
 
     [Fact]
-    public async Task UpdateContactAccountAuthorizationAsync_GivenWrongContactId_ShouldThrow_NotFoundException()
+    public async Task CreateOrUpdateContactAccountAuthorizationAsync_GivenWrongContactId_ShouldThrow_NotFoundException()
     {
         // Arrange
         var accountId = 123;
@@ -488,14 +486,10 @@ public class ConfigurationServiceTests
         contactRepository.Setup(repository => repository.GetContactByIdAsync(999))
             .ThrowsAsync(new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, 999)));
 
-        _configurationRepository.Setup(repository => repository.UpdateContactAccountAuthorizationAsync(contactId, accountId, codes))
-            .Returns(Task.CompletedTask)
-            .Verifiable();
-
         var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
 
         // Act
-        var act = async () => await configurationService.UpdateContactAccountAuthorizationAsync(999, accountId, codes);
+        var act = async () => await configurationService.CreateOrUpdateContactAccountAuthorizationAsync(999, accountId, codes);
 
         // Assert
         var exception = await Assert.ThrowsAsync<NotFoundException>(act);

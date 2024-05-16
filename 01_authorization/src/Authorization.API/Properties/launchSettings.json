@@ -9,14 +9,14 @@
     }
   },
   "profiles": {
-    "Account.API": {
+    "Authorization.API": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
+      "launchUrl": "api",
       "applicationUrl": "https://localhost:7248;http://localhost:5248",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "SqlAccountConnectionString": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=account;Integrated Security=True;Connect Timeout=60;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "IIS Express": {

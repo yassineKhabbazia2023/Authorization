@@ -10,5 +10,5 @@ public interface IConfigurationService
 {
     Task<IEnumerable<Configuration>> GetContactAccountConfigurationAsync(int contactId, int? accountId);
 
-    Task UpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IEnumerable<string> codes);
+    Task CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IEnumerable<string> codes);
 }

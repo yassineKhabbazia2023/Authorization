@@ -16,11 +16,11 @@ namespace Pulse.Authorization.API.Configuration
             {
                 swaggerGenOptions.AddServer(new OpenApiServer()
                 {
-                    Url = "/authorization",
+                    Url = "/",
                 });
                 swaggerGenOptions.AddServer(new OpenApiServer()
                 {
-                    Url = "/",
+                    Url = "/authorization",
                 });
                 swaggerGenOptions.SwaggerDoc(swaggerConfiguration?.Version, new OpenApiInfo
                 {

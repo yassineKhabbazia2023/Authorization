@@ -9,8 +9,8 @@ using AutoFixture;
 using Pulse.Authorization.API;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.API.Controllers;
-using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Pulse.Authorization.Core.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Pulse.Authorization.Api.Tests.Controllers;
 
@@ -47,7 +47,7 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
-    public async Task UpdateContactAccountAuthorizationAsync_Should_Returns_Ok()
+    public async Task CreateOrUpdateContactAccountAuthorizationAsync_Should_Returns_Ok()
     {
         // Arrange
         var accountId = 6000;
@@ -55,12 +55,12 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
         var listCode = _fixture.Create<List<string>>();
 
         var configurationService = new Mock<IConfigurationService>(MockBehavior.Strict);
-        configurationService.Setup(service => service.UpdateContactAccountAuthorizationAsync(contactId, accountId, listCode))
+        configurationService.Setup(service => service.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, listCode))
             .Returns(Task.CompletedTask);
         var configurationController = new ConfigurationController(configurationService.Object);
 
         // Act
-        var result = await configurationController.UpdateContactAccountAuthorizationAsync(contactId, accountId, listCode);
+        var result = await configurationController.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, listCode);
 
         // Assert
         Assert.Equal(200, (result as OkResult)?.StatusCode);

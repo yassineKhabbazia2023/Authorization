@@ -35,19 +35,19 @@ public class ConfigurationController : ControllerBase
     }
 
     /// <summary>
-    /// Modifier une authorization pour un contact sur une entité morale.
+    /// Créer ou modifier une authorization pour un contact sur une entité morale.
     /// </summary>
     /// <param name="contactId">Identifiant du contact.</param>
     /// <param name="accountId">Identifiant de l'entité.</param>
     /// <param name="codes">La liste des codes d'authorization du contact sur l'entité.</param>
     /// <returns>Http 200.</returns>
-    [HttpPut]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> UpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IList<string> codes)
+    public async Task<ActionResult> CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IList<string> codes)
     {
-        await _configurationService.UpdateContactAccountAuthorizationAsync(contactId, accountId, codes);
+        await _configurationService.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, codes);
         return Ok();
     }
 }

@@ -35,7 +35,7 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorization>()
+            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
                             .With(a => a.Authorization)
                             .With(a => a.ContactId, 123)
                             .With(a => a.AccountId, 456)
@@ -45,7 +45,7 @@ public class AuthorizationRepositoryTests
 
             var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
 
-            context.ContactAuthorization.AddRange(contactAuthorizationAccountEntity);
+            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
             var repository = new AuthorizationRepository(context);
@@ -67,7 +67,7 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var accountAuthorizationAccountEntity = _fixture.Build<AccountAuthorization>()
+            var accountAuthorizationAccountEntity = _fixture.Build<AccountAuthorizationEntity>()
                             .With(a => a.Authorization)
                             .With(a => a.AccountId, 456)
                             .Without(a => a.Account)
@@ -75,7 +75,7 @@ public class AuthorizationRepositoryTests
 
             var expectedAuthorization = accountAuthorizationAccountEntity.Select(c => c.Authorization.Code);
 
-            context.AccountAuthorization.AddRange(accountAuthorizationAccountEntity);
+            context.AccountAuthorizationEntity.AddRange(accountAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
             var repository = new AuthorizationRepository(context);
@@ -96,7 +96,7 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorization>()
+            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
                             .With(a => a.Authorization)
                             .With(a => a.ContactId, 123)
                             .With(a => a.AccountId, 456)
@@ -105,7 +105,7 @@ public class AuthorizationRepositoryTests
 
             var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
 
-            context.ContactAuthorization.AddRange(contactAuthorizationAccountEntity);
+            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
             var repository = new AuthorizationRepository(context);
@@ -124,7 +124,7 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorization>()
+            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
                             .With(a => a.Authorization)
                             .With(a => a.ContactId, 123)
                             .Without(a => a.Contact)
@@ -133,7 +133,7 @@ public class AuthorizationRepositoryTests
 
             var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
 
-            context.ContactAuthorization.AddRange(contactAuthorizationAccountEntity);
+            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
             var repository = new AuthorizationRepository(context);

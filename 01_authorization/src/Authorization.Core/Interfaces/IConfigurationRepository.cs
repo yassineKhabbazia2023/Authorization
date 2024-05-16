@@ -12,5 +12,5 @@ public interface IConfigurationRepository
 
     Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId);
 
-    Task UpdateContactAccountAuthorizationAsync(int contactId, int accountId, IEnumerable<string> codes);
+    Task CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int accountId, IEnumerable<string> codes);
 }

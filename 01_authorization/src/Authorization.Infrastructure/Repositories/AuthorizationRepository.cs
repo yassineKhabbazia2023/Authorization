@@ -35,7 +35,7 @@ public class AuthorizationRepository : IAuthorizationRepository
         return await _retryPolicy.ExecuteAsync(async () =>
         {
             var contactAuthorizationCodes = _authorizationContext
-                    .ContactAuthorization
+                    .ContactAuthorizationEntity
                     .Include(x => x.Authorization)
                     .Where(x => x.ContactId == contactId && x.AccountId == accountId)
                     .Select(x => x.Authorization.Code)
@@ -51,7 +51,7 @@ public class AuthorizationRepository : IAuthorizationRepository
         return await _retryPolicy.ExecuteAsync(async () =>
         {
             var contactAuthorizationCodes = _authorizationContext
-                    .AccountAuthorization
+                    .AccountAuthorizationEntity
                     .Include(x => x.Authorization)
                     .Where(x => x.AccountId == accountId)
                     .Select(x => x.Authorization.Code)
@@ -67,7 +67,7 @@ public class AuthorizationRepository : IAuthorizationRepository
         return await _retryPolicy.ExecuteAsync(async () =>
         {
             var contactAuthorizationCodes = _authorizationContext
-                    .ContactAuthorization
+                    .ContactAuthorizationEntity
                     .Include(x => x.Authorization)
                     .Where(x => x.ContactId == contactId)
                     .Select(x => x.Authorization.Code)

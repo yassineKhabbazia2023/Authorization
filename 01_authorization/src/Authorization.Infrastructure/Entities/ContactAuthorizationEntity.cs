@@ -5,15 +5,19 @@ using System.Collections.Generic;
 
 namespace Pulse.Authorization.Infrastructure.Entities;
 
-public partial class AccountAuthorization
+public partial class ContactAuthorizationEntity
 {
+    public int ContactId { get; set; }
+
     public int AccountId { get; set; }
 
     public int AuthorizationId { get; set; }
 
-    public bool? Enabled { get; set; }
+    public DateTime CreationDate { get; set; }
 
     public virtual AccountEntity Account { get; set; }
 
     public virtual AuthorizationEntity Authorization { get; set; }
+
+    public virtual ContactEntity Contact { get; set; }
 }

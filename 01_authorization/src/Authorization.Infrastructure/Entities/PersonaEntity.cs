@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Pulse.Authorization.Infrastructure.Entities;
 
-public partial class Persona
+public partial class PersonaEntity
 {
     public int PersonaId { get; set; }
 
