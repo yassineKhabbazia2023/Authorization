@@ -3,11 +3,10 @@
 // </copyright>
 
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Constants;
-using System.Collections.Generic;
 
 namespace Pulse.Authorization.Core.Services;
 
@@ -70,5 +69,17 @@ public class AuthorizationService : IAuthorizationService
         var accountAuthorization = await _authorizationRepository.GetAccountAuthorizationAsync(accountId.Value);
 
         return collabAuthorization.Intersect(accountAuthorization).ToList();
+    }
+
+    public async Task DeletePermissionByIdAsync(int contactId, int accountId)
+    {
+        var contact = await _contactRepository.GetContactByIdAsync(contactId);
+
+        if (contact == null)
+        {
+            throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
+        }
+
+        await _authorizationRepository.DeletePermissionByIdAsync(contactId, accountId);
     }
 }

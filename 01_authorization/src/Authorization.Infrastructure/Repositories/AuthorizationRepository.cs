@@ -9,6 +9,8 @@ using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Pulse.Authorization.Core.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
 
@@ -73,6 +75,19 @@ public class AuthorizationRepository : IAuthorizationRepository
 
             var result = await contactAuthorizationCodes.ToListAsync();
             return result;
+        });
+    }
+
+    public async Task DeletePermissionByIdAsync(int contactId, int accountId)
+    {
+        await _retryPolicy.ExecuteAsync(async () =>
+        {
+            var permissions = _authorizationContext
+                .ContactAuthorization
+                .Where(x => x.ContactId == contactId && x.AccountId == accountId);
+
+            _authorizationContext.ContactAuthorization.RemoveRange(permissions);
+            await _authorizationContext.SaveChangesAsync();
         });
     }
 }

@@ -17,5 +17,8 @@ namespace Pulse.Authorization.Core.Exceptions
 
         public static readonly string NotFoundContactAccountAuthCode = "AUT004";
         public static readonly string NotFoundContactAccountAuthMessage = "Le contact avec l'identifiant {0} ne possède pas ces authorizations: {1} sur l'entité {2}";
+
+        public static readonly string NotFoundPermissionCode = "AUT005";
+        public static readonly string NotFoundPermissionMessage = "La permission avec l'identifiant {0} est introuvable.";
     }
 }

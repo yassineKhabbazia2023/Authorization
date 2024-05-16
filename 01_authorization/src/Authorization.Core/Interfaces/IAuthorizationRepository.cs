@@ -11,4 +11,6 @@ public interface IAuthorizationRepository
     Task<List<string>> GetAccountAuthorizationAsync(int accountId);
 
     Task<List<string>> GetContactAccountAuthorizationsAsync(int contactId, int accountId);
+
+    Task DeletePermissionByIdAsync(int contactId, int accountId);
 }
