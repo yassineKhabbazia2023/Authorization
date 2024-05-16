@@ -25,5 +25,5 @@ public partial class ContactEntity
 
     public DateTime? CreationDate { get; set; }
 
-    public virtual ICollection<ContactAuthorization> ContactAuthorization { get; set; } = new List<ContactAuthorization>();
+    public virtual ICollection<ContactAuthorizationEntity> ContactAuthorizationEntity { get; set; } = new List<ContactAuthorizationEntity>();
 }

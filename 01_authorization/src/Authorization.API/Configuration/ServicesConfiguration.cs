@@ -9,12 +9,66 @@ using Pulse.Authorization.Infrastructure.Repositories;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Services;
 using IAuthorizationService = Pulse.Authorization.Core.Interfaces.IAuthorizationService;
+using Pulse.Authorization.Core.Exceptions;
+using Pulse.Authorization.API.Configuration.Models;
+using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Pulse.Back.Events.Configurations;
+using Pulse.Back.Events.Abstractions;
+using Pulse.Back.Events.IntegrationEvents;
+using Pulse.Back.Events;
+using Pulse.Authorization.Infrastructure.Providers.Interfaces;
+using Pulse.Authorization.Infrastructure.Providers;
 
 namespace Pulse.Authorization.API.Configuration
 {
     [ExcludeFromCodeCoverage]
     public static class ServicesConfiguration
     {
+        public static void Register(this IServiceCollection services, IConfiguration configuration)
+        {
+            RegisterCors(services);
+            RegisterBroker(services, configuration);
+            RegisterDatabase(services, configuration);
+            RegisterServices(services);
+        }
+
+        private static void RegisterBroker(IServiceCollection services, IConfiguration configuration)
+        {
+            var brokerSettings = configuration!.GetSection("BrokerSetting").Get<BrokerSetting>();
+
+            // allows to run local tests without servicebusconnection
+            if (brokerSettings.ServiceBusConnectionString == "xxx" && Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(brokerSettings!.ServiceBusConnectionString))
+            {
+                throw new NullArgumentException(Errors.NotFoundServiceBusConnectionStringCode, Errors.NotFoundServiceBusConnectionStringMessage);
+            }
+
+            var options = new BrokerOptions
+            {
+                ServiceBusConnectionString = brokerSettings!.ServiceBusConnectionString,
+            };
+
+            if (brokerSettings!.PullTopics?.Count != 0)
+            {
+                foreach (var topic in brokerSettings!.PullTopics!)
+                {
+                    options.AddPullTopicItem(topic.TopicName!, topic.Subscriptions!);
+                }
+            }
+
+            services.AddScoped<IContactEventRepository, ContactEventRepository>();
+            services.AddKeyedScoped<IEventHandler, ContactCreatedEventHandler>(nameof(ContactCreatedEvent));
+            services.AddKeyedScoped<IEventHandler, ContactUpdatedEventHandler>(nameof(ContactUpdatedEvent));
+            services.AddKeyedScoped<IEventHandler, ContactRemovedEventHandler>(nameof(ContactRemovedEvent));
+
+            services.AddEventPullServices(options);
+            services.AddEventPushServices(options);
+        }
+
         public static void RegisterServices(this IServiceCollection services)
         {
             services.AddScoped<IAuthorizationService, AuthorizationService>();

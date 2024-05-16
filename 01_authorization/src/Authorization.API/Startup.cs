@@ -48,11 +48,9 @@ namespace Pulse.Authorization.API
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
 
-            services.RegisterCors();
+            services.Register(_configuration);
             services.ConfigureSwaggerService(_swaggerConfiguration);
             services.RegisterApplicationInsights(_configuration);
-            services.RegisterServices();
-            services.RegisterDatabase(_configuration!);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

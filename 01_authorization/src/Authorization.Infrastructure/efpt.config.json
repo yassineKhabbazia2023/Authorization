@@ -2,6 +2,7 @@
    "CodeGenerationMode": 4,
    "ContextClassName": "AuthorizationContext",
    "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "ModelNamespace": null,
@@ -43,7 +44,7 @@
          "ObjectType": 0
       }
    ],
-   "UiHint": null,
+   "UiHint": "..\\Authorization.Database\\Authorization.Database.sqlproj",
    "UncountableWords": null,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
