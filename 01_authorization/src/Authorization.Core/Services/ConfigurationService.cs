@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Kpmg.ExceptionMiddleware.AdvancedException;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
@@ -72,7 +73,7 @@ public class ConfigurationService : IConfigurationService
         return tConfigurations;
     }
 
-    public async Task UpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IEnumerable<string> codes)
+    public async Task CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IEnumerable<string> codes)
     {
         var contact = await _contactRepository.GetContactByIdAsync(contactId);
 
@@ -81,8 +82,9 @@ public class ConfigurationService : IConfigurationService
             throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
         }
 
-        accountId = accountId ?? (contact.Type!.Equals(ContactType.Collaborator.ToString()) ? -1 : throw new NotFoundException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId)));
+        accountId ??= contact.Type!.Equals(ContactType.Collaborator.ToString()) ? -1 :
+            throw new BadRequestException(Errors.NotFoundAccountCode, Errors.NotFoundAccountMessage);
 
-        await _configurationRepository.UpdateContactAccountAuthorizationAsync(contactId, accountId.Value, codes);
+        await _configurationRepository.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId.Value, codes);
     }
 }

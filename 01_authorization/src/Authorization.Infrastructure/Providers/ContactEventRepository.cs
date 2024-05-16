@@ -63,7 +63,7 @@ namespace Pulse.Authorization.Infrastructure.Providers
 
         public async Task RemoveContactAuthorizationsAsync(int contactId)
         {
-            await _authorizationContext.ContactAuthorization.Where(x => x.ContactId == contactId).ForEachAsync(et =>
+            await _authorizationContext.ContactAuthorizationEntity.Where(x => x.ContactId == contactId).ForEachAsync(et =>
             {
                 _authorizationContext.Entry(et).State = EntityState.Deleted;
             });

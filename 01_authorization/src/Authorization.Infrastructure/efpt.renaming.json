@@ -26,8 +26,28 @@
       "Tables": [
          {
             "Columns": [ ],
+            "Name": "AccountAuthorization",
+            "NewName": "AccountAuthorizationEntity"
+         },
+         {
+            "Columns": [ ],
             "Name": "Authorization",
             "NewName": "AuthorizationEntity"
+         },
+         {
+            "Columns": [ ],
+            "Name": "ContactAuthorization",
+            "NewName": "ContactAuthorizationEntity"
+         },
+         {
+            "Columns": [ ],
+            "Name": "Persona",
+            "NewName": "PersonaEntity"
+         },
+         {
+            "Columns": [ ],
+            "Name": "PersonaAuthorization",
+            "NewName": "PersonaAuthorizationEntity"
          }
       ],
       "UseSchemaName": false

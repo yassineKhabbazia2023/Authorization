@@ -7,9 +7,8 @@ using Moq;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
-using Xunit;
 
-namespace Pulse.Account.Infrastructure.Tests.Providers;
+namespace Pulse.Authorization.Infrastructure.Tests.Providers;
 
 public class ContactCreatedEventHandlerTests
 {
