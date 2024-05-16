@@ -83,10 +83,10 @@ public class AuthorizationRepository : IAuthorizationRepository
         await _retryPolicy.ExecuteAsync(async () =>
         {
             var permissions = _authorizationContext
-                .ContactAuthorization
+                .ContactAuthorizationEntity
                 .Where(x => x.ContactId == contactId && x.AccountId == accountId);
 
-            _authorizationContext.ContactAuthorization.RemoveRange(permissions);
+            _authorizationContext.ContactAuthorizationEntity.RemoveRange(permissions);
             await _authorizationContext.SaveChangesAsync();
         });
     }

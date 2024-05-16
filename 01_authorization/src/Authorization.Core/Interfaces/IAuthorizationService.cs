@@ -8,5 +8,5 @@ public interface IAuthorizationService
 {
     Task<List<string>> GetContactAuthorizationAsync(int contactId, int? accountId);
 
-    Task DeletePermissionByIdAsync(int contactId, int accountId);
+    Task DeletePermissionByIdAsync(int contactId, int? accountId);
 }

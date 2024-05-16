@@ -39,11 +39,10 @@ public class AuthorizationController : ControllerBase
     /// </summary>
     /// <param name="contactId">Identifiant du contat.</param>
     /// <param name="accountId">Identifiant de l'entité morale.</param>
-    /// <param name="authorizationId">Identifiant de l'authorization.</param>
     /// <returns>Status code.</returns>
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult> DeletePermissionById([Required][FromQuery] int contactId, [Required][FromQuery] int accountId)
+    public async Task<ActionResult> DeletePermissionById([Required][FromQuery] int contactId, [FromQuery] int? accountId)
     {
         await _authorizationService.DeletePermissionByIdAsync(contactId, accountId);
 
