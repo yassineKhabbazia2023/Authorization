@@ -12,3 +12,4 @@ Post-Deployment Script Template
 
 :r .\postDeployment\auth.Authorization.sql
 :r .\postDeployment\auth.Persona.sql
+:r .\postDeployment\tablesMigration.sql
