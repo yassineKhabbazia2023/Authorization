@@ -113,16 +113,16 @@ public class AuthorizationServiceTests
     {
         // Arrange
         var authorizationRepository = new Mock<IAuthorizationRepository>();
-        authorizationRepository.Setup(c => c.DeletePermissionByIdAsync(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.CompletedTask);
+        authorizationRepository.Setup(c => c.DeleteContactAuthorizationAsync(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.CompletedTask);
         var contactRepository = new Mock<IContactRepository>();
         var contactMocked = _fixture.Create<Contact>();
         contactRepository.Setup(c => c.GetContactByIdAsync(123)).ReturnsAsync(contactMocked);
         var authorizationService = new AuthorizationService(authorizationRepository.Object, contactRepository.Object);
 
         // Act
-        await authorizationService.DeletePermissionByIdAsync(123, null);
+        await authorizationService.DeleteContactAuthorizationAsync(123, null);
 
         // Assert
-        authorizationRepository.Verify(c => c.DeletePermissionByIdAsync(123, -1));
+        authorizationRepository.Verify(c => c.DeleteContactAuthorizationAsync(123, -1));
     }
 }

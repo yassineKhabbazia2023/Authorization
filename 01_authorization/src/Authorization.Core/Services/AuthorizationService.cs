@@ -71,7 +71,7 @@ public class AuthorizationService : IAuthorizationService
         return collabAuthorization.Intersect(accountAuthorization).ToList();
     }
 
-    public async Task DeletePermissionByIdAsync(int contactId, int? accountId)
+    public async Task DeleteContactAuthorizationAsync(int contactId, int? accountId)
     {
         var contact = await _contactRepository.GetContactByIdAsync(contactId);
 
@@ -80,6 +80,11 @@ public class AuthorizationService : IAuthorizationService
             throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
         }
 
-        await _authorizationRepository.DeletePermissionByIdAsync(contactId, accountId ?? -1);
+        if (contact.Type == ContactType.Customer.ToString() && accountId == null)
+        {
+            throw new NotFoundException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId));
+        }
+
+        await _authorizationRepository.DeleteContactAuthorizationAsync(contactId, accountId ?? -1);
     }
 }

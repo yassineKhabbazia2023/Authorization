@@ -70,11 +70,11 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
         var contactId = 3;
 
         var authorizationService = new Mock<IAuthorizationService>();
-        authorizationService.Setup(c => c.DeletePermissionByIdAsync(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.CompletedTask);
+        authorizationService.Setup(c => c.DeleteContactAuthorizationAsync(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.CompletedTask);
         var authorizationController = new AuthorizationController(authorizationService.Object);
 
         // Act
-        var result = await authorizationController.DeletePermissionById(contactId, accountId);
+        var result = await authorizationController.DeleteContactAuthorizationAsync(contactId, accountId);
 
         // Assert
         Assert.Equal(200, (result as OkResult)?.StatusCode);

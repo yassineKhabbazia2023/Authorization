@@ -78,7 +78,7 @@ public class AuthorizationRepository : IAuthorizationRepository
         });
     }
 
-    public async Task DeletePermissionByIdAsync(int contactId, int accountId)
+    public async Task DeleteContactAuthorizationAsync(int contactId, int accountId)
     {
         await _retryPolicy.ExecuteAsync(async () =>
         {

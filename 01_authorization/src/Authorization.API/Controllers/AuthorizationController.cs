@@ -42,9 +42,9 @@ public class AuthorizationController : ControllerBase
     /// <returns>Status code.</returns>
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult> DeletePermissionById([Required][FromQuery] int contactId, [FromQuery] int? accountId)
+    public async Task<ActionResult> DeleteContactAuthorizationAsync([Required][FromQuery] int contactId, [FromQuery] int? accountId)
     {
-        await _authorizationService.DeletePermissionByIdAsync(contactId, accountId);
+        await _authorizationService.DeleteContactAuthorizationAsync(contactId, accountId);
 
         return Ok();
     }

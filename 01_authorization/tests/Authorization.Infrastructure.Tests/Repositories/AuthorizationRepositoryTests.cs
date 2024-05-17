@@ -166,7 +166,7 @@ public class AuthorizationRepositoryTests
             var permissionBefore = await repository.GetContactAccountAuthorizationsAsync(123, -1);
             Assert.NotEmpty(permissionBefore);
 
-            await repository.DeletePermissionByIdAsync(123, -1);
+            await repository.DeleteContactAuthorizationAsync(123, -1);
             var permissionAfter = await repository.GetContactAccountAuthorizationsAsync(123, -1);
             Assert.Empty(permissionAfter);
         }

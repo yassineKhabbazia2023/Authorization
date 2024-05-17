@@ -12,5 +12,5 @@ Post-Deployment Script Template
 
 :r .\postDeployment\account.Account.sql
 :r .\postDeployment\actor.Contact.sql
-:r .\postDeployment\auth.Authorization.sql
+:r .\postDeployment\auth.InitPermissionCollab.sql
 :r .\postDeployment\auth.Persona.sql
