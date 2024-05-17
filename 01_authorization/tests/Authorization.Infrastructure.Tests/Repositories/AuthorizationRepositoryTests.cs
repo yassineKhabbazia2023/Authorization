@@ -5,12 +5,8 @@
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Pulse.Authorization.Core.Constants;
-using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Requests;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
-using Pulse.Authorization.Infrastructure.Mappers;
 using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
