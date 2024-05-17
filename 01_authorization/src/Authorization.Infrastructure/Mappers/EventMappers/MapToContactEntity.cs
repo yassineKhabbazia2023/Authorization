@@ -19,11 +19,14 @@ namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
             return new ContactEntity
             {
                 ContactId = source.ContactId,
+                ContactGlobalUniqueId = source.ContactGlobalUniqueId,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 Email = source.Email,
                 Status = source.Status,
                 Type = source.Type,
+                PersonaName = source.PersonaName,
+                CreationDate = source.CreationDate,
             };
         }
 
@@ -39,6 +42,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
             destination.Email = source.Email;
             destination.Status = source.Status;
             destination.Type = source.Type;
+            destination.PersonaName = source.PersonaName;
         }
     }
 }

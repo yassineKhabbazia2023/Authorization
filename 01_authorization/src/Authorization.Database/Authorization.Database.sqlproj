@@ -82,6 +82,7 @@
     <Build Include="auth\Tables\Persona.sql" />
     <Build Include="auth\Tables\PersonaAuthorization.sql" />
     <None Include="postDeployment\auth.Persona.sql" />
+    <Build Include="account\Tables\Role.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Authorization.Database.refactorlog" />
@@ -90,6 +91,7 @@
     <None Include="postDeployment\actor.Contact.sql" />
     <None Include="ScriptRec\actor.Contact.ExpertDigitaux.sql" />
     <None Include="postDeployment\auth.InitPermissionCollab.sql" />
+    <None Include="postDeployment\tablesMigration.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

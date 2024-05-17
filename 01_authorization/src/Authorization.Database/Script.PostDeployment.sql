@@ -14,3 +14,4 @@ Post-Deployment Script Template
 :r .\postDeployment\actor.Contact.sql
 :r .\postDeployment\auth.InitPermissionCollab.sql
 :r .\postDeployment\auth.Persona.sql
+:r .\postDeployment\tablesMigration.sql
