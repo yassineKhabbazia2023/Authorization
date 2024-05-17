@@ -1,7 +1,8 @@
-﻿// <copyright file="ContactEventRepository.cs" company="Pulse">
+﻿// <copyright file="AccountEventRepository.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Xml.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Polly;
@@ -13,14 +14,14 @@ using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 
-namespace Pulse.Authorization.Infrastructure.Providers
+namespace Pulse.Authorization.Infrastructure.Repositories
 {
-    public class ContactEventRepository : IContactEventRepository
+    public class AccountEventRepository : IAccountEventRepository
     {
         private readonly AuthorizationContext _authorizationContext;
         private readonly AsyncRetryPolicy _retryPolicy;
 
-        public ContactEventRepository(AuthorizationContext authorizationContext)
+        public AccountEventRepository(AuthorizationContext authorizationContext)
         {
             _authorizationContext = authorizationContext;
             _retryPolicy = Policy
@@ -30,30 +31,19 @@ namespace Pulse.Authorization.Infrastructure.Providers
                         sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
         }
 
-        public async Task CreateContactAsync(ContactEntity contactEntity)
+        public async Task CreateAccountAsync(AccountEntity accountEntity)
         {
-            await _authorizationContext.ContactEntity.AddAsync(contactEntity);
+            await _authorizationContext.AccountEntity.AddAsync(accountEntity);
             await _retryPolicy.ExecuteAsync(async () =>
             {
                 await _authorizationContext.SaveChangesAsync();
             });
         }
 
-        public async Task RemoveContactAsync(int contactId)
+        public async Task UpdateAccountAsync(AccountEntity accountEntity)
         {
-            var existingContact = await _authorizationContext.ContactEntity.SingleAsync(x => x.ContactId == contactId);
-            existingContact.Status = ContactStatus.Removed.ToString();
-
-            await _retryPolicy.ExecuteAsync(async () =>
-            {
-                await _authorizationContext.SaveChangesAsync();
-            });
-        }
-
-        public async Task UpdateContactAsync(ContactEntity contactEntity)
-        {
-            var existingContact = await _authorizationContext.ContactEntity.SingleAsync(x => x.ContactId == contactEntity.ContactId);
-            contactEntity.ToContactEntity(existingContact);
+            var existingContact = await _authorizationContext.AccountEntity.SingleAsync(x => x.AccountId == accountEntity.AccountId);
+            accountEntity.ToAccountEntity(existingContact);
 
             await _retryPolicy.ExecuteAsync(async () =>
             {
@@ -61,9 +51,26 @@ namespace Pulse.Authorization.Infrastructure.Providers
             });
         }
 
-        public async Task RemoveContactAuthorizationsAsync(int contactId)
+        public async Task RemoveAccountAsync(int accountId)
         {
-            await _authorizationContext.ContactAuthorizationEntity.Where(x => x.ContactId == contactId).ForEachAsync(et =>
+            var existingAccount = await _authorizationContext.AccountEntity.SingleAsync(x => x.AccountId == accountId);
+            existingAccount.Status = AccountStatus.Revoked.ToString();
+
+            await _retryPolicy.ExecuteAsync(async () =>
+            {
+                await _authorizationContext.SaveChangesAsync();
+            });
+        }
+
+        public async Task RemoveAccountAuthorizationsAsync(int accountId)
+        {
+
+            await _authorizationContext.AccountAuthorizationEntity.Where(x => x.AccountId == accountId).ForEachAsync(et =>
+            {
+                _authorizationContext.Entry(et).State = EntityState.Deleted;
+            });
+
+            await _authorizationContext.ContactAuthorizationEntity.Where(x => x.AccountId == accountId).ForEachAsync(et =>
             {
                 _authorizationContext.Entry(et).State = EntityState.Deleted;
             });

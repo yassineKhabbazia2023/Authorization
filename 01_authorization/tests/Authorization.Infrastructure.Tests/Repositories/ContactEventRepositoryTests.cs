@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Core.Enum;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
-using Pulse.Authorization.Infrastructure.Providers;
+using Pulse.Authorization.Infrastructure.Repositories;
 
-namespace Pulse.Authorization.Infrastructure.Tests.Providers;
+namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
 
 public class ContactEventRepositoryTests
 {

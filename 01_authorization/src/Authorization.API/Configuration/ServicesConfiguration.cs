@@ -61,9 +61,13 @@ namespace Pulse.Authorization.API.Configuration
             }
 
             services.AddScoped<IContactEventRepository, ContactEventRepository>();
+            services.AddScoped<IAccountEventRepository, AccountEventRepository>();
             services.AddKeyedScoped<IEventHandler, ContactCreatedEventHandler>(nameof(ContactCreatedEvent));
             services.AddKeyedScoped<IEventHandler, ContactUpdatedEventHandler>(nameof(ContactUpdatedEvent));
             services.AddKeyedScoped<IEventHandler, ContactRemovedEventHandler>(nameof(ContactRemovedEvent));
+            services.AddKeyedScoped<IEventHandler, AccountRemovedEventHandler>(nameof(AccountRemovedEvent));
+            services.AddKeyedScoped<IEventHandler, AccountCreatedEventHandler>(nameof(AccountCreatedEvent));
+            services.AddKeyedScoped<IEventHandler, AccountUpdatedEventHandler>(nameof(AccountUpdatedEvent));
 
             services.AddEventPullServices(options);
             services.AddEventPushServices(options);
