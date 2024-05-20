@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Kpmg.ExceptionMiddleware.AdvancedException;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
@@ -82,7 +83,7 @@ public class AuthorizationService : IAuthorizationService
 
         if (contact.Type == ContactType.Customer.ToString() && accountId == null)
         {
-            throw new NotFoundException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId));
+            throw new BadRequestException(Errors.NotFoundAccountCode, Errors.NotFoundAccountMessage);
         }
 
         await _authorizationRepository.DeleteContactAuthorizationAsync(contactId, accountId ?? -1);
