@@ -2,14 +2,14 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using AutoFixture;
+using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
-using AutoFixture;
 using Pulse.Authorization.API;
-using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.API.Controllers;
-using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Pulse.Authorization.Core.Interfaces;
 
 namespace Pulse.Authorization.Api.Tests.Controllers;
 
@@ -60,5 +60,23 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
 
         // Assert
         var exception = Assert.ThrowsAsync<NotFoundException>(act);
+    }
+
+    [Fact]
+    public async void DeletePermissionAsync_Should_ReturnOk()
+    {
+        // Arrange
+        var accountId = 6000;
+        var contactId = 3;
+
+        var authorizationService = new Mock<IAuthorizationService>();
+        authorizationService.Setup(c => c.DeleteContactAuthorizationAsync(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.CompletedTask);
+        var authorizationController = new AuthorizationController(authorizationService.Object);
+
+        // Act
+        var result = await authorizationController.DeleteContactAuthorizationAsync(contactId, accountId);
+
+        // Assert
+        Assert.Equal(200, (result as OkResult)?.StatusCode);
     }
 }

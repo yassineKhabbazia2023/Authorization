@@ -5,12 +5,8 @@
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Pulse.Authorization.Core.Constants;
-using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Requests;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
-using Pulse.Authorization.Infrastructure.Mappers;
 using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
@@ -147,6 +143,32 @@ public class AuthorizationRepositoryTests
             var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
             Assert.Equal(authExpectJson, authResultJson);
             Assert.NotNull(receivedAuthorization);
+        }
+    }
+
+    [Fact]
+    public async Task DeletePermissionAsync_Should_DeletePermission()
+    {
+        using (var context = new AuthorizationContext(_options))
+        {
+            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
+                            .With(a => a.Authorization)
+                            .With(a => a.ContactId, 123)
+                            .With(a => a.AccountId, -1)
+                            .Without(a => a.Contact)
+                            .Without(a => a.Account)
+                            .CreateMany(3);
+            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
+            await context.SaveChangesAsync();
+
+            var repository = new AuthorizationRepository(context);
+
+            var permissionBefore = await repository.GetContactAccountAuthorizationsAsync(123, -1);
+            Assert.NotEmpty(permissionBefore);
+
+            await repository.DeleteContactAuthorizationAsync(123, -1);
+            var permissionAfter = await repository.GetContactAccountAuthorizationsAsync(123, -1);
+            Assert.Empty(permissionAfter);
         }
     }
 }

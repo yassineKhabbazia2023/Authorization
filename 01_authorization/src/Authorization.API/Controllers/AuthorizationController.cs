@@ -33,4 +33,19 @@ public class AuthorizationController : ControllerBase
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Supprimer des permissions d'un contact dans un account.
+    /// </summary>
+    /// <param name="contactId">Identifiant du contat.</param>
+    /// <param name="accountId">Identifiant de l'entité morale.</param>
+    /// <returns>Status code.</returns>
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult> DeleteContactAuthorizationAsync([Required][FromQuery] int contactId, [FromQuery] int? accountId)
+    {
+        await _authorizationService.DeleteContactAuthorizationAsync(contactId, accountId);
+
+        return Ok();
+    }
 }

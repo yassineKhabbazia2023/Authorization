@@ -7,4 +7,6 @@ namespace Pulse.Authorization.Core.Interfaces;
 public interface IAuthorizationService
 {
     Task<List<string>> GetContactAuthorizationAsync(int contactId, int? accountId);
+
+    Task DeleteContactAuthorizationAsync(int contactId, int? accountId);
 }

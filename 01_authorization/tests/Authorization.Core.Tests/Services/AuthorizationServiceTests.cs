@@ -107,4 +107,22 @@ public class AuthorizationServiceTests
         Assert.Equal(Errors.NotFoundContactCode, exception.Code);
         Assert.Equal(string.Format(Errors.NotFoundContactMessage, 234), exception.Message);
     }
+
+    [Fact]
+    public async Task DeletePermission_DeletePermission()
+    {
+        // Arrange
+        var authorizationRepository = new Mock<IAuthorizationRepository>();
+        authorizationRepository.Setup(c => c.DeleteContactAuthorizationAsync(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.CompletedTask);
+        var contactRepository = new Mock<IContactRepository>();
+        var contactMocked = _fixture.Create<Contact>();
+        contactRepository.Setup(c => c.GetContactByIdAsync(123)).ReturnsAsync(contactMocked);
+        var authorizationService = new AuthorizationService(authorizationRepository.Object, contactRepository.Object);
+
+        // Act
+        await authorizationService.DeleteContactAuthorizationAsync(123, null);
+
+        // Assert
+        authorizationRepository.Verify(c => c.DeleteContactAuthorizationAsync(123, -1));
+    }
 }

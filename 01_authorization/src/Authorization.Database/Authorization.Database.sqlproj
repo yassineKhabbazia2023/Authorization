@@ -88,7 +88,6 @@
     <RefactorLog Include="Authorization.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="postDeployment\auth.Authorization.sql" />
     <None Include="postDeployment\actor.Contact.sql" />
     <None Include="ScriptRec\actor.Contact.ExpertDigitaux.sql" />
     <None Include="postDeployment\auth.InitPermissionCollab.sql" />

@@ -20,5 +20,8 @@ namespace Pulse.Authorization.Core.Exceptions
 
         public static readonly string NotFoundServiceBusConnectionStringCode = "AUT005";
         public static readonly string NotFoundServiceBusConnectionStringMessage = "La chaine de connexion au service bus doit être renseignée ";
+
+        public static readonly string NotFoundPermissionCode = "AUT006";
+        public static readonly string NotFoundPermissionMessage = "La permission avec l'identifiant {0} est introuvable.";
     }
 }
