@@ -6,7 +6,9 @@ namespace Pulse.Authorization.API.Configuration.Models
 {
     public class BrokerSetting
     {
-        public string? ServiceBusConnectionString { get; set; }
+        public string? ServiceBusNamespace { get; set; }
+
+        public string? ManagedIdentityClientId { get; set; }
 
         public string? PushTopicName { get; set; }
 

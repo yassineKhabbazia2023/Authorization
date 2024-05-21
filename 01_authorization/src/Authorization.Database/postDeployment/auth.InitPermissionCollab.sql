@@ -7,7 +7,7 @@ DELETE FROM auth.[Authorization]
 DBCC CHECKIDENT ('[auth].[Authorization]', RESEED, 0)
 
 INSERT INTO auth.[Authorization] (
-	Name, Description, Code, Label, Category, Configurable, [View])
+	Name, Description, Code, Label, Category, Configurable, [View], [ProductCode])
 	VALUES
 	('Super Admin', '', 'CLADMI001', 'Droit Super Admin client', 'CLTGESTION', '0', 'Global'),
 	('View User', '', 'CLUSER001', 'Consulter les utilisateurs', 'CLTGESTION', '1', 'Both'),
@@ -17,12 +17,12 @@ INSERT INTO auth.[Authorization] (
 	('View offers', '', 'CLOFF001', 'Accéder aux offres souscrites', 'CLTGESTION', '1', 'Partial'),
 	('View informations', '', 'CLINFO001', 'Accéder aux informations d''entreprise', 'CLTGESTION', '1', 'Partial'),
 	('View Invoice', '', 'CLINVO001', 'Accéder aux factures Pulse', 'CLTGESTION', '0', 'Partial'),
-	('View GED GS', '', 'CLGED0001', 'Accéder à la GED Gestion sociale', 'CLTGED GS', '1', 'Partial'),
-	('View GED ESC', '', 'CLGED0002', 'Accéder à la GED Comptable', 'CLTGED ESC', '1', 'Partial'),
-	('Access Silae', '', 'CLSILA001', 'Accéder à l''outil Silae', 'CLTGS', '1', 'Partial'),
-	('View EVP', '', 'CLEVP001', 'Accéder aux EVP', 'CLTGS', '0', 'Partial'),
-	('View hiring', '', 'CLEMB001', 'Accéder à l''embauche salariée', 'CLTGS', '0', 'Partial'),
-	('Access MEG', '', 'CLMEG001', 'Accéder à l''outil MEG', 'CLTESC', '1', 'Partial'),
+	('View GED GS', '', 'CLGED0001', 'Accéder à la GED Gestion sociale', 'CLTGED GS', '1', 'Partial', 'gedgs'),
+	('View GED ESC', '', 'CLGED0002', 'Accéder à la GED Comptable', 'CLTGED ESC', '1', 'Partial', 'gedesc'),
+	('Access Silae', '', 'CLSILA001', 'Accéder à l''outil Silae', 'CLTGS', '1', 'Partial', 'silaeaccess'),
+	('View EVP', '', 'CLEVP001', 'Accéder aux EVP', 'CLTGS', '0', 'Partial', 'EVP'),
+	('View hiring', '', 'CLEMB001', 'Accéder à l''embauche salariée', 'CLTGS', '0', 'Partial', 'Hiring'),
+	('Access MEG', '', 'CLMEG001', 'Accéder à l''outil MEG', 'CLTESC', '1', 'Partial', 'megaccess'),
 	('Access Pennylane', '', 'CLPEN001', 'Accéder à l''outil Pennylane', 'CLTESC', '1', 'Partial'),
 	('View bi financial', '', 'CLRAPP001', 'Accéder aux rapports BI Financier', 'CLTPILOTAGE', '1', 'Partial'),
 	('View bi HR', '', 'CLRAPP002', 'Accéder aux rapports BI RH', 'CLTPILOTAGE', '0', 'Partial'),

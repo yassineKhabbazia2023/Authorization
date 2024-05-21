@@ -9,7 +9,5 @@ Post-Deployment Script Template
                SELECT * FROM [$(TableName)]					
 --------------------------------------------------------------------------------------
 */
-
-:r .\postDeployment\auth.Authorization.sql
 :r .\postDeployment\auth.Persona.sql
 :r .\postDeployment\tablesMigration.sql

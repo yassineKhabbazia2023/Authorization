@@ -5,6 +5,7 @@
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Mappers;
@@ -14,14 +15,10 @@ namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
 
 public class ConfigurationRepositoryTests
 {
-    private readonly DbContextOptions<AuthorizationContext> _options;
     private readonly Fixture _fixture;
 
     public ConfigurationRepositoryTests()
     {
-        _options = new DbContextOptionsBuilder<AuthorizationContext>()
-                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                            .Options;
         _fixture = new Fixture();
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -30,8 +27,12 @@ public class ConfigurationRepositoryTests
     [Fact]
     public async Task GetAccountConfigurationAsync_WhenAccountHasAuthorization_ShouldReturnsConfigurations()
     {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
         // Arrange
-        using var context = new AuthorizationContext(_options);
+        using var context = new AuthorizationContext(options);
         var accountId = 456;
         var accoutEntity = new AccountEntity
         {
@@ -71,8 +72,12 @@ public class ConfigurationRepositoryTests
     [Fact]
     public async Task GetContacttConfigurationAsync_WhenContactHasAuthorization_ShouldReturnsConfigurations()
     {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
         // Arrange
-        using var context = new AuthorizationContext(_options);
+        using var context = new AuthorizationContext(options);
         var contactAuthorizations = _fixture.Build<ContactAuthorizationEntity>()
                         .With(a => a.Authorization)
                         .With(a => a.ContactId, 123)
@@ -104,10 +109,14 @@ public class ConfigurationRepositoryTests
     [Fact]
     public async Task DeleteContactAccountAuthorizationAsync_ShouldReturn_OK()
     {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
         // Arrange
         var contactId = 124;
         var accountId = 458;
-        using var context = new AuthorizationContext(_options);
+        using var context = new AuthorizationContext(options);
         var contactAuthorizations = _fixture.Build<ContactAuthorizationEntity>()
                         .With(a => a.Authorization)
                         .With(a => a.ContactId, contactId)
@@ -133,10 +142,14 @@ public class ConfigurationRepositoryTests
     [Fact]
     public async Task CreateOrUpdateContactAccountAuthorizationAsync_WithExistingAuthorization_ShouldUpdateAuthorizations()
     {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
         // Arrange
         var contactId = 125;
         var accountId = 459;
-        using var context = new AuthorizationContext(_options);
+        using var context = new AuthorizationContext(options);
         var accountEntity = _fixture.Build<AccountEntity>()
                             .With(a => a.AccountId, accountId)
                             .Without(a => a.AccountAuthorizationEntity)
@@ -198,11 +211,14 @@ public class ConfigurationRepositoryTests
     [Fact]
     public async Task CreateOrUpdateContactAccountAuthorizationAsync_WithNoExistingAuthorization_ShouldCreateAuthorizations()
     {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
         // Arrange
-        var contactId = 126;
+        var contactId = 12;
         var accountId = 460;
         var codes = new List<string>() { "DDD", "EEE" };
-        using var context = new AuthorizationContext(_options);
+        using var context = new AuthorizationContext(options);
         var accountEntity = _fixture.Build<AccountEntity>()
                             .With(a => a.AccountId, accountId)
                             .Without(a => a.AccountAuthorizationEntity)

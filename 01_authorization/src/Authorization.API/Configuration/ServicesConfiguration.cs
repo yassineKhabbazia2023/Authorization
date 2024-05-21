@@ -36,20 +36,20 @@ namespace Pulse.Authorization.API.Configuration
         {
             var brokerSettings = configuration!.GetSection("BrokerSetting").Get<BrokerSetting>();
 
-            // allows to run local tests without servicebusconnection
-            if (brokerSettings.ServiceBusConnectionString == "xxx" && Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            if (string.IsNullOrWhiteSpace(brokerSettings!.ServiceBusNamespace))
             {
-                return;
+                throw new NullArgumentException(Errors.NotFoundServiceBusNamespaceCode, Errors.NotFoundServiceBusNamespaceMessage);
             }
 
-            if (string.IsNullOrWhiteSpace(brokerSettings!.ServiceBusConnectionString))
+            if (string.IsNullOrWhiteSpace(brokerSettings!.ManagedIdentityClientId))
             {
-                throw new NullArgumentException(Errors.NotFoundServiceBusConnectionStringCode, Errors.NotFoundServiceBusConnectionStringMessage);
+                throw new NullArgumentException(Errors.NotFoundManagedIdentityClientIdCode, Errors.NotFoundManagedIdentityClientIdMessage);
             }
 
             var options = new BrokerOptions
             {
-                ServiceBusConnectionString = brokerSettings!.ServiceBusConnectionString,
+                ServiceBusNamespace = brokerSettings!.ServiceBusNamespace,
+                ManagedIdentityClientId = brokerSettings!.ManagedIdentityClientId,
             };
 
             if (brokerSettings!.PullTopics?.Count != 0)
@@ -62,12 +62,14 @@ namespace Pulse.Authorization.API.Configuration
 
             services.AddScoped<IContactEventRepository, ContactEventRepository>();
             services.AddScoped<IAccountEventRepository, AccountEventRepository>();
+            services.AddScoped<ISubscriptionEventRepository, SubscriptionEventRepository>();
             services.AddKeyedScoped<IEventHandler, ContactCreatedEventHandler>(nameof(ContactCreatedEvent));
             services.AddKeyedScoped<IEventHandler, ContactUpdatedEventHandler>(nameof(ContactUpdatedEvent));
             services.AddKeyedScoped<IEventHandler, ContactRemovedEventHandler>(nameof(ContactRemovedEvent));
             services.AddKeyedScoped<IEventHandler, AccountRemovedEventHandler>(nameof(AccountRemovedEvent));
             services.AddKeyedScoped<IEventHandler, AccountCreatedEventHandler>(nameof(AccountCreatedEvent));
             services.AddKeyedScoped<IEventHandler, AccountUpdatedEventHandler>(nameof(AccountUpdatedEvent));
+            services.AddKeyedScoped<IEventHandler, SubscriptionValidatedEventHandler>(nameof(SubscriptionValidatedEvent));
 
             services.AddEventPullServices(options);
             services.AddEventPushServices(options);

@@ -26,8 +26,26 @@ public partial class AuthorizationContext : DbContext
 
     public virtual DbSet<PersonaEntity> PersonaEntity { get; set; }
 
+    public virtual DbSet<RoleEntity> RoleEntity { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<RoleEntity>(entity =>
+        {
+            entity.HasKey(e => new { e.AccountId, e.ContactId });
+
+            entity.ToTable("Role", "account");
+
+            entity.Property(e => e.AccountId).ValueGeneratedNever();
+            entity.Property(e => e.ContactId).ValueGeneratedNever();
+
+            entity.HasOne(r => r.Account).WithMany(a => a.RoleEntity)
+            .HasForeignKey(r => r.AccountId)
+            .HasConstraintName("C_Account_Role_FK");
+
+            entity.HasOne(r => r.Contact).WithOne(c => c.Role)
+            .HasConstraintName("C_Account_Contact_FK");
+        });
         modelBuilder.Entity<AccountAuthorizationEntity>(entity =>
         {
             entity.HasKey(e => new { e.AccountId, e.AuthorizationId });
@@ -92,6 +110,9 @@ public partial class AuthorizationContext : DbContext
             entity.Property(e => e.View)
                 .IsRequired()
                 .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.View)
+                .HasMaxLength(20)
                 .IsUnicode(false);
         });
 

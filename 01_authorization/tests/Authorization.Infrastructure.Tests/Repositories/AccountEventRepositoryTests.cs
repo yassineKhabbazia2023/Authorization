@@ -93,6 +93,7 @@ public class AccountEventRepositoryTests
         Assert.NotNull(removedAccount);
         Assert.Equal(AccountStatus.Revoked.ToString(), removedAccount.Status);
     }
+
     [Fact]
     public async Task RemoveAccountAuthorizationsAsync_WithAccountData_ShouldRemoveAccountAuthorizations()
     {
