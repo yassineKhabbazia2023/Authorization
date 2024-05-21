@@ -46,26 +46,17 @@ public class AuthorizationService : IAuthorizationService
 
     private async Task<List<string>> GetCustomerAuthorizationAsync(int contactId, int? accountId)
     {
-        if (accountId == null)
-        {
-            return await _authorizationRepository.GetContactAuthorizationAsync(contactId);
-        }
-
-        return await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, accountId.Value);
+        return accountId == null
+            ? await _authorizationRepository.GetContactAuthorizationAsync(contactId)
+            : await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, accountId.Value, false);
     }
 
     private async Task<List<string>> GetCollabAuthorizationAsync(int contactId, int? accountId)
     {
-        var collabAuthorization = await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, GlobalConstants.DefaultAccountIdCollab);
+        accountId = accountId ?? GlobalConstants.DefaultAccountIdCollab;
+        var viewGlobal = IsViewGlobal(accountId.Value);
 
-        if (accountId == null)
-        {
-            return collabAuthorization;
-        }
-        else
-        {
-            collabAuthorization.AddRange(await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, accountId.Value));
-        }
+        var collabAuthorization = await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, GlobalConstants.DefaultAccountIdCollab, viewGlobal);
 
         var accountAuthorization = await _authorizationRepository.GetAccountAuthorizationAsync(accountId.Value);
 
@@ -87,5 +78,10 @@ public class AuthorizationService : IAuthorizationService
         }
 
         await _authorizationRepository.DeleteContactAuthorizationAsync(contactId, accountId ?? -1);
+    }
+
+    private static bool IsViewGlobal(int accountId)
+    {
+        return accountId == GlobalConstants.DefaultAccountIdCollab;
     }
 }

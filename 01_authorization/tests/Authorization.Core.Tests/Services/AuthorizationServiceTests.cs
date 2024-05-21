@@ -45,11 +45,14 @@ public class AuthorizationServiceTests
                                     .With(c => c.Type, contactType)
                                     .With(c => c.ContactId, contactId)
                                     .Create();
-        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, accountId))
+        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, accountId, It.IsAny<bool?>()))
             .ReturnsAsync(menuCodeMocked);
 
-        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, -1))
+        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, -1, true))
            .ReturnsAsync(menuCodeMockedDefault);
+
+        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, -1, false))
+           .ReturnsAsync(menuCodeMocked);
 
         _authorizationRepository.Setup(repository => repository.GetAccountAuthorizationAsync(accountId))
             .ReturnsAsync(menuCodeMockedAccount);
@@ -79,7 +82,7 @@ public class AuthorizationServiceTests
             var resources = await authorizationService.GetContactAuthorizationAsync(contactId, accountId);
 
             // Assert
-            Assert.Equal(menuCodeMockedAccount, resources);
+            Assert.Equal(menuCodeMocked, resources);
         }
     }
 
@@ -90,7 +93,7 @@ public class AuthorizationServiceTests
         var accountId = 123;
         var contactId = 234;
         var resourceMocked = _fixture.Create<List<string>>();
-        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, accountId))
+        _authorizationRepository.Setup(repository => repository.GetContactAccountAuthorizationsAsync(contactId, accountId, null))
             .ReturnsAsync(resourceMocked);
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);

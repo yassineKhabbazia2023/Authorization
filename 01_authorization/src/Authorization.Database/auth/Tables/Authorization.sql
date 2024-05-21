@@ -4,9 +4,11 @@
     [Description] VARCHAR (250) NOT NULL,
     [Code]        VARCHAR (10)  NOT NULL,
     [Label]       VARCHAR (100)  NOT NULL,
+    [View]    VARCHAR (10) NOT NULL,    
     [Category]    VARCHAR (50) NULL,
     [Configurable] BIT
     CONSTRAINT [PK_Authorization] PRIMARY KEY CLUSTERED ([AuthorizationId] ASC)
+    CONSTRAINT [CHK_Status] CHECK ([View] = 'Global' OR [View] = 'Partial' OR [View] = 'Both' OR [View] = 'Header')
 );
 
 

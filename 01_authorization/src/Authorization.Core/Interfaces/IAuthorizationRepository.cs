@@ -10,7 +10,7 @@ public interface IAuthorizationRepository
 
     Task<List<string>> GetAccountAuthorizationAsync(int accountId);
 
-    Task<List<string>> GetContactAccountAuthorizationsAsync(int contactId, int accountId);
+    Task<List<string>> GetContactAccountAuthorizationsAsync(int contactId, int accountId, bool? viewGlobal);
 
     Task DeleteContactAuthorizationAsync(int contactId, int accountId);
 }

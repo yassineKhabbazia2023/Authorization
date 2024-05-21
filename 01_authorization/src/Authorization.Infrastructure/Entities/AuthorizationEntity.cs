@@ -17,6 +17,8 @@ public partial class AuthorizationEntity
 
     public string Label { get; set; }
 
+    public string View { get; set; }
+
     public string Category { get; set; }
 
     public bool? Configurable { get; set; }

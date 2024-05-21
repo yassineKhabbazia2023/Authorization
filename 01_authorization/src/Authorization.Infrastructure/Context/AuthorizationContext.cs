@@ -89,6 +89,10 @@ public partial class AuthorizationContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.View)
+                .IsRequired()
+                .HasMaxLength(10)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<ContactAuthorizationEntity>(entity =>

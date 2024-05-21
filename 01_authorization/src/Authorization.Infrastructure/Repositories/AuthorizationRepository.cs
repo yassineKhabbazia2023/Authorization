@@ -3,14 +3,13 @@
 // </copyright>
 
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Polly;
 using Polly.Retry;
-using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Core.Constants;
+using Pulse.Authorization.Core.Enum;
 using Pulse.Authorization.Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Kpmg.ExceptionMiddleware.AdvancedExceptions;
-using Pulse.Authorization.Core.Exceptions;
+using Pulse.Authorization.Infrastructure.Context;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
 
@@ -30,18 +29,23 @@ public class AuthorizationRepository : IAuthorizationRepository
                     sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
     }
 
-    public async Task<List<string>> GetContactAccountAuthorizationsAsync(int contactId, int accountId)
+    public async Task<List<string>> GetContactAccountAuthorizationsAsync(int contactId, int accountId, bool? viewGlobal)
     {
         return await _retryPolicy.ExecuteAsync(async () =>
         {
-            var contactAuthorizationCodes = _authorizationContext
+            var contactAuthorization = _authorizationContext
                     .ContactAuthorizationEntity
                     .Include(x => x.Authorization)
-                    .Where(x => x.ContactId == contactId && x.AccountId == accountId)
+                    .Where(x => x.ContactId == contactId
+                        && x.AccountId == accountId
+                        && ((viewGlobal != null && x.Authorization.View != (viewGlobal.Value
+                                                            ? AuthorizationView.Partial.ToString()
+                                                            : AuthorizationView.Global.ToString()))
+                             || viewGlobal == null))
                     .Select(x => x.Authorization.Code)
                     .Distinct();
 
-            var result = await contactAuthorizationCodes.ToListAsync();
+            var result = await contactAuthorization.ToListAsync();
             return result;
         });
     }
@@ -69,7 +73,7 @@ public class AuthorizationRepository : IAuthorizationRepository
             var contactAuthorizationCodes = _authorizationContext
                     .ContactAuthorizationEntity
                     .Include(x => x.Authorization)
-                    .Where(x => x.ContactId == contactId)
+                    .Where(x => x.ContactId == contactId && x.Authorization.View != AuthorizationView.Partial.ToString())
                     .Select(x => x.Authorization.Code)
                     .Distinct();
 

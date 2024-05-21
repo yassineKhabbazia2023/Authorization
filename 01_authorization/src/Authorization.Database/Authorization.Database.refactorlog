@@ -84,4 +84,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="ContactTypeId" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="853a8f0c-0050-4642-8a41-850d4626cda2" ChangeDateTime="05/20/2024 15:00:57">
+    <Property Name="ElementName" Value="[auth].[Authorization].[Location]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[auth].[Authorization]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="View" />
+  </Operation>
 </Operations>

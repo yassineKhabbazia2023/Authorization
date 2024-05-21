@@ -5,6 +5,7 @@
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Pulse.Authorization.Core.Enum;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Repositories;
@@ -49,7 +50,7 @@ public class AuthorizationRepositoryTests
             var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactAccountAuthorizationsAsync(contactId, accountId);
+            var receivedAuthorization = await repository.GetContactAccountAuthorizationsAsync(contactId, accountId, null);
 
             var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
             var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
@@ -109,9 +110,67 @@ public class AuthorizationRepositoryTests
             var contactId = contactAuthorizationAccountEntity.First().ContactId;
             var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactAccountAuthorizationsAsync(999, 888);
+            var receivedAuthorization = await repository.GetContactAccountAuthorizationsAsync(999, 888, null);
 
             Assert.Empty(receivedAuthorization);
+        }
+    }
+
+    [Fact]
+    public async Task GetContactAndAccountAuthorizationsAsync_Cas_Global()
+    {
+        using (var context = new AuthorizationContext(_options))
+        {
+            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
+                            .With(a => a.Authorization)
+                            .With(a => a.ContactId, 123)
+                            .With(a => a.AccountId, 456)
+                            .Without(a => a.Contact)
+                            .CreateMany(3);
+            var permissionGlobal = contactAuthorizationAccountEntity.Where(x => x.Authorization.View == AuthorizationView.Global.ToString()).ToList();
+
+            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
+
+            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
+            await context.SaveChangesAsync();
+
+            var repository = new AuthorizationRepository(context);
+
+            var contactId = contactAuthorizationAccountEntity.First().ContactId;
+            var accountId = contactAuthorizationAccountEntity.First().AccountId;
+
+            var receivedAuthorization = await repository.GetContactAccountAuthorizationsAsync(123, 456, true);
+
+            Assert.Equal(permissionGlobal.Count, receivedAuthorization.Count);
+        }
+    }
+
+    [Fact]
+    public async Task GetContactAndAccountAuthorizationsAsync_Cas_Partial()
+    {
+        using (var context = new AuthorizationContext(_options))
+        {
+            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
+                            .With(a => a.Authorization)
+                            .With(a => a.ContactId, 123)
+                            .With(a => a.AccountId, 456)
+                            .Without(a => a.Contact)
+                            .CreateMany(3);
+            var permissionPartial = contactAuthorizationAccountEntity.Where(x => x.Authorization.View == AuthorizationView.Partial.ToString()).ToList();
+
+            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
+
+            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
+            await context.SaveChangesAsync();
+
+            var repository = new AuthorizationRepository(context);
+
+            var contactId = contactAuthorizationAccountEntity.First().ContactId;
+            var accountId = contactAuthorizationAccountEntity.First().AccountId;
+
+            var receivedAuthorization = await repository.GetContactAccountAuthorizationsAsync(123, 456, false);
+
+            Assert.Equal(permissionPartial.Count, receivedAuthorization.Count);
         }
     }
 
@@ -163,11 +222,11 @@ public class AuthorizationRepositoryTests
 
             var repository = new AuthorizationRepository(context);
 
-            var permissionBefore = await repository.GetContactAccountAuthorizationsAsync(123, -1);
+            var permissionBefore = await repository.GetContactAccountAuthorizationsAsync(123, -1, null);
             Assert.NotEmpty(permissionBefore);
 
             await repository.DeleteContactAuthorizationAsync(123, -1);
-            var permissionAfter = await repository.GetContactAccountAuthorizationsAsync(123, -1);
+            var permissionAfter = await repository.GetContactAccountAuthorizationsAsync(123, -1, null);
             Assert.Empty(permissionAfter);
         }
     }
