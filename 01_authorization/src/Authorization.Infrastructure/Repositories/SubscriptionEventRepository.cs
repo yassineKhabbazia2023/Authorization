@@ -13,24 +13,20 @@ using Pulse.Authorization.Core.Models;
 using Microsoft.Extensions.Logging;
 using Pulse.Authorization.Core.Exceptions;
 using System.Net;
+using Pulse.Authorization.Infrastructure.Extensions;
 
 namespace Pulse.Authorization.Infrastructure.Repositories
 {
     public class SubscriptionEventRepository : ISubscriptionEventRepository
     {
         private readonly AuthorizationContext _authorizationContext;
-        private readonly AsyncRetryPolicy _retryPolicy;
         private readonly ILogger<SubscriptionEventRepository> _logger;
 
         public SubscriptionEventRepository(AuthorizationContext authorizationContext, ILogger<SubscriptionEventRepository> logger)
         {
             _authorizationContext = authorizationContext;
+            _authorizationContext.HandleEFCoreFailure();
             _logger = logger;
-            _retryPolicy = Policy
-                    .Handle<SqlException>()
-                    .WaitAndRetryAsync(
-                        retryCount: 1,
-                        sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
         }
 
         public async Task AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes)
@@ -49,10 +45,7 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                 };
             }));
 
-            await _retryPolicy.ExecuteAsync(async () =>
-            {
-                await _authorizationContext.SaveChangesAsync();
-            });
+            await _authorizationContext.SaveChangesAsync();
         }
 
         public async Task AddSubscriptionAuthorizationsOnContactAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes)
@@ -76,14 +69,12 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                         AccountId = accountId,
                         AuthorizationId = a.AuthorizationId,
                         ContactId = role.ContactId,
+                        CreationDate = DateTime.UtcNow,
                     };
                 }));
             }
 
-            await _retryPolicy.ExecuteAsync(async () =>
-            {
-                await _authorizationContext.SaveChangesAsync();
-            });
+            await _authorizationContext.SaveChangesAsync();
         }
     }
 }

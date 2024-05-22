@@ -18,6 +18,7 @@ using Pulse.Back.Events.IntegrationEvents;
 using Pulse.Back.Events;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers;
+using Pulse.Authorization.Core.Constants;
 
 namespace Pulse.Authorization.API.Configuration
 {
@@ -95,6 +96,7 @@ namespace Pulse.Authorization.API.Configuration
                 options.UseSqlServer(connectionString, opt =>
                 {
                     opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                    opt.EnableRetryOnFailure(1, TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan), null);
                 });
             });
 

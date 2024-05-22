@@ -11,34 +11,26 @@ using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Mappers;
+using Pulse.Authorization.Infrastructure.Extensions;
 
 namespace Pulse.Authorization.Infrastructure.Repositories
 {
     public class ContactRepository : IContactRepository
     {
         private readonly AuthorizationContext _authorizationContext;
-        private readonly AsyncRetryPolicy _retryPolicy;
 
         public ContactRepository(AuthorizationContext authorizationContext)
         {
             _authorizationContext = authorizationContext;
-
-            _retryPolicy = Policy
-                    .Handle<SqlException>()
-                    .WaitAndRetryAsync(
-                        retryCount: 1,
-                        sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
+            _authorizationContext.HandleEFCoreFailure();
         }
 
         public async Task<Contact> GetContactByIdAsync(int contactId)
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
-            {
-                var contact = await _authorizationContext.ContactEntity.AsNoTracking()
+            var contact = await _authorizationContext.ContactEntity.AsNoTracking()
                                                     .FirstOrDefaultAsync(c => c.ContactId == contactId);
 
-                return contact!.MapToContact();
-            });
+            return contact!.MapToContact();
         }
     }
 }
