@@ -92,6 +92,7 @@
     <None Include="ScriptRec\actor.Contact.ExpertDigitaux.sql" />
     <None Include="postDeployment\auth.InitPermissionCollab.sql" />
     <None Include="postDeployment\tablesMigration.sql" />
+    <None Include="postDeployment\auth.InitAuthorization.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
