@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="EntityContextExtensions.cs" company="Pulse">
+// Copyright (c) Pulse. All rights reserved.
+// </copyright>
+
 using Microsoft.EntityFrameworkCore;
-using Polly.Retry;
 
 namespace Pulse.Authorization.Infrastructure.Extensions
 {

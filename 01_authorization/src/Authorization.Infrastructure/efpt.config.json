@@ -2,7 +2,6 @@
    "CodeGenerationMode": 4,
    "ContextClassName": "AuthorizationContext",
    "ContextNamespace": null,
-   "DefaultDacpacSchema": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "ModelNamespace": null,
@@ -17,6 +16,10 @@
    "Tables": [
       {
          "Name": "[account].[Account]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[account].[Role]",
          "ObjectType": 0
       },
       {
@@ -44,8 +47,9 @@
          "ObjectType": 0
       }
    ],
-   "UiHint": "..\\Authorization.Database\\Authorization.Database.sqlproj",
+   "UiHint": null,
    "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
    "UseDateOnlyTimeOnly": false,

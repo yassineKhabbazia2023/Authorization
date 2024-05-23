@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Org.BouncyCastle.Bcpg.OpenPgp;
+﻿// <copyright file="RoleEntity.cs" company="Pulse">
+// Copyright (c) Pulse. All rights reserved.
+// </copyright>
 
 namespace Pulse.Authorization.Infrastructure.Entities
 {
@@ -19,8 +16,14 @@ namespace Pulse.Authorization.Infrastructure.Entities
 
         public bool? IsFavorite { get; set; }
 
+    /// <summary>
+    /// Le signataire
+    /// </summary>
         public bool? IsSignatory { get; set; }
 
+    /// <summary>
+    /// Indique, dans les cas où c&apos;&apos;est possible, si le role est lié à une délégation
+    /// </summary>
         public bool? IsDelegation { get; set; }
     }
 }
