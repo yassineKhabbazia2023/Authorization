@@ -148,6 +148,130 @@ public class ConfigurationServiceTests
     }
 
     [Fact]
+    public async Task GetContactAccountConfigurationCollabAsync_WhenContactTypeCustomer_ShouldRetunEmpty()
+    {
+        // Arrange
+        var accountId = 123;
+        var contactId = 456;
+
+        var contactMocked = _fixture.Build<Contact>()
+                                    .With(c => c.ContactId, contactId)
+                                    .With(c => c.Type, ContactType.Collaborator.ToString())
+                                    .Create();
+
+        var accountAuthorizations = new List<Configuration>
+        {
+            new Configuration
+            {
+                Category = "CltGESTION",
+                Actions = new List<Models.Action>
+                {
+                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
+                    new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
+                    new Models.Action { ActionId = 3, Code = "CLUSER002", Name = "Add User" },
+                    new Models.Action { ActionId = 4, Code = "CLUSER002", Name = "Add User" },
+                    new Models.Action { ActionId = 5, Code = "CLUSER003", Name = "Delete User" },
+                    new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
+                    new Models.Action { ActionId = 7, Code = "CLINFO001", Name = "View informations" },
+                }
+            }
+        };
+
+        var contactAuthorizations = new List<Configuration>
+        {
+                new Configuration
+                {
+                    Category = "CltGESTION",
+                    Actions = new List<Models.Action>
+                    {
+                        new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
+                        new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
+                    }
+                }
+        };
+
+        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
+        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+            .ReturnsAsync(contactMocked);
+
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+            .ReturnsAsync(accountAuthorizations);
+
+        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
+            .ReturnsAsync(contactAuthorizations);
+
+        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
+
+        // Act
+        var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
+
+        // Assert
+        eligibleContactAuthorizations.Should().BeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task GetContactAccountConfigurationCustomerAsync_WhenContactTypeCollab_ShouldRetunEmpty()
+    {
+        // Arrange
+        var accountId = 123;
+        var contactId = 456;
+
+        var contactMocked = _fixture.Build<Contact>()
+                                    .With(c => c.ContactId, contactId)
+                                    .With(c => c.Type, ContactType.Customer.ToString())
+                                    .Create();
+
+        var accountAuthorizations = new List<Configuration>
+        {
+            new Configuration
+            {
+                Category = "ColGESTION",
+                Actions = new List<Models.Action>
+                {
+                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
+                    new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
+                    new Models.Action { ActionId = 3, Code = "CLUSER002", Name = "Add User" },
+                    new Models.Action { ActionId = 4, Code = "CLUSER002", Name = "Add User" },
+                    new Models.Action { ActionId = 5, Code = "CLUSER003", Name = "Delete User" },
+                    new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
+                    new Models.Action { ActionId = 7, Code = "CLINFO001", Name = "View informations" },
+                }
+            }
+        };
+
+        var contactAuthorizations = new List<Configuration>
+        {
+                new Configuration
+                {
+                    Category = "ColGESTION",
+                    Actions = new List<Models.Action>
+                    {
+                        new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
+                        new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
+                    }
+                }
+        };
+
+        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
+        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+            .ReturnsAsync(contactMocked);
+
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+            .ReturnsAsync(accountAuthorizations);
+
+        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
+            .ReturnsAsync(contactAuthorizations);
+
+        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object);
+
+        // Act
+        var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
+
+        // Assert
+        eligibleContactAuthorizations.Should().BeNullOrEmpty();
+    }
+
+    [Fact]
     public async Task GetContactAccountConfigurationAsync_WhenContactTypeIsCollaborator_ShouldRetunConfigurationsWithEnablesCollaboratorActions()
     {
         // Arrange

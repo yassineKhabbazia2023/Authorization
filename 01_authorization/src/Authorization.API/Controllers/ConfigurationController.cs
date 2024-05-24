@@ -28,7 +28,7 @@ public class ConfigurationController : ControllerBase
     /// <returns>La liste des configurations.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ConfigurationModel?>))]
-    public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetContactAccountConfigurationAsync([Required][FromQuery] int contactId, [Required][FromQuery] int accountId)
+    public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetContactAccountConfigurationAsync([Required][FromQuery] int contactId, [FromQuery] int? accountId)
     {
         var configuration = await _configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
         return Ok(configuration);
