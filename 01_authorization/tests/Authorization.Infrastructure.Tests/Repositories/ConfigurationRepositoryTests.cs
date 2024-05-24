@@ -159,11 +159,10 @@ public class ConfigurationRepositoryTests
                             .With(a => a.ContactId, contactId)
                             .Without(a => a.ContactAuthorizationEntity)
                             .Create();
-        var oldAuthorizationEntity = _fixture.Build<AuthorizationEntity>()
-                        .Without(a => a.ContactAuthorizationEntity)
-                        .Without(a => a.AccountAuthorizationEntity)
-                        .CreateMany(3)
-                        .ToList();
+        var authorizationMock = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.Configurable, true)
+            .CreateMany(3)
+            .ToList();
         var oldContactAuthorizations = _fixture.Build<ContactAuthorizationEntity>()
                         .With(a => a.ContactId, contactId)
                         .With(a => a.AccountId, accountId)
@@ -172,11 +171,12 @@ public class ConfigurationRepositoryTests
                         .Without(a => a.Authorization)
                         .CreateMany(3)
                         .ToList();
-        oldContactAuthorizations.ForEach(auth => auth.Authorization = oldAuthorizationEntity[oldContactAuthorizations.IndexOf(auth)]);
+        oldContactAuthorizations.ForEach(auth => auth.Authorization = authorizationMock[oldContactAuthorizations.IndexOf(auth)]);
 
         var newAuthorizationEntity = _fixture.Build<AuthorizationEntity>()
                         .Without(a => a.ContactAuthorizationEntity)
                         .Without(a => a.AccountAuthorizationEntity)
+                        .With(a => a.Configurable, true)
                         .CreateMany(3)
                         .ToList();
         var newContactAuthorizations = _fixture.Build<ContactAuthorizationEntity>()

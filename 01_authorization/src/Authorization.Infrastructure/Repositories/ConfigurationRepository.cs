@@ -70,7 +70,7 @@ public class ConfigurationRepository : IConfigurationRepository
         return await _authorizationContext
                      .ContactAuthorizationEntity
                      .Include(x => x.Authorization)
-                     .Where(x => x.ContactId == contactId && x.AccountId == accountId)
+                     .Where(x => x.ContactId == contactId && x.AccountId == accountId && x.Authorization.Configurable!.Value)
                      .Select(x => x)
                      .Distinct()
                      .ToListAsync();
