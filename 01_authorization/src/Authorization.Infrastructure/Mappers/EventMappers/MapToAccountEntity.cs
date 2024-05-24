@@ -24,7 +24,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
                 AccountGlobalUniqueId = source.AccountGlobalUniqueId,
                 AccountNumber = source.AccountNumber,
                 LegalName = source.LegalName,
-                Status = AccountStatus.ToDeploy.ToString(),
+                Status = source.Status,
             };
         }
 
