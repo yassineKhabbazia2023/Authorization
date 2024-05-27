@@ -24,13 +24,9 @@ public partial class AuthorizationContext : DbContext
 
     public virtual DbSet<ContactEntity> ContactEntity { get; set; }
 
-    public virtual DbSet<CosmosDb> CosmosDb { get; set; }
-
     public virtual DbSet<PersonaEntity> PersonaEntity { get; set; }
 
-    public virtual DbSet<Role> RoleEntity { get; set; }
-
-    public virtual DbSet<Transco> Transco { get; set; }
+    public virtual DbSet<RoleEntity> RoleEntity { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -163,22 +159,6 @@ public partial class AuthorizationContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<CosmosDb>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("CosmosDB");
-
-            entity.Property(e => e.AccountId).HasMaxLength(200);
-            entity.Property(e => e.AccountName).HasMaxLength(200);
-            entity.Property(e => e.AssetId).HasMaxLength(200);
-            entity.Property(e => e.Code).HasMaxLength(100);
-            entity.Property(e => e.ContactLoginName).HasMaxLength(200);
-            entity.Property(e => e.Id)
-                .HasMaxLength(200)
-                .HasColumnName("id");
-        });
-
         modelBuilder.Entity<PersonaEntity>(entity =>
         {
             entity.HasKey(e => e.PersonaId);
@@ -216,7 +196,7 @@ public partial class AuthorizationContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<RoleEntity>(entity =>
         {
             entity.HasKey(e => new { e.ContactId, e.AccountId }).HasName("C_Role_PK");
 
@@ -234,28 +214,15 @@ public partial class AuthorizationContext : DbContext
             entity.Property(e => e.IsFavorite).HasComment("Le rôle est-il considéré comme un favori ou mis en avant comme tel");
             entity.Property(e => e.IsSignatory).HasComment("Le signataire");
 
-            entity.HasOne(d => d.Account).WithMany(p => p.Role)
+            entity.HasOne(d => d.Account).WithMany(p => p.RoleEntity)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("C_Account_Role_FK");
 
-            entity.HasOne(d => d.Contact).WithMany(p => p.Role)
+            entity.HasOne(d => d.Contact).WithMany(p => p.RoleEntity)
                 .HasForeignKey(d => d.ContactId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("C_Account_Contact_FK");
-        });
-
-        modelBuilder.Entity<Transco>(entity =>
-        {
-            entity.HasNoKey();
-
-            entity.Property(e => e.AccessRightCode)
-                .HasMaxLength(10)
-                .IsUnicode(false);
-            entity.Property(e => e.AuthorizationId)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("AuthorizationID");
         });
 
         OnModelCreatingPartial(modelBuilder);

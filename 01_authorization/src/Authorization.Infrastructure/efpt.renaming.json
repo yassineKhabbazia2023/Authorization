@@ -6,6 +6,11 @@
             "Columns": [ ],
             "Name": "Account",
             "NewName": "AccountEntity"
+         },
+         {
+            "Columns": [ ],
+            "Name": "Role",
+            "NewName": "RoleEntity"
          }
       ],
       "UseSchemaName": false

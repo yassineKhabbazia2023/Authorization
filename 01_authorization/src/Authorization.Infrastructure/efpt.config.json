@@ -45,14 +45,6 @@
       {
          "Name": "[auth].[PersonaAuthorization]",
          "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[CosmosDB]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Transco]",
-         "ObjectType": 0
       }
    ],
    "UiHint": null,

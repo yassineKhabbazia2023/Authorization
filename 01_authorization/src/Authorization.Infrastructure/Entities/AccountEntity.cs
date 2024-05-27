@@ -21,5 +21,5 @@ public partial class AccountEntity
 
     public virtual ICollection<ContactAuthorizationEntity> ContactAuthorizationEntity { get; set; } = new List<ContactAuthorizationEntity>();
 
-    public virtual ICollection<Role> Role { get; set; } = new List<Role>();
+    public virtual ICollection<RoleEntity> RoleEntity { get; set; } = new List<RoleEntity>();
 }

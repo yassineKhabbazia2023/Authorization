@@ -119,7 +119,7 @@ public class ConfigurationServiceTests
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory))
             .ReturnsAsync(accountAuthorizations);
 
         _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
@@ -194,7 +194,7 @@ public class ConfigurationServiceTests
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory))
             .ReturnsAsync(accountAuthorizations);
 
         _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
@@ -256,7 +256,7 @@ public class ConfigurationServiceTests
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CollabCategory))
             .ReturnsAsync(accountAuthorizations);
 
         _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
@@ -356,7 +356,7 @@ public class ConfigurationServiceTests
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CollabCategory))
             .ReturnsAsync(defaultAccountAuthorizations);
 
         _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
@@ -446,7 +446,7 @@ public class ConfigurationServiceTests
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory))
             .ReturnsAsync(accountAuthorizations);
 
         _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
@@ -514,7 +514,7 @@ public class ConfigurationServiceTests
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId))
+        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory))
             .ReturnsAsync(accountAuthorizations);
 
         _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId))
