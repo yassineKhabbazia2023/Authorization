@@ -77,7 +77,6 @@ namespace Pulse.Authorization.API.Configuration
             services.AddKeyedScoped<IEventHandler, SubscriptionValidatedEventHandler>(nameof(SubscriptionValidatedEvent));
 
             services.AddEventPullServices(options);
-            services.AddEventPushServices(options);
         }
 
         public static void RegisterServices(this IServiceCollection services)
