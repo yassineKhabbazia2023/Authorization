@@ -35,13 +35,11 @@ public class ConfigurationService : IConfigurationService
 
         if (contact!.Type == ContactType.Customer.ToString())
         {
-            configurations = await _configurationRepository.GetAccountConfigurationAsync(accountId!.Value);
-            configurations = configurations.Where(c => c.Category.Contains(GlobalConstants.CustomerCategory, StringComparison.OrdinalIgnoreCase));
+            configurations = await _configurationRepository.GetAccountConfigurationAsync(accountId!.Value, GlobalConstants.CustomerCategory);
         }
         else if (contact!.Type == ContactType.Collaborator.ToString())
         {
-            configurations = await _configurationRepository.GetAccountConfigurationAsync(GlobalConstants.DefaultAccountIdCollab);
-            configurations = configurations.Where(c => c.Category.Contains(GlobalConstants.CollabCategory, StringComparison.OrdinalIgnoreCase));
+            configurations = await _configurationRepository.GetAccountConfigurationAsync(GlobalConstants.DefaultAccountIdCollab, GlobalConstants.CollabCategory);
         }
         else
         {

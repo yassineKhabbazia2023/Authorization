@@ -21,9 +21,11 @@ public partial class AuthorizationEntity
 
     public string Category { get; set; }
 
+    public string ProductCode { get; set; }
+
     public bool? Configurable { get; set; }
 
-    public string? ProductCode { get; set; }
+    public string Type { get; set; }
 
     public virtual ICollection<AccountAuthorizationEntity> AccountAuthorizationEntity { get; set; } = new List<AccountAuthorizationEntity>();
 

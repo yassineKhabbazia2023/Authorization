@@ -6,6 +6,7 @@ using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Mappers;
@@ -25,7 +26,7 @@ public class ConfigurationRepositoryTests
     }
 
     [Fact]
-    public async Task GetAccountConfigurationAsync_WhenAccountHasAuthorization_ShouldReturnsConfigurations()
+    public async Task GetAccountConfigurationAsync_WhenClientHasAuthorization_ShouldReturnsConfigurations()
     {
         var options = new DbContextOptionsBuilder<AuthorizationContext>()
                             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -63,7 +64,52 @@ public class ConfigurationRepositoryTests
         var repository = new ConfigurationRepository(context);
 
         // Act
-        var receivedAuthorization = await repository.GetAccountConfigurationAsync(accountId);
+        var receivedAuthorization = await repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory);
+
+        // Assert
+        receivedAuthorization.Should().BeEquivalentTo(expectedAuthorization);
+    }
+
+    [Fact]
+    public async Task GetAccountConfigurationAsync_WhenCollabHasAuthorization_ShouldReturnsConfigurations()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
+        // Arrange
+        using var context = new AuthorizationContext(options);
+        var accountId = 456;
+        var accoutEntity = new AccountEntity
+        {
+            AccountId = accountId,
+            AccountNumber = "AAZZEEE4578",
+            LegalName = "Test",
+            AccountGlobalUniqueId = Guid.NewGuid(),
+        };
+
+        var accountAuthorizations = _fixture.Build<AccountAuthorizationEntity>()
+                .With(a => a.Authorization)
+                .With(a => a.AccountId, accountId)
+                .With(a => a.Account, accoutEntity)
+                .CreateMany(10);
+
+        foreach (var auth in accountAuthorizations)
+        {
+            auth.Authorization.Configurable = true;
+        }
+
+        await context.AccountAuthorizationEntity.AddRangeAsync(accountAuthorizations);
+        await context.SaveChangesAsync();
+
+        var expectedAuthorization = accountAuthorizations
+            .Select(c => c.Authorization)
+            .MapAuthorizationToConfiguration();
+
+        var repository = new ConfigurationRepository(context);
+
+        // Act
+        var receivedAuthorization = await repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CollabCategory);
 
         // Assert
         receivedAuthorization.Should().BeEquivalentTo(expectedAuthorization);
