@@ -10,7 +10,7 @@ namespace Pulse.Authorization.Core.Constants
         public static readonly string DisabledDelegationStatus = "disabled";
 
         public static readonly int DefaultAccountIdCollab = -1;
-        public static readonly string CustomerCategory = "CLT";
-        public static readonly string CollabCategory = "COL";
+        public static readonly string CustomerCategory = "customer";
+        public static readonly string CollabCategory = "collaborator";
     }
 }

@@ -27,13 +27,14 @@ public class ConfigurationRepository : IConfigurationRepository
         _authorizationContext.HandleEFCoreFailure();
     }
 
-    public async Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId)
+    public async Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId, string type)
     {
         var authorization = await _authorizationContext
                      .AccountAuthorizationEntity
                      .Include(x => x.Authorization)
                      .Where(x => x.AccountId == accountId
-                            && x.Authorization.Configurable == true)
+                            && x.Authorization.Configurable == true
+                            && x.Authorization.Type == type)
                      .Select(x => x.Authorization)
                      .Distinct()
                      .ToListAsync();
