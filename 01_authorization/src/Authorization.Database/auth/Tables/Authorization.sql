@@ -11,7 +11,7 @@
     [Type] VARCHAR(5) NULL
     CONSTRAINT [PK_Authorization] PRIMARY KEY CLUSTERED ([AuthorizationId] ASC)
     CONSTRAINT [CHK_Status] CHECK ([View] = 'Global' OR [View] = 'Partial' OR [View] = 'Both' OR [View] = 'Header')
-    CONSTRAINT [CHK_Type] CHECK ([Type] = 'CLT' OR [Type] = 'COL')
+    CONSTRAINT [CHK_Type] CHECK ([Type] = 'customer' OR [Type] = 'collaborator')
 );
 
 
