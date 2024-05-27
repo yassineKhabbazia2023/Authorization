@@ -74,7 +74,13 @@ VALUES
 (71,'E9121395-D676-49DC-9438-189622FB9DD9','Paul','Robin','paul.robin@example.com','Customer','Declared', @date,'Responsable financier'),
 (72,'F7EBF74D-E4D7-4EF6-887B-E0307D15CB3E','Louise','Petit','louise.petit@example.com','Customer','Declared', @date,'RH'),
 (73,'44F4CB37-972B-4E18-AE44-E2002CE75C91','Hugo','Dubois','hugo.dubois@example.com','Customer','Declared', @date,'Comptable'),
+(74,'99D10D34-271E-4202-94A9-E4361A338B54', 'Test', 'Compte', 'fr-comptedetestpulsetnr@kpmg.onmicrosoft.com', 'Customer', 'Declared', @date, 'Support / CX'),
+(75,'0F585612-56C4-4322-9FBF-A4C2650F4FDB', 'Test', 'Compte2', 'kkhamliche+test01@kpmg.onmicrosoft.com', 'Customer', 'Declared', @date, 'Support / CX'),
+(76,'F8B11CE4-E5FC-4B2B-9659-3392CF815E13', 'Test', 'Compte3', 'kkhamliche+test01@kpmg.onmicrosoft.com', 'Customer', 'Declared', @date, 'Support / CX'),
+(77,'E037686F-2206-464D-9B6E-A10AF2FC2E22', 'FR', 'PulsePO1', 'FR-Pulse-PO+01@kpmg.onmicrosoft.com', 'Customer', 'Declared', @date, 'Support / CX'),
+(78,'BB92D397-5868-49D6-88FD-096402861A94', 'FR', 'PulsePO2', 'FR-Pulse-PO+02@kpmg.onmicrosoft.com', 'Customer', 'Declared', @date, 'Support / CX'),
+(79,'28B7C850-9DC6-4039-9BED-22C2EE175A7B','Abderazak','Chebbah','achebbah+0603@kpmg.onmicrosoft.com','Customer','Declared',@date,'Support / CX'),
 (161,'592D23F2-4EBF-47F1-8137-6589F284EA42','Kevin','Cour','kcour@kpmg.fr','Collaborator','Declared', @date,'Admin / Collab Product'),
 (162,'CA749D21-81BF-44DB-83C4-8D8D999BFCE2','Smahane','Agram','sagram@kpmg.fr','Collaborator','Declared', @date,'Admin / Collab Product'),
-(188,'F0EB61A1-A4B4-44EF-B783-E76025014300','Olympe','GREC','userdemo2@test.fr','Customer','Declared',@date,'ADMIN/Dirigeant'),
-(189,'F0EB61A1-A4B4-44EF-B783-E76025014301','Sully','MAN','slescot+CP1@kpmg.onmicrosoft.com','Customer','Declared',@date,'ADMIN/Dirigeant')
+(163,'03B47DDE-3335-4C92-8DA6-123442DD4819','Eddy','Eyme','eeyme@kpmg.fr','Collaborator','Declared',@date,'Admin / Collab Product'),
+(164,'03b47dde-3335-4c92-8da6-123442dd4819','Marc','Dibeh','mdibeh@kpmg.fr','Collaborator','Declared',@date,'Admin / Collab Product')

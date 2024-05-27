@@ -93,6 +93,8 @@
     <None Include="postDeployment\auth.InitPermissionCollab.sql" />
     <None Include="postDeployment\tablesMigration.sql" />
     <None Include="postDeployment\auth.InitAuthorization.sql" />
+    <None Include="postDeployment\account.Role.sql" />
+    <None Include="postDeployment\auth.InitPermissionsClients.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
