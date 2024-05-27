@@ -35,23 +35,27 @@ public class ConfigurationRepositoryTests
         // Arrange
         using var context = new AuthorizationContext(options);
         var accountId = 456;
-        var accoutEntity = new AccountEntity
-        {
-            AccountId = accountId,
-            AccountNumber = "AAZZEEE4578",
-            LegalName = "Test",
-            AccountGlobalUniqueId = Guid.NewGuid(),
-        };
+
+        var accountEntity = _fixture.Build<AccountEntity>()
+                .With(a => a.AccountId, accountId)
+                .With(a => a.AccountNumber, "AAZZEEE4578")
+                .With(a => a.LegalName, "Test")
+                .With(a => a.AccountGlobalUniqueId, Guid.NewGuid())
+                .Without(a => a.AccountAuthorizationEntity)
+                .Without(a => a.ContactAuthorizationEntity)
+                .Without(a => a.RoleEntity)
+                .Create();
 
         var accountAuthorizations = _fixture.Build<AccountAuthorizationEntity>()
                 .With(a => a.Authorization)
                 .With(a => a.AccountId, accountId)
-                .With(a => a.Account, accoutEntity)
+                .With(a => a.Account, accountEntity)
                 .CreateMany(10);
 
         foreach (var auth in accountAuthorizations)
         {
             auth.Authorization.Configurable = true;
+            auth.Authorization.Type = GlobalConstants.CustomerCategory;
         }
 
         await context.AccountAuthorizationEntity.AddRangeAsync(accountAuthorizations);
@@ -80,23 +84,26 @@ public class ConfigurationRepositoryTests
         // Arrange
         using var context = new AuthorizationContext(options);
         var accountId = 456;
-        var accoutEntity = new AccountEntity
-        {
-            AccountId = accountId,
-            AccountNumber = "AAZZEEE4578",
-            LegalName = "Test",
-            AccountGlobalUniqueId = Guid.NewGuid(),
-        };
+        var accountEntity = _fixture.Build<AccountEntity>()
+                .With(a => a.AccountId, accountId)
+                .With(a => a.AccountNumber, "AAZZEEE4578")
+                .With(a => a.LegalName, "Test")
+                .With(a => a.AccountGlobalUniqueId, Guid.NewGuid())
+                .Without(a => a.AccountAuthorizationEntity)
+                .Without(a => a.ContactAuthorizationEntity)
+                .Without(a => a.RoleEntity)
+                .Create();
 
         var accountAuthorizations = _fixture.Build<AccountAuthorizationEntity>()
                 .With(a => a.Authorization)
                 .With(a => a.AccountId, accountId)
-                .With(a => a.Account, accoutEntity)
+                .With(a => a.Account, accountEntity)
                 .CreateMany(10);
 
         foreach (var auth in accountAuthorizations)
         {
             auth.Authorization.Configurable = true;
+            auth.Authorization.Type = GlobalConstants.CollabCategory;
         }
 
         await context.AccountAuthorizationEntity.AddRangeAsync(accountAuthorizations);

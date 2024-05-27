@@ -34,7 +34,7 @@ public class ConfigurationRepository : IConfigurationRepository
                      .Include(x => x.Authorization)
                      .Where(x => x.AccountId == accountId
                             && x.Authorization.Configurable == true
-                            && x.Authorization.Type.Equals(type))
+                            && x.Authorization.Type == type)
                      .Select(x => x.Authorization)
                      .Distinct()
                      .ToListAsync();
