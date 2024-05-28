@@ -95,7 +95,8 @@ public partial class AuthorizationContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.Type)
-                .HasMaxLength(5)
+                .IsRequired()
+                .HasMaxLength(15)
                 .IsUnicode(false);
             entity.Property(e => e.View)
                 .IsRequired()
