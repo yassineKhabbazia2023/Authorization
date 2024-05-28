@@ -14,13 +14,16 @@ namespace Pulse.Authorization.Infrastructure.Providers
     {
         private readonly ILogger<ContactRemovedEventHandler> _logger;
         private readonly IContactEventRepository _contactEventRepository;
+        private readonly IRoleEventRepository _roleEventRepository;
 
         public ContactRemovedEventHandler(
             ILogger<ContactRemovedEventHandler> logger,
-            IContactEventRepository contactEventRepository)
+            IContactEventRepository contactEventRepository,
+            IRoleEventRepository roleEventRepository)
         {
             _logger = logger;
             _contactEventRepository = contactEventRepository;
+            _roleEventRepository = roleEventRepository;
         }
 
         public async Task HandleAsync(string message)
@@ -42,8 +45,9 @@ namespace Pulse.Authorization.Infrastructure.Providers
 
             await _contactEventRepository.RemoveContactAsync(contactEvent!.Data.ContactId);
             await _contactEventRepository.RemoveContactAuthorizationsAsync(contactEvent!.Data.ContactId);
+            await _roleEventRepository.DeleteContactRolesAsync(contactEvent!.Data.ContactId);
 
-            _logger.LogInformation("Le contact avec l'identifiant: {ContactId}, ainsi que toutes ses authorizations viennent d'être supprimés.", contactEvent!.Data.ContactId);
+            _logger.LogInformation("Le contact avec l'identifiant: {ContactId}, ainsi que tous ses rôles et autorisations viennent d'être supprimés.", contactEvent!.Data.ContactId);
         }
     }
 }

@@ -3,7 +3,6 @@
 // </copyright>
 
 using Pulse.Authorization.Infrastructure.Entities;
-using Pulse.Back.Events.IntegrationEvents.EventsData;
 
 namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
 {
@@ -14,5 +13,7 @@ namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
         Task UpdateRoleAsync(RoleEntity roleEntity);
 
         Task DeleteRoleAsync(int contactId, int accountId);
+
+        Task DeleteContactRolesAsync(int contactId);
     }
 }

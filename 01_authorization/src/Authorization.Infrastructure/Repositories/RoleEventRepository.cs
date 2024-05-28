@@ -40,6 +40,17 @@ namespace Pulse.Authorization.Infrastructure.Repositories
             });
         }
 
+        public async Task DeleteContactRolesAsync(int contactId)
+        {
+            await _authorizationContext.RoleEntity.Where(r => r.ContactId == contactId)
+                .ForEachAsync(r =>
+                {
+                    _authorizationContext.Entry(r).State = EntityState.Deleted;
+                });
+
+            await _authorizationContext.SaveChangesAsync();
+        }
+
         public async Task DeleteRoleAsync(int contactId, int accountId)
         {
             var roleToDelete = _authorizationContext.RoleEntity.Where(x => x.ContactId == contactId && x.AccountId == accountId).FirstOrDefault();

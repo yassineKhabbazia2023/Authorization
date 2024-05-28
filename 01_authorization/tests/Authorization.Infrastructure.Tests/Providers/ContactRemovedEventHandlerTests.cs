@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
-using Xunit;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Providers;
 
@@ -18,6 +17,7 @@ public class ContactRemovedEventHandlerTests
         // Arrange
         var loggerMock = new Mock<ILogger<ContactRemovedEventHandler>>();
         var repositoryMock = new Mock<IContactEventRepository>();
+        var roleRepository = new Mock<IRoleEventRepository>();
 
         loggerMock.Setup(x => x.Log(
             It.IsAny<LogLevel>(),
@@ -26,7 +26,7 @@ public class ContactRemovedEventHandlerTests
             It.IsAny<Exception?>(),
             (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
 
-        var handler = new ContactRemovedEventHandler(loggerMock.Object, repositoryMock.Object);
+        var handler = new ContactRemovedEventHandler(loggerMock.Object, repositoryMock.Object, roleRepository.Object);
         var message = "{\"EventType\":\"ContactRemovedEvent\",\"Data\":{\"ContactId\":123,\"FirstName\":\"John Doe\"}}";
 
         // Act
@@ -35,6 +35,7 @@ public class ContactRemovedEventHandlerTests
         // Assert
         repositoryMock.Verify(repo => repo.RemoveContactAsync(It.IsAny<int>()), Times.Once);
         repositoryMock.Verify(repo => repo.RemoveContactAuthorizationsAsync(It.IsAny<int>()), Times.Once);
+        roleRepository.Verify(repo => repo.DeleteContactRolesAsync(It.IsAny<int>()), Times.Once);
     }
 
     [Fact]
@@ -43,13 +44,15 @@ public class ContactRemovedEventHandlerTests
         // Arrange
         var loggerMock = new Mock<ILogger<ContactRemovedEventHandler>>();
         var repositoryMock = new Mock<IContactEventRepository>();
-        var handler = new ContactRemovedEventHandler(loggerMock.Object, repositoryMock.Object);
+        var roleRepository = new Mock<IRoleEventRepository>();
+        var handler = new ContactRemovedEventHandler(loggerMock.Object, repositoryMock.Object, roleRepository.Object);
 
         // Act
         await handler.HandleAsync(null!);
 
         // Assert
         repositoryMock.Verify(repo => repo.RemoveContactAsync(It.IsAny<int>()), Times.Never);
+        roleRepository.Verify(repo => repo.DeleteContactRolesAsync(It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
@@ -58,7 +61,8 @@ public class ContactRemovedEventHandlerTests
         // Arrange
         var loggerMock = new Mock<ILogger<ContactRemovedEventHandler>>();
         var repositoryMock = new Mock<IContactEventRepository>();
-        var handler = new ContactRemovedEventHandler(loggerMock.Object, repositoryMock.Object);
+        var roleRepository = new Mock<IRoleEventRepository>();
+        var handler = new ContactRemovedEventHandler(loggerMock.Object, repositoryMock.Object, roleRepository.Object);
         var message = "{\"EventType\":\"ContactRemovedEvent\",\"Data\":{\"FirstName\":\"John Doe\"}}";
 
         // Act
@@ -66,6 +70,7 @@ public class ContactRemovedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.RemoveContactAsync(It.IsAny<int>()), Times.Never);
+        roleRepository.Verify(repo => repo.DeleteContactRolesAsync(It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
@@ -74,7 +79,8 @@ public class ContactRemovedEventHandlerTests
         // Arrange
         var loggerMock = new Mock<ILogger<ContactRemovedEventHandler>>();
         var repositoryMock = new Mock<IContactEventRepository>();
-        var handler = new ContactRemovedEventHandler(loggerMock.Object, repositoryMock.Object);
+        var roleRepository = new Mock<IRoleEventRepository>();
+        var handler = new ContactRemovedEventHandler(loggerMock.Object, repositoryMock.Object, roleRepository.Object);
         var message = "{\"EventType\":\"ContactRemovedEvent\"}";
 
         // Act
@@ -82,5 +88,6 @@ public class ContactRemovedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.RemoveContactAsync(It.IsAny<int>()), Times.Never);
+        roleRepository.Verify(repo => repo.DeleteContactRolesAsync(It.IsAny<int>()), Times.Never);
     }
 }
