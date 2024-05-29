@@ -46,4 +46,5 @@ INSERT INTO auth.[Authorization] (
 	('Mirror launcher', '', 'COLANC001', 'Accéder aux lançeurs d''outils externes', 'COLMIRROIR', '1', 'Partial', NULL, 'collaborator'),
 	('Mirror report', '', 'CORAPP001', 'Accéder aux rapports BI ', 'COLMIRROIR', '1', 'Partial', NULL, 'collaborator'),
 	('Mirror kpi', '', 'COKPI0001', 'Accéder aux indicateurs', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
-	('Mirror bank', '', 'COBANK001', 'Accéder aux données bancaires', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator')
+	('Mirror bank', '', 'COBANK001', 'Accéder aux données bancaires', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
+	('Access Silae collab', '', 'COSILA001', 'Accéder au lanceur silae', 'COLGESTION', '1', 'Global', NULL, 'collaborator')

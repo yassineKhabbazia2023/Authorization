@@ -4,7 +4,7 @@ pool:
 
 parameters:
 - name: devIndex
-  displayName: 'Index de l environnement cible (seulement pour un déploiement sur env de DEV)'
+  displayName: 'Index de l environnement cible (seulement pour un dÃ©ploiement sur env de DEV)'
   type: number
   default: 0
 - name: deployType
@@ -24,7 +24,7 @@ extends:
   parameters:
     devIndex: ${{ parameters.devIndex }}
     deployType: ${{ parameters.deployType }}
-    sonarExclusions: '**/Authorization.Database/ScriptRec/**, **/Authorization.Database/postDeployment/**'
+    sonarExclusions: '**/Authorization.Database/ScriptRec/**, **/Authorization.Database/postDeployment/**.sql'
     domain: aut
     resource:
       id: '01'
