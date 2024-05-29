@@ -9,7 +9,7 @@ SELECT
 	AuthorizationId,
 	1
 FROM auth.[Authorization]
-where AuthorizationId >= 20
+where [Type] = 'collaborator'
 
 -- Assign all authorization for all account
 DECLARE @AccId int = 1
@@ -48,7 +48,7 @@ BEGIN
 		AuthorizationId,
 		@date
 	FROM auth.[Authorization]
-	where AuthorizationId >= 20
+	where [Type] = 'collaborator'
 
 	FETCH NEXT FROM contactId_cursor
 	INTO @contactId
