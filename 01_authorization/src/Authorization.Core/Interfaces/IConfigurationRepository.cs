@@ -10,7 +10,7 @@ public interface IConfigurationRepository
 {
     Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId, string type);
 
-    Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId);
+    Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId, int accountId);
 
     Task CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int accountId, IEnumerable<string> codes);
 }

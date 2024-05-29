@@ -42,12 +42,13 @@ public class ConfigurationRepository : IConfigurationRepository
         return authorization.MapAuthorizationToConfiguration();
     }
 
-    public async Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId)
+    public async Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId, int accountId)
     {
         var authorization = await _authorizationContext
                      .ContactAuthorizationEntity
                      .Include(x => x.Authorization)
                      .Where(x => x.ContactId == contactId
+                            && x.AccountId == accountId
                             && x.Authorization.Configurable == true)
                      .Select(x => x.Authorization)
                      .Distinct()
