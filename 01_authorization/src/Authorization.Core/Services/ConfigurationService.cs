@@ -32,21 +32,22 @@ public class ConfigurationService : IConfigurationService
         }
 
         IEnumerable<Configuration> configurations;
+        IEnumerable<Configuration> contactAuthorization;
 
         if (contact!.Type == ContactType.Customer.ToString())
         {
             configurations = await _configurationRepository.GetAccountConfigurationAsync(accountId!.Value, GlobalConstants.CustomerCategory);
+            contactAuthorization = await _configurationRepository.GetContactConfigurationAsync(contactId, accountId!.Value);
         }
         else if (contact!.Type == ContactType.Collaborator.ToString())
         {
             configurations = await _configurationRepository.GetAccountConfigurationAsync(GlobalConstants.DefaultAccountIdCollab, GlobalConstants.CollabCategory);
+            contactAuthorization = await _configurationRepository.GetContactConfigurationAsync(contactId, GlobalConstants.DefaultAccountIdCollab);
         }
         else
         {
             throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type));
         }
-
-        var contactAuthorization = await _configurationRepository.GetContactConfigurationAsync(contactId);
 
         return EnableContactConfiguration(configurations, contactAuthorization);
     }

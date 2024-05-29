@@ -136,6 +136,7 @@ public class ConfigurationRepositoryTests
                         .With(a => a.ContactId, 123)
                         .With(a => a.AccountId, 457)
                         .Without(a => a.Contact)
+                        .Without(a => a.Account)
                         .CreateMany(10);
 
         foreach (var auth in contactAuthorizations)
@@ -153,7 +154,7 @@ public class ConfigurationRepositoryTests
         var repository = new ConfigurationRepository(context);
 
         // Act
-        var receivedAuthorization = await repository.GetContactConfigurationAsync(123);
+        var receivedAuthorization = await repository.GetContactConfigurationAsync(123, 457);
 
         // Assert
         receivedAuthorization.Should().BeEquivalentTo(expectedAuthorization);
