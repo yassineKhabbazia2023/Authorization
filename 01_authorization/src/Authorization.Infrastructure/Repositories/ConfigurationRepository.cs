@@ -14,6 +14,8 @@ using Pulse.Authorization.Infrastructure.Mappers;
 using System.Data;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Extensions;
+using Kpmg.ExceptionMiddleware.AdvancedException;
+using Pulse.Authorization.Core.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
 
@@ -57,12 +59,11 @@ public class ConfigurationRepository : IConfigurationRepository
         return authorization.MapAuthorizationToConfiguration();
     }
 
-    private async Task<IEnumerable<int>> GetAuthorizationEntitiesByCodeAsync(IEnumerable<string> codes)
+    private async Task<IEnumerable<AuthorizationEntity>> GetAuthorizationEntitiesByCodeAsync(IEnumerable<string> codes)
     {
         return await _authorizationContext
                      .AuthorizationEntity
                      .Where(x => codes.Contains(x.Code))
-                     .Select(x => x.AuthorizationId)
                      .Distinct()
                      .ToListAsync();
     }
@@ -86,6 +87,14 @@ public class ConfigurationRepository : IConfigurationRepository
 
     public async Task CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int accountId, IEnumerable<string> codes)
     {
+        var authorizations = await GetAuthorizationEntitiesByCodeAsync(codes);
+
+        var notConfigurable = authorizations.FirstOrDefault(a => a.Configurable == false);
+        if (notConfigurable != null)
+        {
+            throw new BadRequestException(Errors.NotConfigurablePermissionCode, string.Format(Errors.NotConfigurablePermissionMessage, notConfigurable.AuthorizationId));
+        }
+
         var oldContactAuthorizationEntities = await GetContactAccountConfigurationAsync(contactId, accountId);
 
         if (oldContactAuthorizationEntities?.Any() == true)
@@ -93,7 +102,7 @@ public class ConfigurationRepository : IConfigurationRepository
             await DeleteContactAccountAuthorizationAsync(oldContactAuthorizationEntities);
         }
 
-        var authorizationIds = await GetAuthorizationEntitiesByCodeAsync(codes);
+        var authorizationIds = authorizations.Select(a => a.AuthorizationId);
         var newContactAuthorizationEntities = authorizationIds.Select(auth => new ContactAuthorizationEntity()
         {
             AccountId = accountId,
