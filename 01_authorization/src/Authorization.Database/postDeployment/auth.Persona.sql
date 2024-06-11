@@ -22,5 +22,6 @@ BEGIN
 		(19, N'MOD Forms', N'', 1),
 		(20, N'Collaborateur BI', N'', 1),
 		(21, N'Collaborateur', N'', 1),
-		(22, N'Client', N'', 2)
+		(22, N'Client', N'', 2),
+		(23, N'Signataire', N'', 2)
 END
