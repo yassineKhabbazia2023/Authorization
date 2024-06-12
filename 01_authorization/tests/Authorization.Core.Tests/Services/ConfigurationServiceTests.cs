@@ -9,9 +9,12 @@ using Moq;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Services;
-using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
 using Kpmg.ExceptionMiddleware.AdvancedException;
+using Pulse.Authorization.Infrastructure.Interfaces;
+using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Constants;
+using Pulse.Authorization.Infrastructure.Enum;
 
 namespace Pulse.Authorization.Core.Tests.Services;
 
@@ -36,7 +39,7 @@ public class ConfigurationServiceTests
         // Arrange
         int contactId = 1;
         int accountId = 1;
-        _contactRepository.Setup(x => x.GetContactByIdAsync(contactId)).ReturnsAsync((Contact)null!);
+        _contactRepository.Setup(x => x.GetContactByIdAsync(contactId)).ReturnsAsync((ContactEntity)null!);
         var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object);
 
         // Act & Assert
@@ -55,7 +58,7 @@ public class ConfigurationServiceTests
         var contactId = 999;
         var accountId = 123;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                             .With(c => c.ContactId, contactId)
                             .With(c => c.Type, "NewContactType")
                             .Create();
@@ -79,40 +82,26 @@ public class ConfigurationServiceTests
         var accountId = 123;
         var contactId = 456;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
 
-        var accountAuthorizations = new List<Configuration>
+        var accountAuthorizations = new List<AuthorizationEntity>
         {
-            new Configuration
-            {
-                Category = "CltGESTION",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
-                    new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
-                    new Models.Action { ActionId = 3, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 4, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 5, Code = "CLUSER003", Name = "Delete User" },
-                    new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
-                    new Models.Action { ActionId = 7, Code = "CLINFO001", Name = "View informations" },
-                }
-            }
+            new() { Category = "CltGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin", },
+            new() { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User", },
+            new() { Category = "CltGESTION", AuthorizationId = 3, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 4, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 5, Code = "CLUSER003", Name = "Delete User", },
+            new() { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers", },
+            new() { Category = "CltGESTION", AuthorizationId = 7, Code = "CLINFO001", Name = "View informations", },
         };
 
-        var contactAuthorizations = new List<Configuration>
+        var contactAuthorizations = new List<AuthorizationEntity>
         {
-                new Configuration
-                {
-                    Category = "CltGESTION",
-                    Actions = new List<Models.Action>
-                    {
-                        new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
-                        new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
-                    }
-                }
+            new () { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers" },
+            new () { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
         };
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
@@ -154,40 +143,26 @@ public class ConfigurationServiceTests
         var accountId = 123;
         var contactId = 456;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Collaborator.ToString())
                                     .Create();
 
-        var accountAuthorizations = new List<Configuration>
+        var accountAuthorizations = new List<AuthorizationEntity>
         {
-            new Configuration
-            {
-                Category = "CltGESTION",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
-                    new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
-                    new Models.Action { ActionId = 3, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 4, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 5, Code = "CLUSER003", Name = "Delete User" },
-                    new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
-                    new Models.Action { ActionId = 7, Code = "CLINFO001", Name = "View informations" },
-                }
-            }
+            new() { Category = "CltGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin", },
+            new() { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User", },
+            new() { Category = "CltGESTION", AuthorizationId = 3, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 4, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 5, Code = "CLUSER003", Name = "Delete User", },
+            new() { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers", },
+            new() { Category = "CltGESTION", AuthorizationId = 7, Code = "CLINFO001", Name = "View informations", },
         };
 
-        var contactAuthorizations = new List<Configuration>
+        var contactAuthorizations = new List<AuthorizationEntity>
         {
-                new Configuration
-                {
-                    Category = "CltGESTION",
-                    Actions = new List<Models.Action>
-                    {
-                        new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
-                        new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
-                    }
-                }
+            new () { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers" },
+            new () { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
         };
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
@@ -216,40 +191,26 @@ public class ConfigurationServiceTests
         var accountId = 123;
         var contactId = 456;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
 
-        var accountAuthorizations = new List<Configuration>
+        var accountAuthorizations = new List<AuthorizationEntity>
         {
-            new Configuration
-            {
-                Category = "ColGESTION",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
-                    new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
-                    new Models.Action { ActionId = 3, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 4, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 5, Code = "CLUSER003", Name = "Delete User" },
-                    new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
-                    new Models.Action { ActionId = 7, Code = "CLINFO001", Name = "View informations" },
-                }
-            }
+            new() { Category = "ColGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin", },
+            new() { Category = "ColGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User", },
+            new() { Category = "ColGESTION", AuthorizationId = 3, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "ColGESTION", AuthorizationId = 4, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "ColGESTION", AuthorizationId = 5, Code = "CLUSER003", Name = "Delete User", },
+            new() { Category = "ColGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers", },
+            new() { Category = "ColGESTION", AuthorizationId = 7, Code = "CLINFO001", Name = "View informations", },
         };
 
-        var contactAuthorizations = new List<Configuration>
+        var contactAuthorizations = new List<AuthorizationEntity>
         {
-                new Configuration
-                {
-                    Category = "ColGESTION",
-                    Actions = new List<Models.Action>
-                    {
-                        new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
-                        new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
-                    }
-                }
+            new () { Category = "ColGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers" },
+            new () { Category = "ColGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
         };
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
@@ -278,78 +239,29 @@ public class ConfigurationServiceTests
         var accountId = GlobalConstants.DefaultAccountIdCollab;
         var contactId = 789;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Collaborator.ToString())
                                     .Create();
 
-        var defaultAccountAuthorizations = new List<Configuration>
+        var defaultAccountAuthorizations = new List<AuthorizationEntity>
         {
-            new Configuration
-            {
-                Category = "ColADMIN",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 10, Code = "COADMI001", Name = "View collabs" },
-                    new Models.Action { ActionId = 11, Code = "COADMI002", Name = "Delete collab" },
-                    new Models.Action { ActionId = 13, Code = "COADMI003", Name = "Update right collab" }
-                },
-            },
-            new Configuration
-            {
-                Category = "ColESC",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 14, Code = "COMAND001", Name = "View mandate" }
-                }
-            },
-            new Configuration
-            {
-                Category = "ColOFFRE",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 15, Code = "COOFF001", Name = "Deploy subscription" },
-                    new Models.Action { ActionId = 16, Code = "COOFF002", Name = "Activate subsciption" },
-                }
-            },
-            new Configuration
-            {
-                Category = "ColGESTION",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 17, Code = "COGES001", Name = "View delegation" },
-                    new Models.Action { ActionId = 18, Code = "COCAL001", Name = "View Calendar" }
-                }
-            }
+            new() { Category = "ColADMIN", AuthorizationId = 10, Code = "COADMI001", Name = "View collabs" },
+            new() { Category = "ColADMIN", AuthorizationId = 11, Code = "COADMI002", Name = "Delete collab" },
+            new() { Category = "ColADMIN", AuthorizationId = 13, Code = "COADMI003", Name = "Update right collab" },
+            new() { Category = "ColESC", AuthorizationId = 14, Code = "COMAND001", Name = "View mandate" },
+            new() { Category = "ColOFFRE", AuthorizationId = 15, Code = "COOFF001", Name = "Deploy subscription" },
+            new() { Category = "ColOFFRE", AuthorizationId = 16, Code = "COOFF002", Name = "Activate subscription" },
+            new() { Category = "ColGESTION", AuthorizationId = 17, Code = "COGES001", Name = "View delegation" },
+            new() { Category = "ColGESTION", AuthorizationId = 18, Code = "COCAL001", Name = "View Calendar" },
         };
 
-        var contactAuthorizations = new List<Configuration>
+        var contactAuthorizations = new List<AuthorizationEntity>
         {
-            new Configuration
-            {
-                Category = "ColESC",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 14, Code = "COMAND001", Name = "View mandate" }
-                }
-            },
-            new Configuration
-            {
-                Category = "ColOFFRE",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 15, Code = "COOFF001", Name = "Deploy subscription" },
-                    new Models.Action { ActionId = 16, Code = "COOFF002", Name = "Activate subsciption" },
-                }
-            },
-            new Configuration
-            {
-                Category = "ColGESTION",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 17, Code = "COGES001", Name = "View delegation" },
-                }
-            }
+            new() { Category = "ColESC", AuthorizationId = 14, Code = "COMAND001", Name = "View mandate" },
+            new() { Category = "ColOFFRE", AuthorizationId = 15, Code = "COOFF001", Name = "Deploy subscription" },
+            new() { Category = "ColOFFRE", AuthorizationId = 16, Code = "COOFF002", Name = "Activate subscription" },
+            new() { Category = "ColGESTION", AuthorizationId = 17, Code = "COGES001", Name = "View delegation" },
         };
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
@@ -417,30 +329,23 @@ public class ConfigurationServiceTests
         var accountId = 123;
         var contactId = 456;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
 
-        var accountAuthorizations = new List<Configuration>
+        var accountAuthorizations = new List<AuthorizationEntity>
         {
-            new Configuration
-            {
-                Category = "CltGESTION",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
-                    new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
-                    new Models.Action { ActionId = 3, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 4, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 5, Code = "CLUSER003", Name = "Delete User" },
-                    new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
-                    new Models.Action { ActionId = 7, Code = "CLINFO001", Name = "View informations" },
-                }
-            }
+            new() { Category = "CltGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin", },
+            new() { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User", },
+            new() { Category = "CltGESTION", AuthorizationId = 3, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 4, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 5, Code = "CLUSER003", Name = "Delete User", },
+            new() { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers", },
+            new() { Category = "CltGESTION", AuthorizationId = 7, Code = "CLINFO001", Name = "View informations", },
         };
 
-        var contactAuthorizations = new List<Configuration>();
+        var contactAuthorizations = new List<AuthorizationEntity>();
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
@@ -474,40 +379,26 @@ public class ConfigurationServiceTests
         var accountId = 123;
         var contactId = 456;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
 
-        var accountAuthorizations = new List<Configuration>
+        var accountAuthorizations = new List<AuthorizationEntity>
         {
-            new Configuration
-            {
-                Category = "CltGESTION",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
-                    new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
-                    new Models.Action { ActionId = 3, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 4, Code = "CLUSER002", Name = "Add User" },
-                    new Models.Action { ActionId = 5, Code = "CLUSER003", Name = "Delete User" },
-                    new Models.Action { ActionId = 6, Code = "CLOFF001", Name = "View offers" },
-                    new Models.Action { ActionId = 7, Code = "CLINFO001", Name = "View informations" },
-                }
-            }
+            new() { Category = "CltGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin", },
+            new() { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User", },
+            new() { Category = "CltGESTION", AuthorizationId = 3, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 4, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 5, Code = "CLUSER003", Name = "Delete User", },
+            new() { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers", },
+            new() { Category = "CltGESTION", AuthorizationId = 7, Code = "CLINFO001", Name = "View informations", },
         };
 
-        var contactAuthorizations = new List<Configuration>
+        var contactAuthorizations = new List<AuthorizationEntity>
         {
-            new Configuration
-            {
-                Category = "CltGESTION",
-                Actions = new List<Models.Action>
-                {
-                    new Models.Action { ActionId = 1, Code = "CLADMI001", Name = "Super Admin" },
-                    new Models.Action { ActionId = 2, Code = "CLUSER001", Name = "View User" },
-                }
-            }
+            new () { Category = "CltGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin" },
+            new () { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
         };
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
@@ -540,7 +431,7 @@ public class ConfigurationServiceTests
         var accountId = 123;
         var contactId = 456;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
@@ -570,7 +461,7 @@ public class ConfigurationServiceTests
         // Arrange
         var contactId = 456;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
@@ -599,7 +490,7 @@ public class ConfigurationServiceTests
         var accountId = 123;
         var contactId = 456;
 
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();

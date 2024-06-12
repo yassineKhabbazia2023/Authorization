@@ -2,14 +2,10 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Polly;
-using Polly.Retry;
-using Pulse.Authorization.Core.Constants;
-using Pulse.Authorization.Core.Enum;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Extensions;
 using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;

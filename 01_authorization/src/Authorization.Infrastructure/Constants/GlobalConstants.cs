@@ -2,7 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-namespace Pulse.Authorization.Core.Constants
+namespace Pulse.Authorization.Infrastructure.Constants
 {
     public static class GlobalConstants
     {

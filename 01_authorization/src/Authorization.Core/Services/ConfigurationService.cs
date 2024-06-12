@@ -4,10 +4,13 @@
 
 using Kpmg.ExceptionMiddleware.AdvancedException;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
-using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Core.Mappers;
 using Pulse.Authorization.Core.Models;
+using Pulse.Authorization.Infrastructure.Constants;
+using Pulse.Authorization.Infrastructure.Enum;
+using Pulse.Authorization.Infrastructure.Interfaces;
 
 namespace Pulse.Authorization.Core.Services;
 
@@ -36,13 +39,13 @@ public class ConfigurationService : IConfigurationService
 
         if (contact!.Type == ContactType.Customer.ToString())
         {
-            configurations = await _configurationRepository.GetAccountConfigurationAsync(accountId!.Value, GlobalConstants.CustomerCategory);
-            contactAuthorization = await _configurationRepository.GetContactConfigurationAsync(contactId, accountId!.Value);
+            configurations = (await _configurationRepository.GetAccountConfigurationAsync(accountId!.Value, GlobalConstants.CustomerCategory)).MapAuthorizationToConfiguration();
+            contactAuthorization = (await _configurationRepository.GetContactConfigurationAsync(contactId, accountId!.Value)).MapAuthorizationToConfiguration();
         }
         else if (contact!.Type == ContactType.Collaborator.ToString())
         {
-            configurations = await _configurationRepository.GetAccountConfigurationAsync(GlobalConstants.DefaultAccountIdCollab, GlobalConstants.CollabCategory);
-            contactAuthorization = await _configurationRepository.GetContactConfigurationAsync(contactId, GlobalConstants.DefaultAccountIdCollab);
+            configurations = (await _configurationRepository.GetAccountConfigurationAsync(GlobalConstants.DefaultAccountIdCollab, GlobalConstants.CollabCategory)).MapAuthorizationToConfiguration();
+            contactAuthorization = (await _configurationRepository.GetContactConfigurationAsync(contactId, GlobalConstants.DefaultAccountIdCollab)).MapAuthorizationToConfiguration();
         }
         else
         {
@@ -55,7 +58,7 @@ public class ConfigurationService : IConfigurationService
     private static List<Configuration> EnableContactConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> contactAuthorization)
     {
         var tConfigurations = new List<Configuration>();
-        foreach(var accountConf in configurations.ToArray())
+        foreach (var accountConf in configurations.ToArray())
         {
             var actions = accountConf.Actions.ToArray();
             foreach (var action in actions)
@@ -85,7 +88,13 @@ public class ConfigurationService : IConfigurationService
 
         accountId ??= contact.Type!.Equals(ContactType.Collaborator.ToString()) ? -1 :
             throw new BadRequestException(Errors.NotFoundAccountCode, Errors.NotFoundAccountMessage);
-
-        await _configurationRepository.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId.Value, codes);
+        try
+        {
+            await _configurationRepository.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId.Value, codes);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new BadRequestException(Errors.NotConfigurablePermissionCode, string.Format(Errors.NotConfigurablePermissionMessage, ex.Data["Code"]));
+        }
     }
 }

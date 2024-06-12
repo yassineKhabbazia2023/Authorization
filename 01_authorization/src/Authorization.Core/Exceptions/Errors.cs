@@ -31,6 +31,6 @@ namespace Pulse.Authorization.Core.Exceptions
         public static readonly string NotFoundPermissionMessage = "La permission avec l'identifiant {0} est introuvable.";
 
         public static readonly string NotConfigurablePermissionCode = "AUT009";
-        public static readonly string NotConfigurablePermissionMessage = "La permission avec l'identifiant {0} n'est pas configurable.";
+        public static readonly string NotConfigurablePermissionMessage = "La permission avec le code suivant: {0} n'est pas configurable.";
     }
 }

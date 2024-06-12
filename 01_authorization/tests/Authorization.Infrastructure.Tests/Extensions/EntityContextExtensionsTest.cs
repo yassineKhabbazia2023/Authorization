@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="EntityContextExtensionsTest.cs" company="Pulse">
+// Copyright (c) Pulse. All rights reserved.
+// </copyright>
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Pulse.Authorization.Core.Enum;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Extensions;
-using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Extensions
 {
@@ -44,7 +40,7 @@ namespace Pulse.Authorization.Infrastructure.Tests.Extensions
                 context.ContactEntity.Add(contactEntity);
                 await context.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
 

@@ -4,10 +4,11 @@
 
 using Kpmg.ExceptionMiddleware.AdvancedException;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
-using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
-using Pulse.Authorization.Core.Models;
+using Pulse.Authorization.Infrastructure.Constants;
+using Pulse.Authorization.Infrastructure.Enum;
+using Pulse.Authorization.Infrastructure.Interfaces;
 
 namespace Pulse.Authorization.Core.Services;
 

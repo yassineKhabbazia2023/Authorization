@@ -5,7 +5,7 @@ using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Core.Models;
 using ActionModel = Pulse.Authorization.Core.Models.Action;
 
-namespace Pulse.Authorization.Infrastructure.Mappers;
+namespace Pulse.Authorization.Core.Mappers;
 
 public static class MapAuthorizationEntityToModel
 {

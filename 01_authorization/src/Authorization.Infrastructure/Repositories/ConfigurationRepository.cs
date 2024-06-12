@@ -2,20 +2,13 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using Microsoft.Data.SqlClient;
-using Polly;
-using Polly.Retry;
 using Pulse.Authorization.Infrastructure.Context;
-using Pulse.Authorization.Core.Constants;
-using Pulse.Authorization.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Infrastructure.Mappers;
 using System.Data;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Extensions;
 using Kpmg.ExceptionMiddleware.AdvancedException;
-using Pulse.Authorization.Core.Exceptions;
+using Pulse.Authorization.Infrastructure.Interfaces;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
 
@@ -29,7 +22,7 @@ public class ConfigurationRepository : IConfigurationRepository
         _authorizationContext.HandleEFCoreFailure();
     }
 
-    public async Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId, string type)
+    public async Task<IEnumerable<AuthorizationEntity>> GetAccountConfigurationAsync(int accountId, string type)
     {
         var authorization = await _authorizationContext
                      .AccountAuthorizationEntity
@@ -41,10 +34,10 @@ public class ConfigurationRepository : IConfigurationRepository
                      .Distinct()
                      .ToListAsync();
 
-        return authorization.MapAuthorizationToConfiguration();
+        return authorization;
     }
 
-    public async Task<IEnumerable<Configuration>> GetContactConfigurationAsync(int contactId, int accountId)
+    public async Task<IEnumerable<AuthorizationEntity>> GetContactConfigurationAsync(int contactId, int accountId)
     {
         var authorization = await _authorizationContext
                      .ContactAuthorizationEntity
@@ -56,7 +49,7 @@ public class ConfigurationRepository : IConfigurationRepository
                      .Distinct()
                      .ToListAsync();
 
-        return authorization.MapAuthorizationToConfiguration();
+        return authorization;
     }
 
     private async Task<IEnumerable<AuthorizationEntity>> GetAuthorizationEntitiesByCodeAsync(IEnumerable<string> codes)
@@ -92,7 +85,9 @@ public class ConfigurationRepository : IConfigurationRepository
         var notConfigurable = authorizations.FirstOrDefault(a => a.Configurable == false);
         if (notConfigurable != null)
         {
-            throw new BadRequestException(Errors.NotConfigurablePermissionCode, string.Format(Errors.NotConfigurablePermissionMessage, notConfigurable.AuthorizationId));
+            var ex = new ArgumentException("La permission suivante n'est pas configurable: " + notConfigurable.Code);
+            ex.Data["Code"] = notConfigurable.Code;
+            throw ex;
         }
 
         var oldContactAuthorizationEntities = await GetContactAccountConfigurationAsync(contactId, accountId);

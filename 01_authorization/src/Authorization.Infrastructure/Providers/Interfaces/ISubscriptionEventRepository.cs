@@ -8,8 +8,8 @@ namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
 {
     public interface ISubscriptionEventRepository
     {
-        public Task AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes);
+        public Task<IEnumerable<AccountAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes);
 
-        public Task AddSubscriptionAuthorizationsOnContactAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes);
+        public Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes);
     }
 }

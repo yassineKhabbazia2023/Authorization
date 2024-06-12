@@ -2,7 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-namespace Pulse.Authorization.Core.Models;
+namespace Pulse.Authorization.Infrastructure.Enum;
 
 public enum ContactType
 {

@@ -2,17 +2,13 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Net;
-using System.Reflection.Metadata;
 using AutoFixture;
 using Newtonsoft.Json;
-using Pulse.Authorization.Core.Constants;
+using Pulse.Authorization.Core.Mappers;
 using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Requests;
 using Pulse.Authorization.Infrastructure.Entities;
-using Pulse.Authorization.Infrastructure.Mappers;
 
-namespace Pulse.Authorization.Infrastructure.Tests.Mappers;
+namespace Pulse.Authorization.Core.Tests.Mappers;
 
 public class MapAuthorizationEntityToModelTests
 {

@@ -1,5 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Pulse.Authorization.Core.Enum;
+﻿// <copyright file="RoleEventRepositoryTests.cs" company="Pulse">
+// Copyright (c) Pulse. All rights reserved.
+// </copyright>
+
+using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Repositories;

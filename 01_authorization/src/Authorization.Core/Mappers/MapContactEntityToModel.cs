@@ -5,7 +5,7 @@
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Core.Models;
 
-namespace Pulse.Authorization.Infrastructure.Mappers;
+namespace Pulse.Authorization.Core.Mappers;
 
 public static class MapContactEntityToModel
 {

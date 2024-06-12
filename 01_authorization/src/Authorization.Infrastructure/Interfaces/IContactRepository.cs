@@ -2,13 +2,12 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
-using Pulse.Authorization.Core.Models;
+using Pulse.Authorization.Infrastructure.Entities;
 
 namespace Pulse.Authorization.Core.Interfaces
 {
     public interface IContactRepository
     {
-        Task<Contact> GetContactByIdAsync(int contactId);
+        Task<ContactEntity> GetContactByIdAsync(int contactId);
     }
 }

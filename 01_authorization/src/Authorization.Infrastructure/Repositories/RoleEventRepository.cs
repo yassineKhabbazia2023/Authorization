@@ -6,7 +6,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Polly;
 using Polly.Retry;
-using Pulse.Authorization.Core.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Extensions;
@@ -18,26 +17,17 @@ namespace Pulse.Authorization.Infrastructure.Repositories
     public class RoleEventRepository : IRoleEventRepository
     {
         private readonly AuthorizationContext _authorizationContext;
-        private readonly AsyncRetryPolicy _retryPolicy;
 
         public RoleEventRepository(AuthorizationContext authorziationContext)
         {
             _authorizationContext = authorziationContext;
             _authorizationContext.HandleEFCoreFailure();
-            _retryPolicy = Policy
-                    .Handle<SqlException>()
-                    .WaitAndRetryAsync(
-                        retryCount: 1,
-                        sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(GlobalConstants.RetryTimespan));
         }
 
         public async Task CreateRoleAsync(RoleEntity roleEntity)
         {
             await _authorizationContext.RoleEntity.AddAsync(roleEntity);
-            await _retryPolicy.ExecuteAsync(async () =>
-            {
-                await _authorizationContext.SaveChangesAsync();
-            });
+            await _authorizationContext.SaveChangesAsync();
         }
 
         public async Task DeleteContactRolesAsync(int contactId)
@@ -59,10 +49,7 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                 _authorizationContext.Remove(roleToDelete);
             }
 
-            await _retryPolicy.ExecuteAsync(async () =>
-            {
-                await _authorizationContext.SaveChangesAsync();
-            });
+            await _authorizationContext.SaveChangesAsync();
         }
 
         public async Task UpdateRoleAsync(RoleEntity roleEntity)
@@ -70,10 +57,7 @@ namespace Pulse.Authorization.Infrastructure.Repositories
             var existingRole = await _authorizationContext.RoleEntity.SingleAsync(x => x.ContactId == roleEntity.ContactId && x.AccountId == roleEntity.AccountId);
             roleEntity.ToRoleEntity(existingRole);
 
-            await _retryPolicy.ExecuteAsync(async () =>
-            {
-                await _authorizationContext.SaveChangesAsync();
-            });
+            await _authorizationContext.SaveChangesAsync();
         }
     }
 }

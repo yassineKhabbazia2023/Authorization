@@ -9,6 +9,8 @@ using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Services;
+using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Interfaces;
 
 namespace Pulse.Authorization.Core.Tests.Services;
 
@@ -41,7 +43,7 @@ public class AuthorizationServiceTests
         var menuCodeMockedAccount = contactType.Equals("Collaborator")
             ? menuCodeMockedDefault.Concat(menuCodeMocked).ToList()
             : menuCodeMocked;
-        var contactMocked = _fixture.Build<Contact>()
+        var contactMocked = _fixture.Build<ContactEntity>()
                                     .With(c => c.Type, contactType)
                                     .With(c => c.ContactId, contactId)
                                     .Create();
@@ -98,7 +100,7 @@ public class AuthorizationServiceTests
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
         contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
-            .ReturnsAsync((Contact)null!);
+            .ReturnsAsync((ContactEntity)null!);
 
         var authorizationService = new AuthorizationService(_authorizationRepository.Object, contactRepository.Object);
 
@@ -118,7 +120,7 @@ public class AuthorizationServiceTests
         var authorizationRepository = new Mock<IAuthorizationRepository>();
         authorizationRepository.Setup(c => c.DeleteContactAuthorizationAsync(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.CompletedTask);
         var contactRepository = new Mock<IContactRepository>();
-        var contactMocked = _fixture.Create<Contact>();
+        var contactMocked = _fixture.Create<ContactEntity>();
         contactRepository.Setup(c => c.GetContactByIdAsync(123)).ReturnsAsync(contactMocked);
         var authorizationService = new AuthorizationService(authorizationRepository.Object, contactRepository.Object);
 

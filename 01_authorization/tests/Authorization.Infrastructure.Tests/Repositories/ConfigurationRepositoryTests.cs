@@ -5,11 +5,9 @@
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Pulse.Authorization.Core.Constants;
+using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
-using Pulse.Authorization.Infrastructure.Mappers;
 using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
@@ -62,8 +60,7 @@ public class ConfigurationRepositoryTests
         await context.SaveChangesAsync();
 
         var expectedAuthorization = accountAuthorizations
-            .Select(c => c.Authorization)
-            .MapAuthorizationToConfiguration();
+            .Select(c => c.Authorization);
 
         var repository = new ConfigurationRepository(context);
 
@@ -110,8 +107,7 @@ public class ConfigurationRepositoryTests
         await context.SaveChangesAsync();
 
         var expectedAuthorization = accountAuthorizations
-            .Select(c => c.Authorization)
-            .MapAuthorizationToConfiguration();
+            .Select(c => c.Authorization);
 
         var repository = new ConfigurationRepository(context);
 
@@ -145,8 +141,7 @@ public class ConfigurationRepositoryTests
         }
 
         var expectedAuthorization = contactAuthorizations
-            .Select(c => c.Authorization)
-            .MapAuthorizationToConfiguration();
+            .Select(c => c.Authorization);
 
         context.ContactAuthorizationEntity.AddRange(contactAuthorizations);
         await context.SaveChangesAsync();
@@ -268,6 +263,7 @@ public class ConfigurationRepositoryTests
         var options = new DbContextOptionsBuilder<AuthorizationContext>()
                             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                             .Options;
+
         // Arrange
         var contactId = 12;
         var accountId = 460;

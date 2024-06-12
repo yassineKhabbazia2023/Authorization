@@ -3,9 +3,9 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
-using Pulse.Authorization.Core.Enum;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;

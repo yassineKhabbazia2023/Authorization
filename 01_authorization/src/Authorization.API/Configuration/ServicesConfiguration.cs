@@ -18,7 +18,8 @@ using Pulse.Back.Events.IntegrationEvents;
 using Pulse.Back.Events;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers;
-using Pulse.Authorization.Core.Constants;
+using Pulse.Authorization.Infrastructure.Interfaces;
+using Pulse.Authorization.Infrastructure.Constants;
 
 namespace Pulse.Authorization.API.Configuration
 {

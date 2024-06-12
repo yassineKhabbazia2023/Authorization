@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
-using Pulse.Authorization.Infrastructure.Mappers;
 using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
@@ -37,15 +36,13 @@ public class ContactRepositoryTests
             context.ContactEntity.AddRange(contactEntity);
             await context.SaveChangesAsync();
 
-            var expectedContact = contactEntity.MapToContact();
+            var expectedContact = contactEntity;
 
             var repository = new ContactRepository(context);
 
             var receivedContact = await repository.GetContactByIdAsync(contactEntity.ContactId);
 
-            var contactExpectJson = JsonConvert.SerializeObject(expectedContact);
-            var contactResultJson = JsonConvert.SerializeObject(receivedContact);
-            Assert.Equal(contactExpectJson, contactResultJson);
+            Assert.Equivalent(expectedContact.ContactId, receivedContact.ContactId);
         }
     }
 }

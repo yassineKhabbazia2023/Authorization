@@ -41,7 +41,7 @@ namespace Pulse.Authorization.Infrastructure.Providers
             }
 
             await _subscriptionEventRepository.AddSubscriptionAuthorizationsOnAccountAsync(subEvent!.Data.AccountId, subEvent.Data.Products.Select(p => p.ProductCode!));
-            await _subscriptionEventRepository.AddSubscriptionAuthorizationsOnContactAsync(subEvent.Data.AccountId, subEvent.Data.ContactIds, subEvent.Data.Products.Select(p => p.ProductCode!));
+            await _subscriptionEventRepository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(subEvent.Data.AccountId, subEvent.Data.ContactIds, subEvent.Data.Products.Select(p => p.ProductCode!));
         }
     }
 }

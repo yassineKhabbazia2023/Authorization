@@ -2,7 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-namespace Pulse.Authorization.Core.Interfaces;
+namespace Pulse.Authorization.Infrastructure.Interfaces;
 
 public interface IAuthorizationRepository
 {
@@ -13,4 +13,8 @@ public interface IAuthorizationRepository
     Task<List<string>> GetContactAccountAuthorizationsAsync(int contactId, int accountId, bool? viewGlobal);
 
     Task DeleteContactAuthorizationAsync(int contactId, int accountId);
+
+    public Task<IEnumerable<Entities.AccountAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes);
+
+    public Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes);
 }

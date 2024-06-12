@@ -26,6 +26,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\src\Authorization.Core\Authorization.Core.csproj" />
+	  <ProjectReference Include="..\..\src\Authorization.Infrastructure\Authorization.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

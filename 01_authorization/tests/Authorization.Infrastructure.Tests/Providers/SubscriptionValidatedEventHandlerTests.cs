@@ -35,7 +35,7 @@ public class SubscriptionValidatedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountAsync(123, new string[] { "MOCK" }), Times.Once);
-        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnContactAsync(123, new int[] { 12, 42, 69 }, new string[] { "MOCK" }), Times.Once);
+        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(123, new int[] { 12, 42, 69 }, new string[] { "MOCK" }), Times.Once);
     }
 
     [Fact]

@@ -3,11 +3,12 @@
 // </copyright>
 
 using AutoFixture;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Pulse.Authorization.Core.Enum;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
@@ -229,5 +230,92 @@ public class AuthorizationRepositoryTests
             var permissionAfter = await repository.GetContactAccountAuthorizationsAsync(123, -1, null);
             Assert.Empty(permissionAfter);
         }
+    }
+
+    [Fact]
+    public async Task AddSubscriptionAuthorizationsOnAccountAsync_Should_AddAccountAuthorizations_And_ReturnSaidAuthorizations()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        var expectedCount = 3;
+        var authorizationEntities = _fixture.Build<AuthorizationEntity>()
+                            .With(a => a.ProductCode)
+                            .CreateMany(expectedCount);
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 42)
+            .Create();
+
+        using var context = new AuthorizationContext(options);
+        var productCodes = authorizationEntities.Select(a => a.ProductCode);
+        context.AccountEntity.Add(account);
+        context.AuthorizationEntity.AddRange(authorizationEntities);
+        context.SaveChanges();
+        var repository = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repository.AddSubscriptionAuthorizationsOnAccountAsync(account.AccountId, productCodes!);
+
+        // Assert
+        Assert.NotNull(result);
+        result.Should().NotBeEmpty();
+        Assert.Equal(result.Count(), expectedCount);
+    }
+
+    [Fact]
+    public async Task AddSubscriptionAuthorizationsOnContactAsync_Should_AddContactAuthorizations_And_ReturnSaidAuthorizations()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        var authorizationEntities = _fixture.Build<AuthorizationEntity>()
+                            .With(a => a.ProductCode)
+                            .CreateMany(3);
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 42)
+            .Create();
+
+        var contacts = _fixture.Build<ContactEntity>()
+            .With(c => c.Type, ContactType.Customer.ToString())
+            .CreateMany(12).DistinctBy(c => c.ContactId);
+
+        using (var context = new AuthorizationContext(options))
+        {
+            context.AccountEntity.Add(account);
+            context.ContactEntity.AddRange(contacts);
+            context.AuthorizationEntity.AddRange(authorizationEntities);
+            context.SaveChanges();
+
+            var roles = contacts.Select(c =>
+            {
+                return new RoleEntity()
+                {
+                    ContactId = c.ContactId,
+                    AccountId = account.AccountId,
+                    IsSignatory = true,
+                };
+            });
+
+            context.RoleEntity.AddRange(roles);
+            context.SaveChanges();
+        }
+
+        using var ct = new AuthorizationContext(options);
+        var contactIds = contacts.Select(c => c.ContactId);
+        var productCodes = authorizationEntities.Select(a => a.ProductCode).Distinct();
+        var repository = new AuthorizationRepository(ct);
+
+        // Act
+        var result = await repository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(account.AccountId, contactIds, productCodes!);
+
+        // Assert
+        Assert.NotNull(result);
+        result.Should().NotBeEmpty();
+        Assert.Equal(result.Count(), productCodes.Count() * contacts.Count());
     }
 }

@@ -4,8 +4,6 @@
 
 using Pulse.Back.Events.IntegrationEvents.EventsData;
 using Pulse.Authorization.Infrastructure.Entities;
-using System.ComponentModel;
-using Pulse.Authorization.Core.Enum;
 
 namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
 {
