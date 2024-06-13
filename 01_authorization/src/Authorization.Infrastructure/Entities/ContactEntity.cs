@@ -23,7 +23,9 @@ public partial class ContactEntity
 
     public string PersonaName { get; set; }
 
-    public DateTime? CreationDate { get; set; }
+    public DateTime CreationDate { get; set; }
+
+    public DateTime? LastUpdateDate { get; set; }
 
     public virtual ICollection<ContactAuthorizationEntity> ContactAuthorizationEntity { get; set; } = new List<ContactAuthorizationEntity>();
 

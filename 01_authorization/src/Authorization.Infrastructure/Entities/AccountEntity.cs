@@ -17,6 +17,10 @@ public partial class AccountEntity
 
     public string Status { get; set; }
 
+    public DateTime CreationDate { get; set; }
+
+    public DateTime? LastUpdateDate { get; set; }
+
     public virtual ICollection<AccountAuthorizationEntity> AccountAuthorizationEntity { get; set; } = new List<AccountAuthorizationEntity>();
 
     public virtual ICollection<ContactAuthorizationEntity> ContactAuthorizationEntity { get; set; } = new List<ContactAuthorizationEntity>();

@@ -68,7 +68,12 @@ public class AccountEventRepositoryTests
 
         // Assert
         Assert.NotNull(updatedAccount);
-        Assert.Equivalent(modifiedAccountEntity, updatedAccount);
+        Assert.Equal(modifiedAccountEntity.AccountId, updatedAccount.AccountId);
+        Assert.Equal(modifiedAccountEntity.AccountGlobalUniqueId, updatedAccount.AccountGlobalUniqueId);
+        Assert.Equal(modifiedAccountEntity.LegalName, updatedAccount.LegalName);
+        Assert.Equal(modifiedAccountEntity.AccountNumber, updatedAccount.AccountNumber);
+        Assert.Equal(modifiedAccountEntity.Status, updatedAccount.Status);
+        Assert.NotNull(updatedAccount.LastUpdateDate);
     }
 
     [Fact]
@@ -91,6 +96,7 @@ public class AccountEventRepositoryTests
         // Assert
         Assert.NotNull(removedAccount);
         Assert.Equal(AccountStatus.Revoked.ToString(), removedAccount.Status);
+        Assert.NotNull(removedAccount.LastUpdateDate);
     }
 
     [Fact]

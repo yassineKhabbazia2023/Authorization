@@ -62,7 +62,7 @@ namespace Pulse.Authorization.Infrastructure.Tests.Mappers.Events
             {
                 ContactId = 100,
                 AccountId = 1,
-                IsSignatory = true,
+                IsSignatory = false,
                 IsDelegation = true,
                 IsFavorite = true
             };
@@ -83,6 +83,7 @@ namespace Pulse.Authorization.Infrastructure.Tests.Mappers.Events
             Assert.Equal(updatedRole.ContactId, existingRole.ContactId);
             Assert.Equal(updatedRole.AccountId, existingRole.AccountId);
             Assert.Equal(updatedRole.IsSignatory, existingRole.IsSignatory);
+            Assert.NotNull(existingRole.LastUpdateDate);
         }
     }
 }

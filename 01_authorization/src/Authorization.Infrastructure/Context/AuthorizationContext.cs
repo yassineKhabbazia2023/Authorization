@@ -58,6 +58,7 @@ public partial class AuthorizationContext : DbContext
                 .IsRequired()
                 .HasMaxLength(20)
                 .IsUnicode(false);
+            entity.Property(e => e.CreationDate).HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.LegalName)
                 .IsRequired()
                 .HasMaxLength(255);
@@ -135,6 +136,7 @@ public partial class AuthorizationContext : DbContext
             entity.ToTable("Contact", "actor");
 
             entity.Property(e => e.ContactId).ValueGeneratedNever();
+            entity.Property(e => e.CreationDate).HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.Email)
                 .IsRequired()
                 .HasMaxLength(200)
@@ -209,9 +211,10 @@ public partial class AuthorizationContext : DbContext
 
             entity.HasIndex(e => e.IsSignatory, "IX_Role_IsSignatory");
 
-            entity.Property(e => e.ContactId).HasComment("L'identifiant technique du contact");
-            entity.Property(e => e.AccountId).HasComment("L'identifiant technique de l'entité");
-            entity.Property(e => e.IsDelegation).HasComment("Indique, dans les cas où c'est possible, si le role est lié à une délégation");
+            entity.Property(e => e.ContactId).HasComment("L''identifiant technique du contact");
+            entity.Property(e => e.AccountId).HasComment("L''identifiant technique de l''entité");
+            entity.Property(e => e.CreationDate).HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.IsDelegation).HasComment("Indique, dans les cas où c''est possible, si le role est lié à une délégation");
             entity.Property(e => e.IsFavorite).HasComment("Le rôle est-il considéré comme un favori ou mis en avant comme tel");
             entity.Property(e => e.IsSignatory).HasComment("Le signataire");
 

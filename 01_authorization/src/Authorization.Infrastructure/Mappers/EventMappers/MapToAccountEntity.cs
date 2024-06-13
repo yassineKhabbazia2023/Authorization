@@ -36,6 +36,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
             destination.AccountNumber = source.AccountNumber;
             destination.LegalName = source.LegalName;
             destination.Status = source.Status;
+            destination.LastUpdateDate = DateTime.UtcNow;
         }
     }
 }

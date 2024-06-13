@@ -75,7 +75,6 @@
     <Build Include="Security\account.sql" />
     <Build Include="Security\actor.sql" />
     <Build Include="Security\auth.sql" />
-    <Build Include="Security\authorization.sql" />
     <Build Include="auth\Tables\ContactAuthorization.sql" />
     <None Include="postDeployment\account.Account.sql" />
     <Build Include="auth\Tables\AccountAuthorization.sql" />

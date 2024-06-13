@@ -32,6 +32,7 @@ namespace Pulse.Authorization.Infrastructure.Repositories
         {
             var existingContact = await _authorizationContext.ContactEntity.SingleAsync(x => x.ContactId == contactId);
             existingContact.Status = ContactStatus.Removed.ToString();
+            existingContact.LastUpdateDate = DateTime.UtcNow;
 
             await _authorizationContext.SaveChangesAsync();
         }

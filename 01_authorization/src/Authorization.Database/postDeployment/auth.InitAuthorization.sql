@@ -1,8 +1,5 @@
-﻿-- Clean authorization
-DELETE FROM auth.[Authorization]
--- Initialize table Authorization
-DBCC CHECKIDENT ('[auth].[Authorization]', RESEED, 0)
-
+﻿IF (SELECT count(*) FROM [auth].[Authorization]) = 0
+BEGIN
 INSERT INTO auth.[Authorization] (
 	Name, Description, Code, Label, Category, Configurable, [View], [ProductCode], [Type])
 	VALUES
@@ -17,7 +14,7 @@ INSERT INTO auth.[Authorization] (
 	('View GED GS', '', 'CLGED0001', 'Accéder à la GED Gestion sociale', 'CLTGED GS', '1', 'Partial', 'gedgs', 'customer'),
 	('View GED ESC', '', 'CLGED0002', 'Accéder à la GED Comptable', 'CLTGED ESC', '1', 'Partial', 'gedesc', 'customer'),
 	('Access Silae', '', 'CLSILA001', 'Accéder à l''outil Silae', 'CLTGS', '1', 'Partial', 'silaeaccess', 'customer'),
-	('View EVP', '', 'CLEVP001', 'Accéder aux EVP', 'CLTGS', '0', 'Partial', 'EVP', 'customer'),
+	('View EVP', '', 'CLEVP001', 'Accéder aux EVP', 'CLTGS', '1', 'Partial', 'EVP', 'customer'),
 	('View hiring', '', 'CLEMB001', 'Accéder à l''embauche salariée', 'CLTGS', '0', 'Partial', 'Hiring', 'customer'),
 	('Access MEG', '', 'CLMEG001', 'Accéder à l''outil MEG', 'CLTESC', '1', 'Partial', 'megaccess', 'customer'),
 	('Access Pennylane', '', 'CLPEN001', 'Accéder à l''outil Pennylane', 'CLTESC', '1', 'Partial','pennylaneaccess', 'customer'),
@@ -48,3 +45,4 @@ INSERT INTO auth.[Authorization] (
 	('Mirror kpi', '', 'COKPI0001', 'Accéder aux indicateurs', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
 	('Mirror bank', '', 'COBANK001', 'Accéder aux données bancaires', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
 	('Access Silae collab', '', 'COSILA001', 'Accéder au lanceur silae', 'COLGESTION', '1', 'Global', NULL, 'collaborator')
+END

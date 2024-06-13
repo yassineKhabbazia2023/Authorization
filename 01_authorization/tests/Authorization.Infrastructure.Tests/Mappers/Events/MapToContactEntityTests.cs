@@ -5,7 +5,6 @@
 using Pulse.Back.Events.IntegrationEvents.EventsData;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
-using Xunit;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Mappers.Events
 {
@@ -41,8 +40,6 @@ namespace Pulse.Authorization.Infrastructure.Tests.Mappers.Events
         public void ToContactEntity_MapsToDestinationCorrectly()
         {
             // Arrange
-            Guid contactGlobalUniqueId = Guid.NewGuid();
-
             var updatedContact = new ContactEntity
             {
                 ContactId = 100,
@@ -67,12 +64,13 @@ namespace Pulse.Authorization.Infrastructure.Tests.Mappers.Events
             updatedContact.ToContactEntity(existingContact);
 
             // Assert
-            Assert.Equal(updatedContact.ContactId, updatedContact.ContactId);
-            Assert.Equal(updatedContact.FirstName, updatedContact.FirstName);
-            Assert.Equal(updatedContact.LastName, updatedContact.LastName);
-            Assert.Equal(updatedContact.Email, updatedContact.Email);
-            Assert.Equal(updatedContact.Status, updatedContact.Status);
-            Assert.Equal(updatedContact.Type, updatedContact.Type);
+            Assert.Equal(updatedContact.ContactId, existingContact.ContactId);
+            Assert.Equal(updatedContact.FirstName, existingContact.FirstName);
+            Assert.Equal(updatedContact.LastName, existingContact.LastName);
+            Assert.Equal(updatedContact.Email, existingContact.Email);
+            Assert.Equal(updatedContact.Status, existingContact.Status);
+            Assert.Equal(updatedContact.Type, existingContact.Type);
+            Assert.NotNull(existingContact.LastUpdateDate);
         }
     }
 }

@@ -81,6 +81,7 @@ namespace Pulse.Authorization.Infrastructure.Tests.Repositories
             Assert.Equal(modifiedRoleEntity.ContactId, updatedRole.ContactId);
             Assert.Equal(modifiedRoleEntity.AccountId, updatedRole.AccountId);
             Assert.Equal(modifiedRoleEntity.IsSignatory, updatedRole.IsSignatory);
+            Assert.NotNull(updatedRole.LastUpdateDate);
         }
 
         [Fact]

@@ -51,6 +51,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
             destination.ContactId = source.ContactId;
             destination.AccountId = source.AccountId;
             destination.IsSignatory = source.IsSignatory;
+            destination.LastUpdateDate = DateTime.UtcNow;
         }
     }
 }

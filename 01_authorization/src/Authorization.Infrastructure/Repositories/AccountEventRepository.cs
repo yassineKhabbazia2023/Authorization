@@ -40,6 +40,7 @@ namespace Pulse.Authorization.Infrastructure.Repositories
         {
             var existingAccount = await _authorizationContext.AccountEntity.SingleAsync(x => x.AccountId == accountId);
             existingAccount.Status = AccountStatus.Revoked.ToString();
+            existingAccount.LastUpdateDate = DateTime.UtcNow;
 
             await _authorizationContext.SaveChangesAsync();
         }
