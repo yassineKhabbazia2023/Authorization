@@ -1,4 +1,4 @@
-﻿// <copyright file="CreateDelegationRequest.cs" company="Pulse">
+﻿// <copyright file="CreateAuthorizationRequest.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 

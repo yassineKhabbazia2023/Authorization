@@ -1,4 +1,4 @@
-﻿// <copyright file="AccountRepositoryOptions.cs" company="Pulse">
+﻿// <copyright file="AuthorizationRepositoryOptions.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 

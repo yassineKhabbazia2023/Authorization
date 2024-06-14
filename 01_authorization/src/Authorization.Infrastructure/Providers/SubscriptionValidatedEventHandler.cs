@@ -14,13 +14,16 @@ namespace Pulse.Authorization.Infrastructure.Providers
     {
         private readonly ILogger<SubscriptionValidatedEventHandler> _logger;
         private readonly ISubscriptionEventRepository _subscriptionEventRepository;
+        private readonly IAuthorizationEventPublisher _authorizationEventPublisher;
 
         public SubscriptionValidatedEventHandler(
             ILogger<SubscriptionValidatedEventHandler> logger,
-            ISubscriptionEventRepository subscriptionEventRepository)
+            ISubscriptionEventRepository subscriptionEventRepository,
+            IAuthorizationEventPublisher authorizationEventPublisher)
         {
             _logger = logger;
             _subscriptionEventRepository = subscriptionEventRepository;
+            _authorizationEventPublisher = authorizationEventPublisher;
         }
 
         public async Task HandleAsync(string message)
@@ -41,7 +44,18 @@ namespace Pulse.Authorization.Infrastructure.Providers
             }
 
             await _subscriptionEventRepository.AddSubscriptionAuthorizationsOnAccountAsync(subEvent!.Data.AccountId, subEvent.Data.Products.Select(p => p.ProductCode!));
-            await _subscriptionEventRepository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(subEvent.Data.AccountId, subEvent.Data.ContactIds, subEvent.Data.Products.Select(p => p.ProductCode!));
+            var result = await _subscriptionEventRepository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(subEvent.Data.AccountId,
+                                                                                                                   subEvent.Data.ContactIds,
+                                                                                                                   subEvent.Data.Products.Select(p => p.ProductCode!));
+            var groupedByContact = result.GroupBy(c => c.ContactId);
+
+            foreach (var group in groupedByContact)
+            {
+                var contactId = group.Key;
+                var codes = group.Select(g => g.Authorization.Code);
+
+                await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(contactId, subEvent.Data.AccountId, codes!);
+            }
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿// <copyright file="Action.cs" company="Pulse">
+// Copyright (c) Pulse. All rights reserved.
+// </copyright>
+
+using System.Text.Json.Serialization;
 
 namespace Pulse.Authorization.Core.Models
 {

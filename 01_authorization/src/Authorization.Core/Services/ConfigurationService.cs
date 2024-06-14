@@ -11,6 +11,7 @@ using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
+using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 
 namespace Pulse.Authorization.Core.Services;
 
@@ -18,11 +19,13 @@ public class ConfigurationService : IConfigurationService
 {
     private readonly IConfigurationRepository _configurationRepository;
     private readonly IContactRepository _contactRepository;
+    private readonly IAuthorizationEventPublisher _authorizationEventPublisher;
 
-    public ConfigurationService(IConfigurationRepository configurationRepository, IContactRepository contactRepository)
+    public ConfigurationService(IConfigurationRepository configurationRepository, IContactRepository contactRepository, IAuthorizationEventPublisher authorizationEventPublisher)
     {
         _configurationRepository = configurationRepository;
         _contactRepository = contactRepository;
+        _authorizationEventPublisher = authorizationEventPublisher;
     }
 
     public async Task<IEnumerable<Configuration>> GetContactAccountConfigurationAsync(int contactId, int? accountId)
@@ -96,5 +99,7 @@ public class ConfigurationService : IConfigurationService
         {
             throw new BadRequestException(Errors.NotConfigurablePermissionCode, string.Format(Errors.NotConfigurablePermissionMessage, ex.Data["Code"]));
         }
+
+        await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(contactId, accountId.Value, codes.ToList());
     }
 }

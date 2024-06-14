@@ -52,6 +52,7 @@ namespace Pulse.Authorization.API.Configuration
             {
                 ServiceBusNamespace = brokerSettings!.ServiceBusNamespace,
                 ManagedIdentityClientId = brokerSettings!.ManagedIdentityClientId,
+                PushTopicNames = [brokerSettings!.PushTopicName!],
             };
 
             if (brokerSettings!.PullTopics?.Count != 0)
@@ -77,7 +78,10 @@ namespace Pulse.Authorization.API.Configuration
             services.AddKeyedScoped<IEventHandler, RoleDeletedEventHandler>(nameof(RoleDeletedEvent));
             services.AddKeyedScoped<IEventHandler, SubscriptionValidatedEventHandler>(nameof(SubscriptionValidatedEvent));
 
+            services.AddScoped<IAuthorizationEventPublisher, AuthorizationEventPublisher>();
+
             services.AddEventPullServices(options);
+            services.AddEventPushServices(options);
         }
 
         public static void RegisterServices(this IServiceCollection services)
