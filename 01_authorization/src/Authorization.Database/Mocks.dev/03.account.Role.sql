@@ -177,7 +177,6 @@ VALUES
 (164,433,0,0,0),
 (164,434,0,0,0),
 (164,435,0,1,0)
-END
 
 DECLARE @Counter INT = 601
 WHILE @Counter <= 603
@@ -197,8 +196,6 @@ END
 
 
 -- Roles Client
-IF NOT EXISTS (SELECT * FROM [account].[Role] WHERE ContactId = 56)
-BEGIN
 INSERT INTO account.Role(ContactId, AccountId, IsSignatory, IsFavorite, IsDelegation)
 VALUES
 (56,1,1,0,0),
