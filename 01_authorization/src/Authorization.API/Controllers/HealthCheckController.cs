@@ -6,35 +6,34 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Pulse.Authorization.API.Controllers
+namespace Pulse.Authorization.API.Controllers;
+
+[Route("health")]
+[Controller]
+public class HealthCheckController : ControllerBase
 {
-    [Route("api")]
-    [Controller]
-    public class HealthCheckController : ControllerBase
+    private readonly HealthCheckService _healthCheckService;
+
+    public HealthCheckController(HealthCheckService healthCheckService)
     {
-        private readonly HealthCheckService _healthCheckService;
+        _healthCheckService = healthCheckService;
+    }
 
-        public HealthCheckController(HealthCheckService healthCheckService)
+    /// <summary>
+    /// Vérifie l'état de l'API et de la base de données SQL.
+    /// </summary>
+    /// <returns>OK si l'API est saine, KO sinon.</returns>
+    [HttpGet]
+    public async Task<IActionResult> CheckHealthAsync()
+    {
+        var report = await _healthCheckService.CheckHealthAsync();
+        var json = JsonSerializer.Serialize(report);
+
+        if (report.Status != HealthStatus.Healthy)
         {
-            _healthCheckService = healthCheckService;
+            return StatusCode(StatusCodes.Status417ExpectationFailed, json);
         }
 
-        /// <summary>
-        /// Vérifie l'état de l'API et de la base de données SQL.
-        /// </summary>
-        /// <returns>OK si l'API est saine, KO sinon.</returns>
-        [HttpGet("health")]
-        public async Task<IActionResult> CheckHealthAsync()
-        {
-            var report = await _healthCheckService.CheckHealthAsync();
-            var json = JsonSerializer.Serialize(report);
-
-            if (report.Status != HealthStatus.Healthy)
-            {
-                return StatusCode(StatusCodes.Status417ExpectationFailed, json);
-            }
-
-            return Ok(json);
-        }
+        return Ok(json);
     }
 }

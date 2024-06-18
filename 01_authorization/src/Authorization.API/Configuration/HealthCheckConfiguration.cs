@@ -5,32 +5,21 @@
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-namespace Pulse.Authorization.API.Configuration
+namespace Pulse.Authorization.API.Configuration;
+
+public static class HealthCheckConfiguration
 {
-    public static class HealthCheckConfiguration
+
+    public static void UseHealthcheckUI(IApplicationBuilder app)
     {
-        public static void ConfigureHealthCheckService(this IServiceCollection services, IConfiguration configuration)
+        app.UseHealthChecks("/health", new HealthCheckOptions
         {
-            services.AddHealthChecks();
-            services.AddHealthChecksUI()
-                    .AddInMemoryStorage();
-            if (configuration != null)
-            {
-                services.Configure<HealthChecks.UI.Data.HealthCheckConfiguration>(configuration.GetSection("HealthCheck"));
-            }
-        }
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
 
-        public static void UseHealthcheckUI(IApplicationBuilder app)
+        app.UseHealthChecksUI(config =>
         {
-            app.UseHealthChecks("/api/health", new HealthCheckOptions
-            {
-                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-            });
-
-            app.UseHealthChecksUI(config =>
-            {
-                config.UIPath = "/dashboard";
-            });
-        }
+            config.UIPath = "/dashboard";
+        });
     }
 }
