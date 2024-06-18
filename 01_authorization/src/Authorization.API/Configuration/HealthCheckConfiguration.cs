@@ -9,7 +9,6 @@ namespace Pulse.Authorization.API.Configuration;
 
 public static class HealthCheckConfiguration
 {
-
     public static void UseHealthcheckUI(IApplicationBuilder app)
     {
         app.UseHealthChecks("/health", new HealthCheckOptions
