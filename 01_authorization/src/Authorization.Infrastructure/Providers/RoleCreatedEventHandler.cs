@@ -4,6 +4,7 @@
 
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Back.Events.Abstractions;
@@ -15,13 +16,19 @@ namespace Pulse.Authorization.Infrastructure.Providers
     {
         private readonly ILogger<RoleCreatedEventHandler> _logger;
         private readonly IRoleEventRepository _roleEventRepository;
+        private readonly IAuthorizationRepository _authorizationRepository;
+        private readonly IAuthorizationEventPublisher _authorizationEventPublisher;
 
         public RoleCreatedEventHandler(
             ILogger<RoleCreatedEventHandler> logger,
-            IRoleEventRepository roleEventRepository)
+            IRoleEventRepository roleEventRepository,
+            IAuthorizationEventPublisher authorizationEventPublisher,
+            IAuthorizationRepository authorizationRepository)
         {
             _logger = logger;
             _roleEventRepository = roleEventRepository;
+            _authorizationEventPublisher = authorizationEventPublisher;
+            _authorizationRepository = authorizationRepository;
         }
 
         public async Task HandleAsync(string message)
@@ -47,6 +54,13 @@ namespace Pulse.Authorization.Infrastructure.Providers
             await _roleEventRepository.CreateRoleAsync(roleEntity);
 
             _logger.LogInformation("Le role de contact: {ContactId}, account: {AccountId} vient d'être crée.", roleEntity.ContactId, roleEntity.AccountId);
+
+            if (roleEntity.IsSignatory.HasValue && roleEntity.IsSignatory.Value)
+            {
+                var createdAuthorizations = await _authorizationRepository.CreateDefaultAuthorizationsOnSignatoryAsync(roleEntity.ContactId, roleEntity.AccountId);
+
+                await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(roleEntity.ContactId, roleEntity.AccountId, createdAuthorizations);
+            }
         }
     }
 }

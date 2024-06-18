@@ -5,7 +5,9 @@
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Newtonsoft.Json;
+using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
@@ -317,5 +319,66 @@ public class AuthorizationRepositoryTests
         Assert.NotNull(result);
         result.Should().NotBeEmpty();
         Assert.Equal(result.Count(), productCodes.Count() * contacts.Count());
+    }
+
+    [Fact]
+    public async Task CreateDefaultAuthorizationsOnAccountAsync_Should_AddDefaultAccountAuthorizations_And_ReturnSaidAuthorizations()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        var authorizationEntities = GlobalConstants.DefaultAccountPermissions.Select(p =>
+        {
+            var a = _fixture.Create<AuthorizationEntity>();
+            a.Code = p;
+            return a;
+        });
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 42)
+            .Create();
+
+        using var context = new AuthorizationContext(options);
+        context.AccountEntity.Add(account);
+        context.AuthorizationEntity.AddRange(authorizationEntities);
+        context.SaveChanges();
+        var repository = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repository.CreateDefaultAuthorizationsOnAccountAsync(account.AccountId);
+
+        // Assert
+        Assert.NotNull(result);
+        result.Should().BeEquivalentTo(GlobalConstants.DefaultAccountPermissions);
+    }
+
+    [Fact]
+    public async Task CreateDefaultAuthorizationsOnSignatoryAsync_Should_AddDefaultSignatoryAuthorizations_And_ReturnSaidAuthorizations()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        var authorizationEntities = GlobalConstants.DefaultSignatoryPermissions.Select(p =>
+        {
+            var a = _fixture.Create<AuthorizationEntity>();
+            a.Code = p;
+            return a;
+        });
+
+        using var context = new AuthorizationContext(options);
+        context.AuthorizationEntity.AddRange(authorizationEntities);
+        context.SaveChanges();
+        var repository = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repository.CreateDefaultAuthorizationsOnSignatoryAsync(It.IsAny<int>(), It.IsAny<int>());
+
+        // Assert
+        Assert.NotNull(result);
+        result.Should().BeEquivalentTo(GlobalConstants.DefaultSignatoryPermissions);
     }
 }

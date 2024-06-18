@@ -3,6 +3,7 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
+using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Extensions;
@@ -124,5 +125,47 @@ public class AuthorizationRepository : IAuthorizationRepository
         _authorizationContext.ContactAuthorizationEntity.AddRange(toReturn);
         await _authorizationContext.SaveChangesAsync();
         return toReturn;
+    }
+
+    public async Task<IEnumerable<string>> CreateDefaultAuthorizationsOnAccountAsync(int accountId)
+    {
+        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => GlobalConstants.DefaultAccountPermissions.Contains(a.Code)).Distinct().ToListAsync();
+        _authorizationContext.AccountAuthorizationEntity.AddRange(authorizations.Where(a => !a.AccountAuthorizationEntity.Any(ac => ac.AuthorizationId == a.AuthorizationId && ac.AccountId == accountId))
+            .Select(a =>
+            {
+                return new Entities.AccountAuthorizationEntity
+                {
+                    AccountId = accountId,
+                    AuthorizationId = a.AuthorizationId,
+                    Enabled = true,
+                };
+            }));
+
+        await _authorizationContext.SaveChangesAsync();
+
+        return GlobalConstants.DefaultAccountPermissions;
+    }
+
+    public async Task<IEnumerable<string>> CreateDefaultAuthorizationsOnSignatoryAsync(int contactId, int accountId)
+    {
+        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => GlobalConstants.DefaultSignatoryPermissions.Contains(a.Code)).Distinct().ToListAsync();
+        var filtered = authorizations.Where(a => !_authorizationContext.ContactAuthorizationEntity.Any(c => c.AuthorizationId == a.AuthorizationId
+        && c.ContactId == contactId
+        && c.AccountId == accountId));
+
+        _authorizationContext.ContactAuthorizationEntity.AddRange(filtered.Select(a =>
+            {
+                return new Entities.ContactAuthorizationEntity
+                {
+                    ContactId = contactId,
+                    AccountId = accountId,
+                    AuthorizationId = a.AuthorizationId,
+                    CreationDate = DateTime.UtcNow,
+                };
+            }));
+
+        await _authorizationContext.SaveChangesAsync();
+
+        return GlobalConstants.DefaultSignatoryPermissions;
     }
 }

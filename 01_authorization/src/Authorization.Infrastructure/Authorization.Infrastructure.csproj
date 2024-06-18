@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
     <PackageReference Include="Polly" Version="8.3.0" />
-    <PackageReference Include="Pulse.Back.Events" Version="1.73.112" />
+    <PackageReference Include="Pulse.Back.Events" Version="1.73.125" />
   </ItemGroup>
 
 </Project>

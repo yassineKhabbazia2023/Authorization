@@ -11,5 +11,5 @@ public interface IAuthorizationEventPublisher
 {
     Task PublishAuthorizationCreatedEventAsync(int contactId, int accountId, IEnumerable<string> codes);
 
-    Task PublishAuthorizationUpdatedEventAsync(int contactId, int accountId, IEnumerable<string> codes);
+    Task PublishAuthorizationUpdatedEventAsync(int? contactId, int accountId, IEnumerable<string> codes);
 }

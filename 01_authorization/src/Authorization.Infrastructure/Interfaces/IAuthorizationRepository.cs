@@ -14,6 +14,10 @@ public interface IAuthorizationRepository
 
     Task DeleteContactAuthorizationAsync(int contactId, int accountId);
 
+    Task<IEnumerable<string>> CreateDefaultAuthorizationsOnAccountAsync(int accountId);
+
+    Task<IEnumerable<string>> CreateDefaultAuthorizationsOnSignatoryAsync(int contactId, int accountId);
+
     public Task<IEnumerable<Entities.AccountAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes);
 
     public Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes);

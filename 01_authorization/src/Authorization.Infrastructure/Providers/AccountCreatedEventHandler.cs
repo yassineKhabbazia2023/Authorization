@@ -4,6 +4,7 @@
 
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Back.Events.Abstractions;
@@ -16,12 +17,20 @@ namespace Pulse.Authorization.Infrastructure.Providers
         private readonly ILogger<AccountCreatedEventHandler> _logger;
         private readonly IAccountEventRepository _accountEventRepository;
 
+        private readonly IAuthorizationRepository _authorizationRepository;
+
+        private readonly IAuthorizationEventPublisher _authorizationEventPublisher;
+
         public AccountCreatedEventHandler(
        ILogger<AccountCreatedEventHandler> logger,
-       IAccountEventRepository accountEventRepository)
+       IAccountEventRepository accountEventRepository,
+       IAuthorizationRepository authorizationRepository,
+       IAuthorizationEventPublisher authorizationEventPublisher)
         {
             _logger = logger;
             _accountEventRepository = accountEventRepository;
+            _authorizationRepository = authorizationRepository;
+            _authorizationEventPublisher = authorizationEventPublisher;
         }
 
         public async Task HandleAsync(string message)
@@ -44,6 +53,10 @@ namespace Pulse.Authorization.Infrastructure.Providers
             var accountEntity = accountEvent!.Data.ToAccountEntity();
             await _accountEventRepository.CreateAccountAsync(accountEntity);
             _logger.LogInformation("L'entité avec l'identifiant: {AccountId} vient d'être ajoutée.", accountEvent!.Data.AccountId);
+
+            var createdAuthorizations = await _authorizationRepository.CreateDefaultAuthorizationsOnAccountAsync(accountEntity.AccountId);
+
+            await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(null!, accountEntity.AccountId, createdAuthorizations);
         }
     }
 }
