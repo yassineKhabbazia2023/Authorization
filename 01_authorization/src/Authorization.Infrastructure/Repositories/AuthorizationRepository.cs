@@ -97,7 +97,7 @@ public class AuthorizationRepository : IAuthorizationRepository
 
     public async Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes)
     {
-        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().ToListAsync();
+        var authorizations = await _authorizationContext.AuthorizationEntity.ToListAsync();
         var roles = (await _authorizationContext.RoleEntity.AsNoTracking()
                .Include(r => r.Contact).AsNoTracking()
                .Where(r => r.AccountId == accountId
@@ -114,7 +114,7 @@ public class AuthorizationRepository : IAuthorizationRepository
                 return new Entities.ContactAuthorizationEntity
                 {
                     AccountId = accountId,
-                    AuthorizationId = a.AuthorizationId,
+                    Authorization = a,
                     ContactId = role.ContactId,
                     CreationDate = DateTime.UtcNow,
                 };
