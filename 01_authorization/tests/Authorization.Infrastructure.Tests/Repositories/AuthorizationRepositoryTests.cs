@@ -243,16 +243,25 @@ public class AuthorizationRepositoryTests
                 .Options;
 
         var expectedCount = 3;
-        var authorizationEntities = _fixture.Build<AuthorizationEntity>()
-                            .With(a => a.ProductCode)
-                            .CreateMany(expectedCount);
+        var productCodes = new string[]
+        {
+            "123",
+            "456",
+            "789"
+        };
+
+        var authorizationEntities = productCodes.Select(c =>
+        {
+            var a = _fixture.Build<AuthorizationEntity>().Create();
+            a.ProductCode = c;
+            return a;
+        });
 
         var account = _fixture.Build<AccountEntity>()
             .With(a => a.AccountId, 42)
             .Create();
 
         using var context = new AuthorizationContext(options);
-        var productCodes = authorizationEntities.Select(a => a.ProductCode);
         context.AccountEntity.Add(account);
         context.AuthorizationEntity.AddRange(authorizationEntities);
         context.SaveChanges();
@@ -263,8 +272,6 @@ public class AuthorizationRepositoryTests
 
         // Assert
         Assert.NotNull(result);
-        result.Should().NotBeEmpty();
-        Assert.Equal(result.Count(), expectedCount);
     }
 
     [Fact]

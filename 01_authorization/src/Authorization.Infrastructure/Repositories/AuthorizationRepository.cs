@@ -78,7 +78,7 @@ public class AuthorizationRepository : IAuthorizationRepository
     public async Task<IEnumerable<Entities.AccountAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes)
     {
         var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().ToListAsync();
-        var range = authorizations.Where(a => productCodes.Contains(a.ProductCode))
+        var range = authorizations.Where(a => a.ProductCode != null && productCodes.Contains(a.ProductCode))
             .DistinctBy(a => a.AuthorizationId).Select(a =>
         {
             return new Entities.AccountAuthorizationEntity
@@ -89,10 +89,13 @@ public class AuthorizationRepository : IAuthorizationRepository
             };
         });
 
-        _authorizationContext.AccountAuthorizationEntity.AddRange(range);
+        var filtered = range.Where(r => !_authorizationContext.AccountAuthorizationEntity.Any(a => a.AuthorizationId == r.AuthorizationId
+            && a.AccountId == r.AccountId));
+
+        _authorizationContext.AccountAuthorizationEntity.AddRange(filtered);
 
         await _authorizationContext.SaveChangesAsync();
-        return range;
+        return filtered;
     }
 
     public async Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes)
@@ -109,7 +112,7 @@ public class AuthorizationRepository : IAuthorizationRepository
         var toReturn = new List<Entities.ContactAuthorizationEntity>();
         foreach (var role in roles)
         {
-            var range = authorizations.Where(a => productCodes.Contains(a.ProductCode)).DistinctBy(a => a.AuthorizationId).Select(a =>
+            var range = authorizations.Where(a => a.ProductCode != null && productCodes.Contains(a.ProductCode)).DistinctBy(a => a.AuthorizationId).Select(a =>
             {
                 return new Entities.ContactAuthorizationEntity
                 {
@@ -122,7 +125,12 @@ public class AuthorizationRepository : IAuthorizationRepository
             toReturn.AddRange(range);
         }
 
-        _authorizationContext.ContactAuthorizationEntity.AddRange(toReturn);
+        toReturn = toReturn.Distinct().ToList();
+        var filtered = toReturn.Where(r => !_authorizationContext.ContactAuthorizationEntity.Any(a => a.AuthorizationId == r.Authorization.AuthorizationId
+            && a.AccountId == r.AccountId
+            && a.ContactId == r.ContactId));
+
+        _authorizationContext.ContactAuthorizationEntity.AddRange(filtered);
         await _authorizationContext.SaveChangesAsync();
         return toReturn;
     }
