@@ -25,5 +25,17 @@ namespace Pulse.Authorization.Infrastructure.Constants
             "CLADMI001", "CLUSER001", "CLUSER002", "CLUSER003",
             "CLUSER004", "CLOFF001", "CLINFO001",
         ];
+
+        public static readonly Dictionary<string, string> CustomerToMirrorCodes = new Dictionary<string, string>()
+        {
+            { "CLGED0001", "COGED0001" },
+            { "CLGED0002", "COGED0002" },
+            { "CLSILA001", "COLANC001" },
+            { "CLEVP001", "COLANC001" },
+            { "CLMEG001", "COLANC001" },
+            { "CLPEN001", "COLANC001" },
+            { "CLKPI0001", "COKPI0001" },
+            { "CLBANK001", "COBANK001" },
+        };
     }
 }

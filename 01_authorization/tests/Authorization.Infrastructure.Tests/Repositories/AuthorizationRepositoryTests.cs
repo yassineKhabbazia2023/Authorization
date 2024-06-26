@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Collections.Generic;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -241,21 +242,32 @@ public class AuthorizationRepositoryTests
         var options = new DbContextOptionsBuilder<AuthorizationContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
-
-        var expectedCount = 3;
-        var productCodes = new string[]
+        var productCodes = new Dictionary<string, string>
         {
-            "123",
-            "456",
-            "789"
+            { "123", "CLGED0001" },
+            { "456", "CLGED0002" },
+            { "789", "CLSILA001" }
         };
+
+        var expectedAuthorizationCodes = productCodes.Values.ToList();
+        var collabCodes = productCodes.Values.Select(a => { return GlobalConstants.CustomerToMirrorCodes[a]; });
+        expectedAuthorizationCodes.AddRange(collabCodes);
 
         var authorizationEntities = productCodes.Select(c =>
         {
             var a = _fixture.Build<AuthorizationEntity>().Create();
-            a.ProductCode = c;
+            a.ProductCode = c.Key;
+            a.Code = c.Value;
             return a;
-        });
+        }).ToList();
+
+        authorizationEntities.AddRange(collabCodes.Select(c =>
+        {
+            var a = _fixture.Build<AuthorizationEntity>().Create();
+            a.ProductCode = null;
+            a.Code = c;
+            return a;
+        }));
 
         var account = _fixture.Build<AccountEntity>()
             .With(a => a.AccountId, 42)
@@ -268,10 +280,11 @@ public class AuthorizationRepositoryTests
         var repository = new AuthorizationRepository(context);
 
         // Act
-        var result = await repository.AddSubscriptionAuthorizationsOnAccountAsync(account.AccountId, productCodes!);
+        var result = await repository.AddSubscriptionAuthorizationsOnAccountAsync(account.AccountId, productCodes.Keys!);
 
         // Assert
         Assert.NotNull(result);
+        result.Select(a => a.Authorization.Code).Should().BeEquivalentTo(expectedAuthorizationCodes);
     }
 
     [Fact]

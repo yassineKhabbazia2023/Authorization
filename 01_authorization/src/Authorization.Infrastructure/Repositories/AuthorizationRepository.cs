@@ -2,9 +2,11 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System;
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
+using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Extensions;
 using Pulse.Authorization.Infrastructure.Interfaces;
@@ -77,25 +79,59 @@ public class AuthorizationRepository : IAuthorizationRepository
 
     public async Task<IEnumerable<Entities.AccountAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes)
     {
-        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().ToListAsync();
-        var range = authorizations.Where(a => a.ProductCode != null && productCodes.Contains(a.ProductCode))
+        var authorizations = await _authorizationContext.AuthorizationEntity.ToListAsync();
+        var authorizationsByProductCode = authorizations.Where(a => a.ProductCode != null && productCodes.Contains(a.ProductCode));
+        var accountAuthorizationsByProductCode = authorizationsByProductCode
             .DistinctBy(a => a.AuthorizationId).Select(a =>
         {
             return new Entities.AccountAuthorizationEntity
             {
                 AccountId = accountId,
-                AuthorizationId = a.AuthorizationId,
+                Authorization = a,
                 Enabled = true,
             };
         });
 
-        var filtered = range.Where(r => !_authorizationContext.AccountAuthorizationEntity.Any(a => a.AuthorizationId == r.AuthorizationId
-            && a.AccountId == r.AccountId));
+        var filteredAccountAuthorizations = accountAuthorizationsByProductCode.Where(r => !_authorizationContext.AccountAuthorizationEntity.Any(a => a.AuthorizationId == r.AuthorizationId
+            && a.AccountId == r.AccountId)).ToList();
 
-        _authorizationContext.AccountAuthorizationEntity.AddRange(filtered);
+        _authorizationContext.AccountAuthorizationEntity.AddRange(filteredAccountAuthorizations);
 
         await _authorizationContext.SaveChangesAsync();
-        return filtered;
+        filteredAccountAuthorizations.AddRange(await AddMirrorAuthorizationsOnAccountAsync(accountId, authorizationsByProductCode));
+
+        return filteredAccountAuthorizations;
+    }
+
+    private async Task<IEnumerable<Entities.AccountAuthorizationEntity>> AddMirrorAuthorizationsOnAccountAsync(int accountId, IEnumerable<AuthorizationEntity> authorizations)
+    {
+        var mirrorCodes = authorizations.Where(a => GlobalConstants.CustomerToMirrorCodes.ContainsKey(a.Code))
+            .Select(a =>
+            {
+               return GlobalConstants.CustomerToMirrorCodes[a.Code];
+            });
+
+        var authorizationCodes = await _authorizationContext.AuthorizationEntity.Where(a => mirrorCodes.Contains(a.Code)).ToListAsync();
+
+        var accountAuthorizations = authorizationCodes.Select(a =>
+        {
+            return new Entities.AccountAuthorizationEntity
+            {
+                AccountId = accountId,
+                Authorization = a,
+                Enabled = true,
+            };
+        });
+
+        var filteredAccountAuthorizations = accountAuthorizations.Where(r => !_authorizationContext.AccountAuthorizationEntity.Any(a => a.AuthorizationId == r.AuthorizationId
+            && a.AccountId == r.AccountId));
+
+        _authorizationContext.AccountAuthorizationEntity.AddRange(filteredAccountAuthorizations);
+
+        await _authorizationContext.SaveChangesAsync();
+
+        return filteredAccountAuthorizations;
+
     }
 
     public async Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes)
