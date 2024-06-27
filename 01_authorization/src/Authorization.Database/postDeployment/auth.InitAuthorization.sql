@@ -23,7 +23,7 @@ INSERT INTO auth.[Authorization] (
 	('View kpi', '', 'CLKPI0001', 'Accéder aux indicateurs', 'CLTPILOTAGE', '0', 'Partial', NULL, 'customer'),
 	('View bank', '', 'CLBANK001', 'Accéder aux données bancaires', 'CLTPILOTAGE', '0', 'Partial', NULL, 'customer'),
 	('View collabs', '', 'COADMI001', 'Accéder à l''onglet collaborateurs', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
-	('Delete collab', '', 'COADMI002', 'Supprimer un collaborateur', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
+	('Delete collab', '', 'COADMI002', 'Supprimer un collaborateur', 'COLADMIN', '1', 'Both', NULL, 'collaborator'),
 	('Update right collab', '', 'COADMI003', 'Gérer les droits des collaborateurs', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
 	('Deploy subscription', '', 'COOFF001', 'Activer une offre', 'COLOFFRE', '1', 'Both', NULL, 'collaborator'),
 	('Activate subsciption', '', 'COOFF002', 'Onglet des demandes MOD', 'COLOFFRE', '1', 'Global', NULL, 'collaborator'),
