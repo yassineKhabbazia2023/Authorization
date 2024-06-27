@@ -15,6 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <SonarQubeSetting Include="sonar.coverage.exclusions">
+      <Value> **/Constants/GlobalConstants.cs</Value>
+    </SonarQubeSetting>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Kpmg.ExceptionMiddleware" Version="1.47.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1" />
