@@ -28,6 +28,8 @@ public class AuthorizationRepository : IAuthorizationRepository
         var contactAuthorization = _authorizationContext
                     .ContactAuthorizationEntity
                     .Include(x => x.Authorization)
+                    .Include(x => x.Contact)
+                    .Where(x => x.Authorization.Type == x.Contact.Type)
                     .Where(x => x.ContactId == contactId
                         && x.AccountId == accountId
                         && ((viewGlobal != null && x.Authorization.View != (viewGlobal.Value
@@ -60,6 +62,8 @@ public class AuthorizationRepository : IAuthorizationRepository
                     .ContactAuthorizationEntity
                     .Include(x => x.Authorization)
                     .Where(x => x.ContactId == contactId && x.Authorization.View != AuthorizationView.Partial.ToString())
+                    .Include(x => x.Contact)
+                    .Where(x => x.Contact.Type == x.Authorization.Type)
                     .Select(x => x.Authorization.Code)
                     .Distinct();
 

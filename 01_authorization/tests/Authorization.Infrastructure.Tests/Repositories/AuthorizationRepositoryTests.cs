@@ -36,15 +36,32 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
-                            .With(a => a.Authorization)
+            var authorizations = _fixture.Build<AuthorizationEntity>()
+                                .With(x => x.Type, "Customer")
+                                .Without(x => x.ContactAuthorizationEntity)
+                                .Without(x => x.AccountAuthorizationEntity)
+                                .Without(a => a.AuthorizationId)
+                                .CreateMany(3);
+            var contactAuthorizationAccountEntity = authorizations.Select(x =>
+            {
+                return _fixture.Build<ContactAuthorizationEntity>()
+                            .Without(a => a.Authorization)
                             .With(a => a.ContactId, 123)
                             .With(a => a.AccountId, 456)
+                            .With(a => a.AuthorizationId, x.AuthorizationId)
                             .Without(a => a.Contact)
                             .Without(a => a.Account)
-                            .CreateMany(3);
+                            .Create();
+            });
 
-            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
+            context.AuthorizationEntity.AddRange(authorizations);
+            context.ContactEntity.Add(_fixture.Build<ContactEntity>()
+                                .With(x => x.Type, "Customer")
+                                .With(x => x.ContactId, 123)
+                                .Without(x => x.ContactAuthorizationEntity)
+                                .Create());
+
+            var expectedAuthorization = authorizations.Select(c => c.Code);
 
             context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
@@ -183,14 +200,33 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
-                            .With(a => a.Authorization)
+            var authorizations = _fixture.Build<AuthorizationEntity>()
+                                .With(x => x.Type, "Customer")
+                                .Without(x => x.ContactAuthorizationEntity)
+                                .Without(x => x.AccountAuthorizationEntity)
+                                .Without(a => a.AuthorizationId)
+                                .CreateMany(3);
+
+            var contactAuthorizationAccountEntity = authorizations.Select(x =>
+            {
+                return _fixture.Build<ContactAuthorizationEntity>()
+                            .Without(a => a.Authorization)
                             .With(a => a.ContactId, 123)
+                            .With(a => a.AccountId, -1)
+                            .With(a => a.AuthorizationId, x.AuthorizationId)
                             .Without(a => a.Contact)
                             .Without(a => a.Account)
-                            .CreateMany(3);
+                            .Create();
+            });
 
-            var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
+            context.AuthorizationEntity.AddRange(authorizations);
+            context.ContactEntity.Add(_fixture.Build<ContactEntity>()
+                                .With(x => x.Type, "Customer")
+                                .With(x => x.ContactId, 123)
+                                .Without(x => x.ContactAuthorizationEntity)
+                                .Create());
+
+            var expectedAuthorization = authorizations.Select(c => c.Code);
 
             context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
@@ -214,13 +250,30 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
-                            .With(a => a.Authorization)
+            var authorizations = _fixture.Build<AuthorizationEntity>()
+                                .With(x => x.Type, "Customer")
+                                .Without(x => x.ContactAuthorizationEntity)
+                                .Without(x => x.AccountAuthorizationEntity)
+                                .Without(a => a.AuthorizationId)
+                                .CreateMany(3);
+            var contactAuthorizationAccountEntity = authorizations.Select(x =>
+            {
+                return _fixture.Build<ContactAuthorizationEntity>()
+                            .Without(a => a.Authorization)
                             .With(a => a.ContactId, 123)
                             .With(a => a.AccountId, -1)
+                            .With(a => a.AuthorizationId, x.AuthorizationId)
                             .Without(a => a.Contact)
                             .Without(a => a.Account)
-                            .CreateMany(3);
+                            .Create();
+            });
+
+            context.AuthorizationEntity.AddRange(authorizations);
+            context.ContactEntity.Add(_fixture.Build<ContactEntity>()
+                                .With(x => x.Type, "Customer")
+                                .With(x => x.ContactId, 123)
+                                .Without(x => x.ContactAuthorizationEntity)
+                                .Create());
             context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
