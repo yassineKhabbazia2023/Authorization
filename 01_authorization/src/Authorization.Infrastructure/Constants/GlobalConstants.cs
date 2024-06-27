@@ -2,8 +2,11 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Pulse.Authorization.Infrastructure.Constants
 {
+    [ExcludeFromCodeCoverage]
     public static class GlobalConstants
     {
         public static readonly int RetryTimespan = 3000;
@@ -26,7 +29,7 @@ namespace Pulse.Authorization.Infrastructure.Constants
             "CLUSER004", "CLOFF001", "CLINFO001",
         ];
 
-        public static readonly Dictionary<string, string> CustomerToMirrorCodes = new Dictionary<string, string>()
+        public static readonly Dictionary<string, string> CustomerToMirrorCodes = new()
         {
             { "CLGED0001", "COGED0001" },
             { "CLGED0002", "COGED0002" },
