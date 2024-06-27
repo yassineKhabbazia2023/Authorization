@@ -38,7 +38,7 @@ INSERT INTO auth.[Authorization] (
 	('Mirror offer', '', 'COOFF003', 'Accéder à l''onglet offre', 'COLMIRROIR', '1', 'Partial', NULL, 'collaborator'),
 	('Mirror informations', '', 'COINFO001', 'Accéder à l''onglet informations', 'COLMIRROIR', '1', 'Both', NULL, 'collaborator'),
 	('Mirror invoice', '', 'COINVO001', 'Accéder aux factures Pulse', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
-	('Mirror EVP', '', 'COEVPO01', 'Accéder aux EVP', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
+	('Mirror EVP', '', 'COEVPO01', 'Accéder aux EVP', 'COLMIRROIR', '0', 'Partial', 'EVP', 'collaborator'),
 	('Mirror hiring', '', 'COEMB001', 'Accéder à l''embauche salariée', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
 	('Mirror launcher', '', 'COLANC001', 'Accéder aux lançeurs d''outils externes', 'COLMIRROIR', '1', 'Partial', NULL, 'collaborator'),
 	('Mirror report', '', 'CORAPP001', 'Accéder aux rapports BI ', 'COLMIRROIR', '1', 'Partial', NULL, 'collaborator'),
