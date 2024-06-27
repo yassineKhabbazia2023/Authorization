@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Pulse.Authorization.Infrastructure.Constants
@@ -29,8 +30,7 @@ namespace Pulse.Authorization.Infrastructure.Constants
             "CLUSER004", "CLOFF001", "CLINFO001",
         ];
 
-        public static readonly Dictionary<string, string> CustomerToMirrorCodes = new()
-        {
+        public static readonly ReadOnlyDictionary<string, string> CustomerToMirrorCodes = new(new Dictionary<string, string>{
             { "CLGED0001", "COGED0001" },
             { "CLGED0002", "COGED0002" },
             { "CLSILA001", "COLANC001" },
@@ -39,6 +39,6 @@ namespace Pulse.Authorization.Infrastructure.Constants
             { "CLPEN001", "COLANC001" },
             { "CLKPI0001", "COKPI0001" },
             { "CLBANK001", "COBANK001" },
-        };
+        });
     }
 }
