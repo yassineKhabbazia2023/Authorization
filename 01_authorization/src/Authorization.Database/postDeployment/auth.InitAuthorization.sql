@@ -34,7 +34,7 @@ INSERT INTO auth.[Authorization] (
 	('Mirror GED GS', '', 'COGED0001', 'Accéder à la GED Gestion sociale', 'COLPROD', '1', 'Partial', NULL, 'collaborator'),
 	('Mirror GED ESC', '', 'COGED0002', 'Accéder à la GED Comptable', 'COLPROD', '1', 'Partial', NULL, 'collaborator'),
 	('Mirror users customer', '', 'COUSER001', 'Accéder à l''onglet utilisateurs', 'COLMIRROIR', '1', 'Partial', NULL, 'collaborator'),
-	('Mirror users collab', '', 'COUSER002', 'Accéder à l''onglet collaborateurs', 'COLMIRROIR', '1', 'Partial', NULL, 'collaborator'),
+	('Mirror users collab', '', 'COUSER002', 'Accéder à l''onglet collaborateurs', 'COLMIRROIR', '1', 'Both', NULL, 'collaborator'),
 	('Mirror offer', '', 'COOFF003', 'Accéder à l''onglet offre', 'COLMIRROIR', '1', 'Partial', NULL, 'collaborator'),
 	('Mirror informations', '', 'COINFO001', 'Accéder à l''onglet informations', 'COLMIRROIR', '1', 'Both', NULL, 'collaborator'),
 	('Mirror invoice', '', 'COINVO001', 'Accéder aux factures Pulse', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
