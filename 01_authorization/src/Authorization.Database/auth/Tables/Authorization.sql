@@ -14,5 +14,17 @@
     CONSTRAINT [CHK_Type] CHECK ([Type] = 'customer' OR [Type] = 'collaborator')
 );
 
+GO
+CREATE NONCLUSTERED INDEX [IX_Authorization_View]
+    ON [auth].[Authorization]([View] ASC);
 
+GO
+CREATE NONCLUSTERED INDEX [IX_Authorization_Type]
+    ON [auth].[Authorization]([Type] ASC);
+
+GO
+CREATE NONCLUSTERED INDEX [IX_Authorization_Code]
+    ON [auth].[Authorization]([Code] ASC);
+
+GO
 
