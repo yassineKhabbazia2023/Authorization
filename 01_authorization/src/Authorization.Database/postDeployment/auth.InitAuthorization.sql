@@ -14,7 +14,7 @@ INSERT INTO auth.[Authorization] (
 	('View GED GS', '', 'CLGED0001', 'Accéder à la GED Gestion sociale', 'CLTGEDGS', '1', 'Partial', 'gedgs', 'customer'),
 	('View GED ESC', '', 'CLGED0002', 'Accéder à la GED Comptable', 'CLTGEDESC', '1', 'Partial', 'gedesc', 'customer'),
 	('Access Silae', '', 'CLSILA001', 'Accéder à l''outil Silae', 'CLTGS', '1', 'Partial', 'silaeaccess', 'customer'),
-	('View EVP', '', 'CLEVP001', 'Accéder aux EVP', 'CLTGS', '1', 'Partial', 'EVP', 'customer'),
+	('View EVP', '', 'CLEVP001', 'Accéder aux EVP', 'CLTGS', '0', 'Partial', 'EVP', 'customer'),
 	('View hiring', '', 'CLEMB001', 'Accéder à l''embauche salariée', 'CLTGS', '0', 'Partial', 'Hiring', 'customer'),
 	('Access MEG', '', 'CLMEG001', 'Accéder à l''outil MEG', 'CLTESC', '1', 'Partial', 'megaccess', 'customer'),
 	('Access Pennylane', '', 'CLPEN001', 'Accéder à l''outil Pennylane', 'CLTESC', '1', 'Partial','pennylaneaccess', 'customer'),
