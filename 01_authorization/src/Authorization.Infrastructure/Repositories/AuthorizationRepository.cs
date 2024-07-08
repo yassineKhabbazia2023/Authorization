@@ -135,16 +135,14 @@ public class AuthorizationRepository : IAuthorizationRepository
         await _authorizationContext.SaveChangesAsync();
 
         return filteredAccountAuthorizations;
-
     }
 
-    public async Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes)
+    public async Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<string> productCodes)
     {
         var authorizations = await _authorizationContext.AuthorizationEntity.ToListAsync();
         var roles = (await _authorizationContext.RoleEntity.AsNoTracking()
                .Include(r => r.Contact).AsNoTracking()
                .Where(r => r.AccountId == accountId
-               && contactIds.Contains(r.ContactId)
                && r.Contact!.Type == ContactType.Customer.ToString()
                && r.IsSignatory.HasValue && r.IsSignatory.Value).ToListAsync())
                .DistinctBy(r => r.ContactId);

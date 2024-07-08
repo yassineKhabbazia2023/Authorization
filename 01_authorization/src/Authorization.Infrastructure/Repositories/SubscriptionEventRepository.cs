@@ -25,9 +25,9 @@ namespace Pulse.Authorization.Infrastructure.Repositories
             return await _authorizationRepository.AddSubscriptionAuthorizationsOnAccountAsync(accountId, productCodes);
         }
 
-        public async Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<int> contactIds, IEnumerable<string> productCodes)
+        public async Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<string> productCodes)
         {
-            return await _authorizationRepository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(accountId, contactIds, productCodes);
+            return await _authorizationRepository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(accountId, productCodes);
         }
     }
 }

@@ -43,10 +43,9 @@ namespace Pulse.Authorization.Infrastructure.Providers
                 return;
             }
 
-            var productCodes = subEvent.Data.Products.Where(p => p.ProductCode != null).Select(p => p.ProductCode);
+            var productCodes = subEvent!.Data.Products.Where(p => p.ProductCode != null).Select(p => p.ProductCode);
             await _subscriptionEventRepository.AddSubscriptionAuthorizationsOnAccountAsync(subEvent!.Data.AccountId, productCodes!);
             var result = await _subscriptionEventRepository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(subEvent.Data.AccountId,
-                                                                                                                   subEvent.Data.ContactIds,
                                                                                                                    productCodes!);
             var groupedByContact = result.GroupBy(c => c.ContactId);
 

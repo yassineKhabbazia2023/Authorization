@@ -57,12 +57,12 @@ public class SubscriptionEventRepositoryTests
                 .Options;
         var authorizationRepository = new Mock<IAuthorizationRepository>(MockBehavior.Strict);
         var expectedResult = _fixture.CreateMany<ContactAuthorizationEntity>();
-        authorizationRepository.Setup(r => r.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(It.IsAny<int>(), It.IsAny<List<int>>(), It.IsAny<List<string>>()))
+        authorizationRepository.Setup(r => r.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(It.IsAny<int>(), It.IsAny<List<string>>()))
         .ReturnsAsync(expectedResult);
         var repository = new SubscriptionEventRepository(authorizationRepository.Object);
 
         // Act
-        var result = await repository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(It.IsAny<int>(), It.IsAny<List<int>>(), It.IsAny<List<string>>());
+        var result = await repository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(It.IsAny<int>(), It.IsAny<List<string>>());
 
         // Assert
         Assert.Equivalent(expectedResult, result);

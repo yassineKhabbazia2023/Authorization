@@ -1,4 +1,4 @@
-﻿// <copyright file="ContactUpdatedEventHandlerTests.cs" company="Pulse">
+﻿// <copyright file="SubscriptionValidatedEventHandlerTests.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
@@ -40,7 +40,6 @@ public class SubscriptionValidatedEventHandlerTests
         var message = "{\"EventType\":\"SubscriptionValidatedEvent\",\"Data\":{\"AccountId\":123,\"ContactIds\":[12,42,69], \"Products\": [{\"ProductCode\": \"MOCK\"}]}}";
         repositoryMock.Setup(r => r.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(
             It.IsAny<int>(),
-            It.IsAny<IEnumerable<int>>(),
             It.IsAny<IEnumerable<string>>()))
             .ReturnsAsync(
             new ContactAuthorizationEntity[]
@@ -49,7 +48,8 @@ public class SubscriptionValidatedEventHandlerTests
                 {
                     AccountId = 123,
                     ContactId = 12,
-                    Authorization = new AuthorizationEntity{
+                    Authorization = new AuthorizationEntity
+                    {
                         ProductCode = "MOCK"
                     }
                 }
@@ -60,7 +60,7 @@ public class SubscriptionValidatedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountAsync(123, new string[] { "MOCK" }), Times.Once);
-        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(123, new int[] { 12, 42, 69 }, new string[] { "MOCK" }), Times.Once);
+        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(123, new string[] { "MOCK" }), Times.Once);
         _authorizationEventPublisherMock.Verify(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>()), Times.AtLeastOnce);
     }
 
@@ -77,7 +77,7 @@ public class SubscriptionValidatedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountAsync(123, new string[] { "MOCK" }), Times.Never);
-        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(123, new int[] { 12, 42, 69 }, new string[] { "MOCK" }), Times.Never);
+        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(123, new string[] { "MOCK" }), Times.Never);
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class SubscriptionValidatedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountAsync(123, new string[] { "MOCK" }), Times.Never);
-        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(123, new int[] { 12, 42, 69 }, new string[] { "MOCK" }), Times.Never);
+        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(123, new string[] { "MOCK" }), Times.Never);
     }
 
     [Fact]
@@ -111,6 +111,6 @@ public class SubscriptionValidatedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountAsync(123, new string[] { "MOCK" }), Times.Never);
-        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(123, new int[] { 12, 42, 69 }, new string[] { "MOCK" }), Times.Never);
+        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(123, new string[] { "MOCK" }), Times.Never);
     }
 }

@@ -386,7 +386,7 @@ public class AuthorizationRepositoryTests
         var repository = new AuthorizationRepository(ct);
 
         // Act
-        var result = await repository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(account.AccountId, contactIds, productCodes!);
+        var result = await repository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(account.AccountId, productCodes!);
 
         // Assert
         Assert.NotNull(result);
