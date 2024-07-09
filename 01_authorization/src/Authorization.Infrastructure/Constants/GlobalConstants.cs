@@ -21,7 +21,7 @@ namespace Pulse.Authorization.Infrastructure.Constants
         [
             "CLADMI001", "CLUSER001", "CLUSER002", "CLUSER003",
             "CLUSER004", "CLOFF001", "CLINFO001", "COUSER001",
-            "COUSER002", "COOFF003", "COINFO001"
+            "COUSER002", "COOFF003", "COINFO001", "COOFF002"
         ];
 
         public static readonly string[] DefaultSignatoryPermissions =
