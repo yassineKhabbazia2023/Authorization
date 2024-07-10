@@ -96,7 +96,7 @@ public class AuthorizationRepository : IAuthorizationRepository
             };
         });
 
-        var filteredAccountAuthorizations = accountAuthorizationsByProductCode.Where(r => !_authorizationContext.AccountAuthorizationEntity.Any(a => a.AuthorizationId == r.AuthorizationId
+        var filteredAccountAuthorizations = accountAuthorizationsByProductCode.Where(r => !_authorizationContext.AccountAuthorizationEntity.Any(a => a.AuthorizationId == r.Authorization.AuthorizationId
             && a.AccountId == r.AccountId)).ToList();
 
         _authorizationContext.AccountAuthorizationEntity.AddRange(filteredAccountAuthorizations);
@@ -127,7 +127,7 @@ public class AuthorizationRepository : IAuthorizationRepository
             };
         });
 
-        var filteredAccountAuthorizations = accountAuthorizations.Where(r => !_authorizationContext.AccountAuthorizationEntity.Any(a => a.AuthorizationId == r.AuthorizationId
+        var filteredAccountAuthorizations = accountAuthorizations.Where(r => !_authorizationContext.AccountAuthorizationEntity.Any(a => a.AuthorizationId == r.Authorization.AuthorizationId
             && a.AccountId == r.AccountId));
 
         _authorizationContext.AccountAuthorizationEntity.AddRange(filteredAccountAuthorizations);
