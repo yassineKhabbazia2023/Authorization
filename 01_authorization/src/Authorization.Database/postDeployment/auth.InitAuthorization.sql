@@ -9,7 +9,7 @@ INSERT INTO auth.[Authorization] (
 	('Delete User', '', 'CLUSER003', 'Supprimer un utilisateur', 'CLTGESTION', '1', 'Partial',NULL, 'customer'),
 	('Update right', '', 'CLUSER004', 'Gérer les droits utilisateurs', 'CLTGESTION', '1', 'Partial', NULL, 'customer'),
 	('View offers', '', 'CLOFF001', 'Accéder aux offres souscrites', 'CLTGESTION', '1', 'Partial', NULL, 'customer'),
-	('View informations', '', 'CLINFO001', 'Accéder aux informations d''entreprise', 'CLTGESTION', '1', 'Partial', NULL, 'customer'),
+	('View informations', '', 'CLINFO001', 'Accéder aux informations d''entreprise', 'CLTGESTION', '1', 'Both', NULL, 'customer'),
 	('View Invoice', '', 'CLINVO001', 'Accéder aux factures Pulse', 'CLTGESTION', '0', 'Partial', NULL, 'customer'),
 	('View GED GS', '', 'CLGED0001', 'Accéder à la GED Gestion sociale', 'CLTGEDGS', '1', 'Partial', 'gedgs', 'customer'),
 	('View GED ESC', '', 'CLGED0002', 'Accéder à la GED Comptable', 'CLTGEDESC', '1', 'Partial', 'gedesc', 'customer'),
