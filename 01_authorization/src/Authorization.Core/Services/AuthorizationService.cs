@@ -1,0 +1,88 @@
+﻿// <copyright file="AuthorizationService.cs" company="Pulse">
+// Copyright (c) Pulse. All rights reserved.
+// </copyright>
+
+using Kpmg.ExceptionMiddleware.AdvancedException;
+using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using Pulse.Authorization.Core.Exceptions;
+using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Infrastructure.Constants;
+using Pulse.Authorization.Infrastructure.Enum;
+using Pulse.Authorization.Infrastructure.Interfaces;
+
+namespace Pulse.Authorization.Core.Services;
+
+public class AuthorizationService : IAuthorizationService
+{
+    private readonly IAuthorizationRepository _authorizationRepository;
+    private readonly IContactRepository _contactRepository;
+
+    public AuthorizationService(IAuthorizationRepository authorizationRepository, IContactRepository contactRepository)
+    {
+        _authorizationRepository = authorizationRepository;
+        _contactRepository = contactRepository;
+    }
+
+    public async Task<List<string>> GetContactAuthorizationAsync(int contactId, int? accountId)
+    {
+        var contact = await _contactRepository.GetContactByIdAsync(contactId);
+
+        if (contact == null)
+        {
+            throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
+        }
+
+        if (contact!.Type == ContactType.Customer.ToString())
+        {
+            return await GetCustomerAuthorizationAsync(contactId, accountId);
+        }
+
+        if (contact!.Type == ContactType.Collaborator.ToString())
+        {
+            return await GetCollabAuthorizationAsync(contactId, accountId);
+        }
+
+        throw new NotFoundException(Errors.NotFoundContactTypeCode, string.Format(Errors.NotFoundContactTypeMessage, contactId, contact!.Type));
+    }
+
+    private async Task<List<string>> GetCustomerAuthorizationAsync(int contactId, int? accountId)
+    {
+        return accountId == null
+            ? await _authorizationRepository.GetContactAuthorizationAsync(contactId)
+            : await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, accountId.Value, false);
+    }
+
+    private async Task<List<string>> GetCollabAuthorizationAsync(int contactId, int? accountId)
+    {
+        accountId = accountId ?? GlobalConstants.DefaultAccountIdCollab;
+        var viewGlobal = IsViewGlobal(accountId.Value);
+
+        var collabAuthorization = await _authorizationRepository.GetContactAccountAuthorizationsAsync(contactId, GlobalConstants.DefaultAccountIdCollab, viewGlobal);
+
+        var accountAuthorization = await _authorizationRepository.GetAccountAuthorizationAsync(accountId.Value);
+
+        return collabAuthorization.Intersect(accountAuthorization).ToList();
+    }
+
+    public async Task DeleteContactAuthorizationAsync(int contactId, int? accountId)
+    {
+        var contact = await _contactRepository.GetContactByIdAsync(contactId);
+
+        if (contact == null)
+        {
+            throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, contactId));
+        }
+
+        if (contact.Type == ContactType.Customer.ToString() && accountId == null)
+        {
+            throw new BadRequestException(Errors.NotFoundAccountCode, Errors.NotFoundAccountMessage);
+        }
+
+        await _authorizationRepository.DeleteContactAuthorizationAsync(contactId, accountId ?? -1);
+    }
+
+    private static bool IsViewGlobal(int accountId)
+    {
+        return accountId == GlobalConstants.DefaultAccountIdCollab;
+    }
+}

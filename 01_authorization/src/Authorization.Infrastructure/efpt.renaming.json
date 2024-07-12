@@ -1,0 +1,60 @@
+﻿[
+   {
+      "SchemaName": "account",
+      "Tables": [
+         {
+            "Columns": [ ],
+            "Name": "Account",
+            "NewName": "AccountEntity"
+         },
+         {
+            "Columns": [ ],
+            "Name": "Role",
+            "NewName": "RoleEntity"
+         }
+      ],
+      "UseSchemaName": false
+   },
+   {
+      "SchemaName": "actor",
+      "Tables": [
+         {
+            "Columns": [ ],
+            "Name": "Contact",
+            "NewName": "ContactEntity"
+         }
+      ],
+      "UseSchemaName": false
+   },
+   {
+      "SchemaName": "auth",
+      "Tables": [
+         {
+            "Columns": [ ],
+            "Name": "AccountAuthorization",
+            "NewName": "AccountAuthorizationEntity"
+         },
+         {
+            "Columns": [ ],
+            "Name": "Authorization",
+            "NewName": "AuthorizationEntity"
+         },
+         {
+            "Columns": [ ],
+            "Name": "ContactAuthorization",
+            "NewName": "ContactAuthorizationEntity"
+         },
+         {
+            "Columns": [ ],
+            "Name": "Persona",
+            "NewName": "PersonaEntity"
+         },
+         {
+            "Columns": [ ],
+            "Name": "PersonaAuthorization",
+            "NewName": "PersonaAuthorizationEntity"
+         }
+      ],
+      "UseSchemaName": false
+   }
+]

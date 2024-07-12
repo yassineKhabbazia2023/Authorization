@@ -1,0 +1,74 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "AuthorizationContext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": "Context",
+   "OutputPath": "Entities",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Pulse.Authorization.Infrastructure",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[account].[Account]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[account].[Role]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[actor].[Contact]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[AccountAuthorization]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[Authorization]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[ContactAuthorization]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[Persona]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[auth].[PersonaAuthorization]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": "..\\Authorization.Database\\Authorization.Database.sqlproj",
+   "UncountableWords": null,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDateOnlyTimeOnly": false,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false
+}

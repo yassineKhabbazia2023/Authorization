@@ -1,0 +1,22 @@
+﻿// <copyright file="Action.cs" company="Pulse">
+// Copyright (c) Pulse. All rights reserved.
+// </copyright>
+
+using System.Text.Json.Serialization;
+
+namespace Pulse.Authorization.Core.Models
+{
+    public class Action
+    {
+        public int? ActionId { get; set; }
+
+        [JsonIgnore]
+        public string? Name { get; set; }
+
+        public string? Code { get; set; }
+
+        public string? Label { get; set; }
+
+        public bool Enabled { get; set; } = false;
+    }
+}

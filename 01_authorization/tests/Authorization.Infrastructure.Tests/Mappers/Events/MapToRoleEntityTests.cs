@@ -1,0 +1,89 @@
+﻿// <copyright file="MapToRoleEntityTests.cs" company="Pulse">
+// Copyright (c) Pulse. All rights reserved.
+// </copyright>
+
+using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
+using Pulse.Back.Events.IntegrationEvents.EventsData;
+
+namespace Pulse.Authorization.Infrastructure.Tests.Mappers.Events
+{
+    public class MapToRoleEntityTests
+    {
+        [Fact]
+        public void ToRoleEntity_RoleCreatedEvent_MapsCorrectly()
+        {
+            // Arrange
+            var source = new RoleCreatedEventData
+            {
+                ContactId = 100,
+                AccountId = 1,
+                IsDelegation = true,
+                IsFavorite = true,
+                IsSignatory = true
+            };
+
+            // Act
+            var result = source.ToRoleEntity();
+
+            // Assert
+            Assert.Equal(source.ContactId, result.ContactId);
+            Assert.Equal(source.AccountId, result.AccountId);
+            Assert.Equal(source.IsSignatory, result.IsSignatory);
+            Assert.Equal(source.IsDelegation, result.IsDelegation);
+            Assert.Equal(source.IsFavorite, result.IsFavorite);
+        }
+
+        [Fact]
+        public void ToRoleEntity_RoleUpdatedEvent_MapsCorrectly()
+        {
+            // Arrange
+            var source = new RoleUpdatedEventData
+            {
+                ContactId = 100,
+                AccountId = 1,
+                IsSignatory = true
+            };
+
+            // Act
+            var result = source.ToRoleEntity();
+
+            // Assert
+            Assert.Equal(source.ContactId, result.ContactId);
+            Assert.Equal(source.AccountId, result.AccountId);
+            Assert.Equal(source.IsSignatory, result.IsSignatory);
+        }
+
+        [Fact]
+        public void ToRoleEntity_MapsToDestinationCorrectly()
+        {
+            // Arrange
+            var updatedRole = new RoleEntity
+            {
+                ContactId = 100,
+                AccountId = 1,
+                IsSignatory = false,
+                IsDelegation = true,
+                IsFavorite = true
+            };
+
+            var existingRole = new RoleEntity
+            {
+                ContactId = 100,
+                AccountId = 1,
+                IsSignatory = true,
+                IsDelegation = true,
+                IsFavorite = true
+            };
+
+            // Act
+            updatedRole.ToRoleEntity(existingRole);
+
+            // Assert
+            Assert.Equal(updatedRole.ContactId, existingRole.ContactId);
+            Assert.Equal(updatedRole.AccountId, existingRole.AccountId);
+            Assert.Equal(updatedRole.IsSignatory, existingRole.IsSignatory);
+            Assert.NotNull(existingRole.LastUpdateDate);
+        }
+    }
+}
