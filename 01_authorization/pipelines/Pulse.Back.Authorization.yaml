@@ -5,7 +5,7 @@ pool:
 
 parameters:
 - name: devIndex
-  displayName: 'Index de l''environnement cible (seulement pour un déploiement sur env de DEV)'
+  displayName: 'Index de l''environnement cible (seulement pour un dï¿½ploiement sur env de DEV)'
   type: number
   default: 0
 - name: deployType
@@ -16,7 +16,7 @@ parameters:
 resources:
   repositories:
     - repository: Pulse
-      name: 'Constellation/ConstellationDevOps'
+      name: 'Pulse.ConstellationDevOps'
       type: git
       ref: 'refs/heads/Release/v2.0'
 
