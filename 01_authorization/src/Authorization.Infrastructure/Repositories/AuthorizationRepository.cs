@@ -2,7 +2,6 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System;
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
@@ -27,6 +26,7 @@ public class AuthorizationRepository : IAuthorizationRepository
     {
         var contactAuthorization = _authorizationContext
                     .ContactAuthorizationEntity
+                    .AsNoTracking()
                     .Include(x => x.Authorization)
                     .Include(x => x.Contact)
                     .Where(x => x.Authorization.Type == x.Contact.Type)
@@ -47,6 +47,7 @@ public class AuthorizationRepository : IAuthorizationRepository
     {
         var contactAuthorizationCodes = _authorizationContext
                     .AccountAuthorizationEntity
+                    .AsNoTracking()
                     .Include(x => x.Authorization)
                     .Where(x => x.AccountId == accountId)
                     .Select(x => x.Authorization.Code)
@@ -60,6 +61,7 @@ public class AuthorizationRepository : IAuthorizationRepository
     {
         var contactAuthorizationCodes = _authorizationContext
                     .ContactAuthorizationEntity
+                    .AsNoTracking()
                     .Include(x => x.Authorization)
                     .Where(x => x.ContactId == contactId && x.Authorization.View != AuthorizationView.Partial.ToString())
                     .Include(x => x.Contact)
@@ -81,14 +83,14 @@ public class AuthorizationRepository : IAuthorizationRepository
         await _authorizationContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<Entities.AccountAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes)
+    public async Task<IEnumerable<AccountAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes)
     {
         var authorizations = await _authorizationContext.AuthorizationEntity.ToListAsync();
         var authorizationsByProductCode = authorizations.Where(a => a.ProductCode != null && productCodes.Contains(a.ProductCode));
         var accountAuthorizationsByProductCode = authorizationsByProductCode
             .DistinctBy(a => a.AuthorizationId).Select(a =>
         {
-            return new Entities.AccountAuthorizationEntity
+            return new AccountAuthorizationEntity
             {
                 AccountId = accountId,
                 Authorization = a,
@@ -107,7 +109,7 @@ public class AuthorizationRepository : IAuthorizationRepository
         return filteredAccountAuthorizations;
     }
 
-    private async Task<IEnumerable<Entities.AccountAuthorizationEntity>> AddMirrorAuthorizationsOnAccountAsync(int accountId, IEnumerable<AuthorizationEntity> authorizations)
+    private async Task<IEnumerable<AccountAuthorizationEntity>> AddMirrorAuthorizationsOnAccountAsync(int accountId, IEnumerable<AuthorizationEntity> authorizations)
     {
         var mirrorCodes = authorizations.Where(a => GlobalConstants.CustomerToMirrorCodes.ContainsKey(a.Code))
             .Select(a =>
@@ -119,7 +121,7 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         var accountAuthorizations = authorizationCodes.Select(a =>
         {
-            return new Entities.AccountAuthorizationEntity
+            return new AccountAuthorizationEntity
             {
                 AccountId = accountId,
                 Authorization = a,
@@ -137,7 +139,7 @@ public class AuthorizationRepository : IAuthorizationRepository
         return filteredAccountAuthorizations;
     }
 
-    public async Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<string> productCodes)
+    public async Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<string> productCodes)
     {
         var authorizations = await _authorizationContext.AuthorizationEntity.ToListAsync();
         var roles = (await _authorizationContext.RoleEntity.AsNoTracking()
@@ -147,12 +149,12 @@ public class AuthorizationRepository : IAuthorizationRepository
                && r.IsSignatory.HasValue && r.IsSignatory.Value).ToListAsync())
                .DistinctBy(r => r.ContactId);
 
-        var toReturn = new List<Entities.ContactAuthorizationEntity>();
+        var toReturn = new List<ContactAuthorizationEntity>();
         foreach (var role in roles)
         {
             var range = authorizations.Where(a => a.ProductCode != null && productCodes.Contains(a.ProductCode)).DistinctBy(a => a.AuthorizationId).Select(a =>
             {
-                return new Entities.ContactAuthorizationEntity
+                return new ContactAuthorizationEntity
                 {
                     AccountId = accountId,
                     Authorization = a,
@@ -179,7 +181,7 @@ public class AuthorizationRepository : IAuthorizationRepository
         _authorizationContext.AccountAuthorizationEntity.AddRange(authorizations.Where(a => !a.AccountAuthorizationEntity.Any(ac => ac.AuthorizationId == a.AuthorizationId && ac.AccountId == accountId))
             .Select(a =>
             {
-                return new Entities.AccountAuthorizationEntity
+                return new AccountAuthorizationEntity
                 {
                     AccountId = accountId,
                     AuthorizationId = a.AuthorizationId,
@@ -201,7 +203,7 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         _authorizationContext.ContactAuthorizationEntity.AddRange(filtered.Select(a =>
             {
-                return new Entities.ContactAuthorizationEntity
+                return new ContactAuthorizationEntity
                 {
                     ContactId = contactId,
                     AccountId = accountId,

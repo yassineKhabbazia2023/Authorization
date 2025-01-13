@@ -15,5 +15,7 @@ namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
         Task RemoveAccountAsync(int accountId);
 
         Task RemoveAccountAuthorizationsAsync(int accountId);
+
+        Task<bool> DoesAccountExistAsync(int accountId);
     }
 }

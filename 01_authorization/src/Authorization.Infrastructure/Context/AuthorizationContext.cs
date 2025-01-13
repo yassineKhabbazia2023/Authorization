@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using Microsoft.Azure.Amqp.Transaction;
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Entities;
 

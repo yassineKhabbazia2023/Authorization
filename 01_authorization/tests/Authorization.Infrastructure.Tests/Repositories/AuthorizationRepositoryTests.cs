@@ -2,7 +2,6 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Collections.Generic;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -36,34 +35,80 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var authorizations = _fixture.Build<AuthorizationEntity>()
-                                .With(x => x.Type, "Customer")
-                                .Without(x => x.ContactAuthorizationEntity)
-                                .Without(x => x.AccountAuthorizationEntity)
-                                .Without(a => a.AuthorizationId)
-                                .CreateMany(3);
-            var contactAuthorizationAccountEntity = authorizations.Select(x =>
+            var authorizations = new List<AuthorizationEntity>()
             {
-                return _fixture.Build<ContactAuthorizationEntity>()
-                            .Without(a => a.Authorization)
-                            .With(a => a.ContactId, 123)
-                            .With(a => a.AccountId, 456)
-                            .With(a => a.AuthorizationId, x.AuthorizationId)
-                            .Without(a => a.Contact)
-                            .Without(a => a.Account)
-                            .Create();
+                new()
+                {
+                    AuthorizationId = 4,
+                    Name = "name4",
+                    Description = string.Empty,
+                    Code = "code4",
+                    Label = "label4",
+                    Type = "Customer",
+                    View = "Global"
+                },
+                new()
+                {
+                    AuthorizationId = 5,
+                    Name = "name5",
+                    Description = string.Empty,
+                    Code = "code5",
+                    Label = "label5",
+                    Type = "Customer",
+                    View = "Global"
+                },
+                new()
+                {
+                    AuthorizationId = 6,
+                    Name = "name6",
+                    Description = string.Empty,
+                    Code = "code6",
+                    Label = "label6",
+                    Type = "Customer",
+                    View = "Global"
+                }
+            };
+            context.AuthorizationEntity.AddRange(authorizations);
+            await context.SaveChangesAsync();
+
+            var contactAuthorizationAccountEntity = new List<ContactAuthorizationEntity>
+            {
+                new()
+                {
+                    ContactId = 1,
+                    AccountId = 1,
+                    AuthorizationId = 6,
+                    CreationDate = DateTime.UtcNow,
+                },
+                new()
+                {
+                    ContactId = 1,
+                    AccountId = 1,
+                    AuthorizationId = 5,
+                    CreationDate = DateTime.UtcNow,
+                },
+                new()
+                {
+                    ContactId = 1,
+                    AccountId = 1,
+                    AuthorizationId = 4,
+                    CreationDate = DateTime.UtcNow,
+                }
+            };
+            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
+            await context.SaveChangesAsync();
+
+            context.ContactEntity.Add(new ContactEntity
+            {
+                ContactId = 1,
+                FirstName = "toto",
+                LastName = "titi",
+                Email = "tititoto@email.fr",
+                PersonaName = "Client",
+                Type = "Customer"
             });
 
-            context.AuthorizationEntity.AddRange(authorizations);
-            context.ContactEntity.Add(_fixture.Build<ContactEntity>()
-                                .With(x => x.Type, "Customer")
-                                .With(x => x.ContactId, 123)
-                                .Without(x => x.ContactAuthorizationEntity)
-                                .Create());
-
             var expectedAuthorization = authorizations.Select(c => c.Code);
-
-            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
             var repository = new AuthorizationRepository(context);
@@ -87,7 +132,7 @@ public class AuthorizationRepositoryTests
         {
             var accountAuthorizationAccountEntity = _fixture.Build<AccountAuthorizationEntity>()
                             .With(a => a.Authorization)
-                            .With(a => a.AccountId, 456)
+                            .With(a => a.AccountId, 457)
                             .Without(a => a.Account)
                             .CreateMany(3);
 
@@ -116,8 +161,8 @@ public class AuthorizationRepositoryTests
         {
             var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
                             .With(a => a.Authorization)
-                            .With(a => a.ContactId, 123)
-                            .With(a => a.AccountId, 456)
+                            .With(a => a.ContactId, 124)
+                            .With(a => a.AccountId, 458)
                             .Without(a => a.Contact)
                             .CreateMany(3);
 
@@ -144,8 +189,8 @@ public class AuthorizationRepositoryTests
         {
             var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
                             .With(a => a.Authorization)
-                            .With(a => a.ContactId, 123)
-                            .With(a => a.AccountId, 456)
+                            .With(a => a.ContactId, 125)
+                            .With(a => a.AccountId, 459)
                             .Without(a => a.Contact)
                             .CreateMany(3);
             var permissionGlobal = contactAuthorizationAccountEntity.Where(x => x.Authorization.View == AuthorizationView.Global.ToString()).ToList();
@@ -173,8 +218,8 @@ public class AuthorizationRepositoryTests
         {
             var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
                             .With(a => a.Authorization)
-                            .With(a => a.ContactId, 123)
-                            .With(a => a.AccountId, 456)
+                            .With(a => a.ContactId, 126)
+                            .With(a => a.AccountId, 460)
                             .Without(a => a.Contact)
                             .CreateMany(3);
             var permissionPartial = contactAuthorizationAccountEntity.Where(x => x.Authorization.View == AuthorizationView.Partial.ToString()).ToList();
@@ -200,35 +245,76 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var authorizations = _fixture.Build<AuthorizationEntity>()
-                                .With(x => x.Type, "Customer")
-                                .Without(x => x.ContactAuthorizationEntity)
-                                .Without(x => x.AccountAuthorizationEntity)
-                                .Without(a => a.AuthorizationId)
-                                .CreateMany(3);
-
-            var contactAuthorizationAccountEntity = authorizations.Select(x =>
+            var authorizations = new List<AuthorizationEntity>()
             {
-                return _fixture.Build<ContactAuthorizationEntity>()
-                            .Without(a => a.Authorization)
-                            .With(a => a.ContactId, 123)
-                            .With(a => a.AccountId, -1)
-                            .With(a => a.AuthorizationId, x.AuthorizationId)
-                            .Without(a => a.Contact)
-                            .Without(a => a.Account)
-                            .Create();
-            });
-
+                new()
+                {
+                    AuthorizationId = 7,
+                    Name = "name7",
+                    Description = string.Empty,
+                    Code = "code7",
+                    Label = "label7",
+                    Type = "Customer",
+                    View = "Global"
+                },
+                new()
+                {
+                    AuthorizationId = 8,
+                    Name = "name8",
+                    Description = string.Empty,
+                    Code = "code8",
+                    Label = "label8",
+                    Type = "Customer",
+                    View = "Global"
+                },
+                new()
+                {
+                    AuthorizationId = 9,
+                    Name = "name9",
+                    Description = string.Empty,
+                    Code = "code9",
+                    Label = "label9",
+                    Type = "Customer",
+                    View = "Global"
+                }
+            };
             context.AuthorizationEntity.AddRange(authorizations);
+            await context.SaveChangesAsync();
+
+            var contactAuthorizationAccountEntity = new List<ContactAuthorizationEntity>
+            {
+                new()
+                {
+                    ContactId = 3,
+                    AccountId = 3,
+                    AuthorizationId = 9,
+                    CreationDate = DateTime.UtcNow,
+                },
+                new()
+                {
+                    ContactId = 3,
+                    AccountId = 3,
+                    AuthorizationId = 8,
+                    CreationDate = DateTime.UtcNow,
+                },
+                new()
+                {
+                    ContactId = 3,
+                    AccountId = 3,
+                    AuthorizationId = 7,
+                    CreationDate = DateTime.UtcNow,
+                }
+            };
+            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
+            await context.SaveChangesAsync();
+
             context.ContactEntity.Add(_fixture.Build<ContactEntity>()
                                 .With(x => x.Type, "Customer")
-                                .With(x => x.ContactId, 123)
+                                .With(x => x.ContactId, 3)
                                 .Without(x => x.ContactAuthorizationEntity)
                                 .Create());
 
             var expectedAuthorization = authorizations.Select(c => c.Code);
-
-            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
             var repository = new AuthorizationRepository(context);
@@ -250,40 +336,83 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
-            var authorizations = _fixture.Build<AuthorizationEntity>()
-                                .With(x => x.Type, "Customer")
-                                .Without(x => x.ContactAuthorizationEntity)
-                                .Without(x => x.AccountAuthorizationEntity)
-                                .Without(a => a.AuthorizationId)
-                                .CreateMany(3);
-            var contactAuthorizationAccountEntity = authorizations.Select(x =>
+            var authorizations = new List<AuthorizationEntity>()
             {
-                return _fixture.Build<ContactAuthorizationEntity>()
-                            .Without(a => a.Authorization)
-                            .With(a => a.ContactId, 123)
-                            .With(a => a.AccountId, -1)
-                            .With(a => a.AuthorizationId, x.AuthorizationId)
-                            .Without(a => a.Contact)
-                            .Without(a => a.Account)
-                            .Create();
-            });
-
+                new()
+                {
+                    AuthorizationId = 1,
+                    Name = "name1",
+                    Description = string.Empty,
+                    Code = "code1",
+                    Label = "label1",
+                    Type = "Customer",
+                    View = "Global"
+                },
+                new()
+                {
+                    AuthorizationId = 2,
+                    Name = "name2",
+                    Description = string.Empty,
+                    Code = "code2",
+                    Label = "label2",
+                    Type = "Customer",
+                    View = "Global"
+                },
+                new()
+                {
+                    AuthorizationId = 3,
+                    Name = "name3",
+                    Description = string.Empty,
+                    Code = "code3",
+                    Label = "label3",
+                    Type = "Customer",
+                    View = "Global"
+                }
+            };
             context.AuthorizationEntity.AddRange(authorizations);
+            await context.SaveChangesAsync();
+
+            var contactAuthorizationAccountEntity = new List<ContactAuthorizationEntity>
+            {
+                new()
+                {
+                    ContactId = 128,
+                    AccountId = -1,
+                    AuthorizationId = 1,
+                    CreationDate = DateTime.UtcNow,
+                },
+                new()
+                {
+                    ContactId = 128,
+                    AccountId = -1,
+                    AuthorizationId = 2,
+                    CreationDate = DateTime.UtcNow,
+                },
+                new()
+                {
+                    ContactId = 128,
+                    AccountId = -1,
+                    AuthorizationId = 3,
+                    CreationDate = DateTime.UtcNow,
+                }
+            };
+            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
+            await context.SaveChangesAsync();
+
             context.ContactEntity.Add(_fixture.Build<ContactEntity>()
                                 .With(x => x.Type, "Customer")
-                                .With(x => x.ContactId, 123)
+                                .With(x => x.ContactId, 128)
                                 .Without(x => x.ContactAuthorizationEntity)
                                 .Create());
-            context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
             var repository = new AuthorizationRepository(context);
 
-            var permissionBefore = await repository.GetContactAccountAuthorizationsAsync(123, -1, null);
+            var permissionBefore = await repository.GetContactAccountAuthorizationsAsync(128, -1, null);
             Assert.NotEmpty(permissionBefore);
 
-            await repository.DeleteContactAuthorizationAsync(123, -1);
-            var permissionAfter = await repository.GetContactAccountAuthorizationsAsync(123, -1, null);
+            await repository.DeleteContactAuthorizationAsync(128, -1);
+            var permissionAfter = await repository.GetContactAccountAuthorizationsAsync(128, -1, null);
             Assert.Empty(permissionAfter);
         }
     }
@@ -360,7 +489,7 @@ public class AuthorizationRepositoryTests
                             .With(a => a.ProductCode)
                             .CreateMany(3);
         var account = _fixture.Build<AccountEntity>()
-            .With(a => a.AccountId, 42)
+            .With(a => a.AccountId, 43)
             .Create();
 
         var contacts = _fixture.Build<ContactEntity>()
@@ -418,7 +547,7 @@ public class AuthorizationRepositoryTests
         });
 
         var account = _fixture.Build<AccountEntity>()
-            .With(a => a.AccountId, 42)
+            .With(a => a.AccountId, 44)
             .Create();
 
         using var context = new AuthorizationContext(options);
@@ -461,5 +590,54 @@ public class AuthorizationRepositoryTests
         // Assert
         Assert.NotNull(result);
         result.Should().BeEquivalentTo(GlobalConstants.DefaultSignatoryPermissions);
+    }
+
+    [Fact]
+    public async Task CreateDefaultAuthorizationsOnAccountAsync_ShouldCreateOnlyTheDefaultAuthorizations_ThatDoesNotAlreadyExistsForThisAccount()
+    {
+        var defaultPermissions = GlobalConstants.DefaultSignatoryPermissions;
+
+        ContactEntity contactEntity = _fixture.Build<ContactEntity>()
+            .Without(x => x.ContactAuthorizationEntity)
+            .Without(x => x.RoleEntity)
+            .With(x => x.ContactId, 1)
+            .Create();
+
+        List<AuthorizationEntity> defaultAuthorizationEntities = defaultPermissions
+            .Select(x => _fixture.Build<AuthorizationEntity>()
+            .With(a => a.Code, x)
+            .Without(x => x.AccountAuthorizationEntity)
+        .Without(x => x.ContactAuthorizationEntity)
+        .Create())
+            .ToList();
+
+        List<ContactAuthorizationEntity> defaultAuthorizationsThatAlreadyExistedForContact = defaultAuthorizationEntities.Take(2).ToList()
+            .Select(x => _fixture.Build<ContactAuthorizationEntity>()
+            .Without(a => a.Authorization)
+            .Without(a => a.Contact)
+            .With(a => a.ContactId, 1)
+            .With(a => a.AuthorizationId, x.AuthorizationId)
+            .With(x => x.AccountId, 1).Create())
+            .ToList();
+
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        using (var context = new AuthorizationContext(options))
+        {
+            context.ContactEntity.Add(contactEntity);
+            context.AuthorizationEntity.AddRange(defaultAuthorizationEntities);
+            context.SaveChanges();
+            context.ContactAuthorizationEntity.AddRange(defaultAuthorizationsThatAlreadyExistedForContact);
+            context.SaveChanges();
+
+            var repos = new AuthorizationRepository(context);
+
+            await repos.CreateDefaultAuthorizationsOnAccountAsync(1);
+
+            context.AccountAuthorizationEntity.Where(x => x.AccountId == 1).ToList().Count().Should().Be(defaultPermissions.Count());
+        }
+
     }
 }

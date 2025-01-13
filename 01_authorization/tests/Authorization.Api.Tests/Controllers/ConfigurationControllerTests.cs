@@ -65,4 +65,43 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
         // Assert
         Assert.Equal(200, (result as OkResult)?.StatusCode);
     }
+
+    [Fact]
+    public async Task GetAccountConfigurationAsync_Should_Returns_ConfigurationList()
+    {
+        // Arrange
+        var accountId = 6000;
+        var expected = _fixture.Create<List<Configuration>>();
+
+        var configurationService = new Mock<IConfigurationService>(MockBehavior.Strict);
+        configurationService.Setup(service => service.GetAccountConfigurationAsync(accountId, null, true))
+            .ReturnsAsync(expected);
+        var configurationController = new ConfigurationController(configurationService.Object);
+
+        // Act
+        var result = await configurationController.GetAccountConfigurationAsync(accountId);
+
+        // Assert
+        Assert.Equal(expected, (result.Result as OkObjectResult)?.Value);
+        Assert.Equal(200, (result.Result as OkObjectResult)?.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateOrUpdateAccountAuthorizationAsync_Should_Returns_Ok()
+    {
+        // Arrange
+        var accountId = 6000;
+        var listCode = _fixture.Create<List<string>>();
+
+        var configurationService = new Mock<IConfigurationService>(MockBehavior.Strict);
+        configurationService.Setup(service => service.CreateOrUpdateAccountAuthorizationAsync(accountId, listCode, null, true))
+            .Returns(Task.CompletedTask);
+        var configurationController = new ConfigurationController(configurationService.Object);
+
+        // Act
+        var result = await configurationController.CreateOrUpdateAccountAuthorizationAsync(accountId, listCode);
+
+        // Assert
+        Assert.Equal(200, (result as OkResult)?.StatusCode);
+    }
 }

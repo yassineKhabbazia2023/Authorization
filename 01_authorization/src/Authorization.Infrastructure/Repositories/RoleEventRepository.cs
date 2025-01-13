@@ -2,10 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Polly;
-using Polly.Retry;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Extensions;
@@ -43,7 +40,7 @@ namespace Pulse.Authorization.Infrastructure.Repositories
 
         public async Task DeleteRoleAsync(int contactId, int accountId)
         {
-            var roleToDelete = _authorizationContext.RoleEntity.Where(x => x.ContactId == contactId && x.AccountId == accountId).FirstOrDefault();
+            var roleToDelete = _authorizationContext.RoleEntity.FirstOrDefault(x => x.ContactId == contactId && x.AccountId == accountId);
             if (roleToDelete != null)
             {
                 _authorizationContext.Remove(roleToDelete);
@@ -58,6 +55,23 @@ namespace Pulse.Authorization.Infrastructure.Repositories
             roleEntity.ToRoleEntity(existingRole);
 
             await _authorizationContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> DoesRoleExistAsync(RoleEntity roleEntity)
+        {
+            var account = await _authorizationContext.AccountEntity.FirstOrDefaultAsync(a => roleEntity.AccountId == a.AccountId);
+            var contact = await _authorizationContext.ContactEntity.FirstOrDefaultAsync(c => roleEntity.ContactId == c.ContactId);
+
+            if (account == null || contact == null)
+            {
+                throw new InvalidOperationException("L'entité ou le contact n'existe pas");
+            }
+
+            var role = await _authorizationContext.RoleEntity
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.AccountId == roleEntity.AccountId && r.ContactId == roleEntity.ContactId);
+
+            return role != null;
         }
     }
 }

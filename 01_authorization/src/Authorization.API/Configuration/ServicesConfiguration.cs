@@ -90,6 +90,7 @@ namespace Pulse.Authorization.API.Configuration
             services.AddScoped<IAuthorizationRepository, AuthorizationRepository>();
             services.AddScoped<IContactRepository, ContactRepository>();
             services.AddScoped<IConfigurationService, ConfigurationService>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IConfigurationRepository, ConfigurationRepository>();
         }
 

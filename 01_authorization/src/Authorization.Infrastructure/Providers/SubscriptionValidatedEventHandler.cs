@@ -54,7 +54,7 @@ namespace Pulse.Authorization.Infrastructure.Providers
                 var contactId = group.Key;
                 var codes = group.Select(g => g.Authorization.Code);
 
-                await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(contactId, subEvent.Data.AccountId, codes!);
+                await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(contactId, subEvent.Data.AccountId, codes!, true);
             }
         }
     }

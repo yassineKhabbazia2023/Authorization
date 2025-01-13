@@ -45,4 +45,29 @@ public class ContactRepositoryTests
             Assert.Equivalent(expectedContact.ContactId, receivedContact.ContactId);
         }
     }
+
+    [Fact]
+    public async Task GetContacts_Will_Return_Only_DifferentThan_Removed()
+    {
+        using (var context = new AuthorizationContext(_options))
+        {
+            var ContactEntitiesWithStatusRemoved = _fixture.CreateMany<ContactEntity>(5).ToList();
+
+            var ContactEntitiesWithStatusInvited = _fixture.CreateMany<ContactEntity>(10).ToList();
+
+            ContactEntitiesWithStatusInvited.ForEach((e) => e.Status = "Invited");
+            ContactEntitiesWithStatusRemoved.ForEach((e) => e.Status = "Removed");
+
+            context.ContactEntity.AddRange(ContactEntitiesWithStatusInvited);
+            context.ContactEntity.AddRange(ContactEntitiesWithStatusInvited);
+            await context.SaveChangesAsync();
+
+
+            var repository = new ContactRepository(context);
+
+            var contactsViewed = context.ContactEntity.ToList();
+
+            Assert.Equivalent(true, contactsViewed.All(x => x.Status == "Invited"));
+        }
+    }
 }

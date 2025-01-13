@@ -1,4 +1,4 @@
-﻿// <copyright file="AccountEventPublisherTests.cs" company="Pulse">
+﻿// <copyright file="AuthorizationEventPublisherTests.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
@@ -42,8 +42,10 @@ namespace Pulse.Account.Infrastructure.Tests.Providers
             publisherMock.Verify(p => p.PublishAsync(It.IsAny<BaseEvent<BaseAuthorizationEventData>>(), null!, null), Times.Once);
         }
 
-        [Fact]
-        public async Task PublishAuthorizationUpdateddEventAsync_Should_PublishEvent()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task PublishAuthorizationUpdateddEventAsync_Should_PublishEvent(bool fromOffer)
         {
             // Arrange
             var publisherMock = new Mock<IEventPublisher>();
@@ -55,10 +57,11 @@ namespace Pulse.Account.Infrastructure.Tests.Providers
                 @event.Data.Codes.Should().BeEquivalentTo(codes);
                 @event.Data.AccountId.Should().Be(1);
                 @event.Data.ContactId.Should().Be(1);
+                @event.Data.FromOfferActivation.Should().Be(fromOffer);
             }).Returns(Task.CompletedTask).Verifiable();
 
             // Act
-            await authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(1, 1, codes);
+            await authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(1, 1, codes, fromOffer);
 
             // Assert
             publisherMock.Verify(p => p.PublishAsync(It.IsAny<BaseEvent<BaseAuthorizationEventData>>(), null!, null), Times.Once);

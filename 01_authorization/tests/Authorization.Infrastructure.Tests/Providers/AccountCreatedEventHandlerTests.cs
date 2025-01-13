@@ -16,9 +16,10 @@ public class AccountCreatedEventHandlerTests
 {
     private readonly Mock<IAuthorizationEventPublisher> _authorizationEventPublisherMock = new(MockBehavior.Strict);
     private readonly Mock<IAuthorizationRepository> _authorizationRepositoryMock = new(MockBehavior.Strict);
+
     public AccountCreatedEventHandlerTests()
     {
-        _authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int?>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>()))
+        _authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int?>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>(), false))
             .Returns(Task.CompletedTask)
             .Verifiable();
         _authorizationRepositoryMock.Setup(a => a.CreateDefaultAuthorizationsOnAccountAsync(It.IsAny<int>()))

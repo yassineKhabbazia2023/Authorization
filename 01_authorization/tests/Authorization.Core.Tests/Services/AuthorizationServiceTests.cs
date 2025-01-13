@@ -3,6 +3,7 @@
 // </copyright>
 
 using AutoFixture;
+using Kpmg.ExceptionMiddleware.AdvancedException;
 using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Moq;
 using Pulse.Authorization.Core.Exceptions;
@@ -10,7 +11,9 @@ using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Services;
 using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
+using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Core.Tests.Services;
 
@@ -129,5 +132,35 @@ public class AuthorizationServiceTests
 
         // Assert
         authorizationRepository.Verify(c => c.DeleteContactAuthorizationAsync(123, -1));
+    }
+
+    [Fact]
+    public async Task DeletePermission_WithNullContact_ShouldThrowNotFoundException()
+    {
+        var contactRepository = new Mock<IContactRepository>();
+
+        var service = new AuthorizationService(null!, contactRepository.Object);
+
+        var result = await Assert.ThrowsAsync<NotFoundException>(async () => await service.DeleteContactAuthorizationAsync(1, It.IsAny<int>()));
+
+        Assert.Equal(Errors.NotFoundContactCode, result.Code);
+        Assert.Equal(string.Format(Errors.NotFoundContactMessage, 1), result.Message);
+    }
+
+    [Fact]
+    public async Task DeletePermission_WithCustomerContactAndNullAccountId_ShouldThrowBadRequestException()
+    {
+        var contactRepository = new Mock<IContactRepository>();
+        var contactMocked = _fixture.Build<ContactEntity>()
+            .With(c => c.Type, ContactType.Customer.ToString())
+            .Create();
+        contactRepository.Setup(c => c.GetContactByIdAsync(It.IsAny<int>())).ReturnsAsync(contactMocked);
+
+        var service = new AuthorizationService(null!, contactRepository.Object);
+
+        var result = await Assert.ThrowsAsync<BadRequestException>(async () => await service.DeleteContactAuthorizationAsync(It.IsAny<int>(), null!));
+
+        Assert.Equal(Errors.NotFoundAccountCode, result.Code);
+        Assert.Equal(Errors.NotFoundAccountMessage, result.Message);
     }
 }

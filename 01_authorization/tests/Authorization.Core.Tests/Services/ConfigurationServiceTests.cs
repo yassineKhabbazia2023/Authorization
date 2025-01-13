@@ -16,6 +16,7 @@ using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
+using System;
 
 namespace Pulse.Authorization.Core.Tests.Services;
 
@@ -23,6 +24,7 @@ public class ConfigurationServiceTests
 {
     private readonly Mock<IConfigurationRepository> _configurationRepository;
     private readonly Mock<IContactRepository> _contactRepository;
+    private readonly Mock<IAccountRepository> _accountRepositoryMock = new(MockBehavior.Strict);
     private readonly Fixture _fixture;
 
     public ConfigurationServiceTests()
@@ -42,8 +44,8 @@ public class ConfigurationServiceTests
         int accountId = 1;
         _contactRepository.Setup(x => x.GetContactByIdAsync(contactId)).ReturnsAsync((ContactEntity)null!);
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<NotFoundException>(async () =>
@@ -68,8 +70,8 @@ public class ConfigurationServiceTests
 
         _contactRepository.Setup(x => x.GetContactByIdAsync(contactId)).ReturnsAsync(contactMocked);
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<NotFoundException>(async () =>
@@ -109,19 +111,18 @@ public class ConfigurationServiceTests
             new () { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
         };
 
-        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+        _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory))
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
             .ReturnsAsync(accountAuthorizations);
 
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId))
             .ReturnsAsync(contactAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act
         var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
@@ -172,19 +173,18 @@ public class ConfigurationServiceTests
             new () { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
         };
 
-        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+        _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory))
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
             .ReturnsAsync(accountAuthorizations);
 
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId))
             .ReturnsAsync(contactAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act
         var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
@@ -222,19 +222,18 @@ public class ConfigurationServiceTests
             new () { Category = "ColGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
         };
 
-        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+        _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CollabCategory))
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CollabCategory, true))
             .ReturnsAsync(accountAuthorizations);
 
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId))
             .ReturnsAsync(contactAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act
         var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
@@ -275,19 +274,18 @@ public class ConfigurationServiceTests
             new() { Category = "ColGESTION", AuthorizationId = 17, Code = "COGES001", Name = "View delegation" },
         };
 
-        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+        _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CollabCategory))
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CollabCategory, true))
             .ReturnsAsync(defaultAccountAuthorizations);
 
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId))
             .ReturnsAsync(contactAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act
         var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
@@ -360,19 +358,18 @@ public class ConfigurationServiceTests
 
         var contactAuthorizations = new List<AuthorizationEntity>();
 
-        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+        _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory))
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
             .ReturnsAsync(accountAuthorizations);
 
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId))
             .ReturnsAsync(contactAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act
         var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
@@ -416,19 +413,18 @@ public class ConfigurationServiceTests
             new () { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
         };
 
-        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+        _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory))
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
             .ReturnsAsync(accountAuthorizations);
 
-        _configurationRepository.Setup(repository => repository.GetContactConfigurationAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId))
             .ReturnsAsync(contactAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act
         var eligibleContactAuthorizations = await configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
@@ -455,9 +451,7 @@ public class ConfigurationServiceTests
 
         var codes = new List<string>() { "DDD", "EEE" };
 
-        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+        _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
         _configurationRepository.Setup(repository => repository.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, codes))
@@ -465,10 +459,10 @@ public class ConfigurationServiceTests
             .Verifiable();
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>()))
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false))
             .Returns(Task.CompletedTask)
             .Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object, authorizationEventPublisherMock.Object);
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act
         await configurationService.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, codes);
@@ -491,13 +485,12 @@ public class ConfigurationServiceTests
 
         var codes = new List<string>() { "DDD", "EEE" };
 
-        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
+        _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act
         var act = async () => await configurationService.CreateOrUpdateContactAccountAuthorizationAsync(contactId, null, codes);
@@ -512,7 +505,20 @@ public class ConfigurationServiceTests
     public async Task CreateOrUpdateContactAccountAuthorizationAsync_GivenWrongContactId_ShouldThrow_NotFoundException()
     {
         // Arrange
-        var accountId = 123;
+        var configurationService = new ConfigurationService(null!, _contactRepository.Object, null!, null!);
+
+        // Act
+        var act = async () => await configurationService.CreateOrUpdateContactAccountAuthorizationAsync(999, It.IsAny<int>(), It.IsAny<IEnumerable<string>>());
+
+        // Assert
+        var exception = await Assert.ThrowsAsync<NotFoundException>(act);
+        Assert.Equal(Errors.NotFoundContactCode, exception.Code);
+        Assert.Equal(string.Format(Errors.NotFoundContactMessage, 999), exception.Message);
+    }
+
+    [Fact]
+    public async Task CreateOrUpdateContactAccountAuthorizationAsync_WithFailOnRepository_ShouldThrowBadRequestException()
+    {
         var contactId = 456;
 
         var contactMocked = _fixture.Build<ContactEntity>()
@@ -522,20 +528,224 @@ public class ConfigurationServiceTests
 
         var codes = new List<string>() { "DDD", "EEE" };
 
-        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
-        contactRepository.Setup(repository => repository.GetContactByIdAsync(999))
-            .ThrowsAsync(new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, 999)));
+        _contactRepository.Setup(repository => repository.GetContactByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(contactMocked);
+
+        var exception = new ArgumentException();
+        exception.Data["Code"] = codes[0];
+        _configurationRepository.Setup(repo => repo.CreateOrUpdateContactAccountAuthorizationAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>()))
+            .ThrowsAsync(exception);
+
+        var service = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, null!, null!);
+
+        var result = await Assert.ThrowsAsync<BadRequestException>(async () =>
+            await service.CreateOrUpdateContactAccountAuthorizationAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>()));
+
+        Assert.NotNull(result);
+        Assert.Equal(Errors.NotConfigurablePermissionCode, result.Code);
+        Assert.Equal(string.Format(Errors.NotConfigurablePermissionMessage, exception.Data["Code"]), result.Message);
+    }
+
+    [Fact]
+    public async Task GetAccountConfigurationAsync_WhenAccountNotFound_ThrowsNotFoundException()
+    {
+        // Arrange
+        int accountId = 1;
+        _accountRepositoryMock.Setup(x => x.GetAccountByIdAsync(accountId)).ReturnsAsync((AccountEntity)null!);
+        var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(null, It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<NotFoundException>(async () =>
+        {
+            await configurationService.GetAccountConfigurationAsync(accountId, null);
+        });
+
+        exception.Message.Should().Be("L'identifiant de l'entité saisi est erroné");
+    }
+
+    [Fact]
+    public async Task GetAccountConfigurationAsync_ShouldRetunConfigurationsWithEnablesActions()
+    {
+        // Arrange
+        var accountId = 123;
+
+        var accountMocked = _fixture.Build<AccountEntity>()
+                                    .With(c => c.AccountId, accountId)
+                                    .Create();
+
+        var authorizations = new List<AuthorizationEntity>
+        {
+            new() { Category = "CltGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin", },
+            new() { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User", },
+            new() { Category = "CltGESTION", AuthorizationId = 3, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 4, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 5, Code = "CLUSER003", Name = "Delete User", },
+            new() { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers", },
+            new() { Category = "CltGESTION", AuthorizationId = 7, Code = "CLINFO001", Name = "View informations", },
+        };
+
+        var accountAuthorizations = new List<AuthorizationEntity>
+        {
+            new () { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers" },
+            new () { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
+        };
+
+        _accountRepositoryMock.Setup(a => a.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync(accountMocked);
+
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
+            .ReturnsAsync(accountAuthorizations);
+
+        _configurationRepository.Setup(r => r.GetAvailableAuthorizationsAsync(It.IsAny<string>(), true)).ReturnsAsync(authorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
-        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<string>>())).Verifiable();
-        var configurationService = new ConfigurationService(_configurationRepository.Object, contactRepository.Object, authorizationEventPublisherMock.Object);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(null, It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
 
         // Act
-        var act = async () => await configurationService.CreateOrUpdateContactAccountAuthorizationAsync(999, accountId, codes);
+        var eligibleContactAuthorizations = await configurationService.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory, true);
 
         // Assert
-        var exception = await Assert.ThrowsAsync<NotFoundException>(act);
-        Assert.Equal(Errors.NotFoundContactCode, exception.Code);
-        Assert.Equal(string.Format(Errors.NotFoundContactMessage, 999), exception.Message);
+        var permissions = eligibleContactAuthorizations.FirstOrDefault();
+        permissions!.Category.Should().Be("CltGESTION");
+        permissions.Actions.Count().Should().Be(7);
+        foreach (var action in permissions.Actions)
+        {
+            if (action.ActionId == 2 || action.ActionId == 6)
+            {
+                action.Enabled.Should().BeTrue();
+            }
+            else
+            {
+                action.Enabled.Should().BeFalse();
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GetAccountConfigurationAsync_WhenAccountAuthorizationIsEmpty_ShouldReturnConfigurationsWithEnabledAFalseForAllActions()
+    {
+        // Arrange
+        var accountId = 123;
+
+        var accountMocked = _fixture.Build<AccountEntity>()
+                                    .With(c => c.AccountId, accountId)
+                                    .Create();
+
+        var authorizations = new List<AuthorizationEntity>
+        {
+            new() { Category = "CltGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin", },
+            new() { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User", },
+            new() { Category = "CltGESTION", AuthorizationId = 3, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 4, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 5, Code = "CLUSER003", Name = "Delete User", },
+            new() { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers", },
+            new() { Category = "CltGESTION", AuthorizationId = 7, Code = "CLINFO001", Name = "View informations", },
+        };
+
+        _accountRepositoryMock.Setup(a => a.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync(accountMocked);
+
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
+            .ReturnsAsync([]);
+
+        _configurationRepository.Setup(repository => repository.GetAvailableAuthorizationsAsync(null, true))
+            .ReturnsAsync(authorizations);
+
+        var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(null, It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
+
+        // Act
+        var eligibleAccountConfiguration = await configurationService.GetAccountConfigurationAsync(accountId, null);
+
+        // Assert
+        var permissions = eligibleAccountConfiguration.FirstOrDefault();
+        permissions!.Category.Should().Be("CltGESTION");
+        permissions.Actions.Count().Should().Be(7);
+        foreach (var action in permissions.Actions)
+        {
+            action.Enabled.Should().BeFalse();
+        }
+    }
+
+    [Fact]
+    public async Task GetAccountConfigurationAsync_WhenAccountAuthorizationIsNotEmptyAndMatching_ShouldReturnConfigurationsWithEnabledATrueForMatchingActions()
+    {
+        // Arrange
+        var accountId = 123;
+        var accountMocked = _fixture.Build<AccountEntity>()
+                                    .With(c => c.AccountId, accountId)
+                                    .Create();
+        var authorizations = new List<AuthorizationEntity>
+        {
+            new() { Category = "CltGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin", },
+            new() { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User", },
+            new() { Category = "CltGESTION", AuthorizationId = 3, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 4, Code = "CLUSER002", Name = "Add User", },
+            new() { Category = "CltGESTION", AuthorizationId = 5, Code = "CLUSER003", Name = "Delete User", },
+            new() { Category = "CltGESTION", AuthorizationId = 6, Code = "CLOFF001", Name = "View offers", },
+            new() { Category = "CltGESTION", AuthorizationId = 7, Code = "CLINFO001", Name = "View informations", },
+        };
+
+        var accountAuthorizations = new List<AuthorizationEntity>
+        {
+            new () { Category = "CltGESTION", AuthorizationId = 1, Code = "CLADMI001", Name = "Super Admin" },
+            new () { Category = "CltGESTION", AuthorizationId = 2, Code = "CLUSER001", Name = "View User" },
+        };
+
+        _accountRepositoryMock.Setup(a => a.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync(accountMocked);
+
+        _configurationRepository.Setup(repository => repository.GetAvailableAuthorizationsAsync(GlobalConstants.CustomerCategory, true))
+            .ReturnsAsync(authorizations);
+
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
+            .ReturnsAsync(accountAuthorizations);
+
+        var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(null, It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
+
+        // Act
+        var eligibleAccountAuthorizations = await configurationService.GetAccountConfigurationAsync(accountId, GlobalConstants.CustomerCategory, true);
+
+        // Assert
+        var permissions = eligibleAccountAuthorizations.FirstOrDefault();
+        permissions!.Category.Should().Be("CltGESTION");
+        permissions.Actions.Count().Should().Be(7);
+        permissions.Actions.First(a => a.ActionId == 1).Enabled.Should().BeTrue();
+        permissions.Actions.First(a => a.ActionId == 2).Enabled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreateOrUpdateAccountAuthorizationAsync_ShouldReturnTaskCompleted()
+    {
+        // Arrange
+        var accountId = 123;
+
+        var accountMocked = _fixture.Build<AccountEntity>()
+                                    .With(c => c.AccountId, accountId)
+                                    .Create();
+
+        var codes = new List<string>() { "DDD", "EEE" };
+
+        _accountRepositoryMock.Setup(a => a.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync(accountMocked);
+
+        _configurationRepository.Setup(repository => repository.CreateOrUpdateAccountAuthorizationAsync(accountId, codes, GlobalConstants.CustomerCategory, true))
+            .Returns(Task.CompletedTask)
+            .Verifiable();
+
+        var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
+        authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(null, It.IsAny<int>(), It.IsAny<List<string>>(), false))
+            .Returns(Task.CompletedTask)
+            .Verifiable();
+        var configurationService = new ConfigurationService(_configurationRepository.Object, _contactRepository.Object, authorizationEventPublisherMock.Object, _accountRepositoryMock.Object);
+
+        // Act
+        await configurationService.CreateOrUpdateAccountAuthorizationAsync(accountId, codes, GlobalConstants.CustomerCategory, true);
+
+        // Assert
+        _configurationRepository.Verify();
+        authorizationEventPublisherMock.Verify();
     }
 }

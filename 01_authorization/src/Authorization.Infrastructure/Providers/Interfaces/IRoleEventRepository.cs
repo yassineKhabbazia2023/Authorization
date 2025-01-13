@@ -15,5 +15,7 @@ namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
         Task DeleteRoleAsync(int contactId, int accountId);
 
         Task DeleteContactRolesAsync(int contactId);
+
+        Task<bool> DoesRoleExistAsync(RoleEntity roleEntity);
     }
 }

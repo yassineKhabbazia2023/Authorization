@@ -30,19 +30,27 @@ namespace Pulse.Authorization.Infrastructure.Repositories
 
         public async Task RemoveContactAsync(int contactId)
         {
-            var existingContact = await _authorizationContext.ContactEntity.SingleAsync(x => x.ContactId == contactId);
-            existingContact.Status = ContactStatus.Removed.ToString();
-            existingContact.LastUpdateDate = DateTime.UtcNow;
+            var existingContact = await _authorizationContext.ContactEntity.FirstOrDefaultAsync(x => x.ContactId == contactId);
 
-            await _authorizationContext.SaveChangesAsync();
+            if (existingContact != null)
+            {
+                existingContact.Status = ContactStatus.Removed.ToString();
+                existingContact.LastUpdateDate = DateTime.UtcNow;
+
+                await _authorizationContext.SaveChangesAsync();
+            }
         }
 
         public async Task UpdateContactAsync(ContactEntity contactEntity)
         {
-            var existingContact = await _authorizationContext.ContactEntity.SingleAsync(x => x.ContactId == contactEntity.ContactId);
-            contactEntity.ToContactEntity(existingContact);
+            var existingContact = await _authorizationContext.ContactEntity.FirstOrDefaultAsync(x => x.ContactId == contactEntity.ContactId);
 
-            await _authorizationContext.SaveChangesAsync();
+            if (existingContact != null)
+            {
+                contactEntity.ToContactEntity(existingContact);
+
+                await _authorizationContext.SaveChangesAsync();
+            }
         }
 
         public async Task RemoveContactAuthorizationsAsync(int contactId)
@@ -53,6 +61,13 @@ namespace Pulse.Authorization.Infrastructure.Repositories
             });
 
             await _authorizationContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> DoesContactExistAsync(int contactId)
+        {
+            var contact = await _authorizationContext.ContactEntity.FirstOrDefaultAsync(c => c.ContactId == contactId);
+
+            return contact != null;
         }
     }
 }

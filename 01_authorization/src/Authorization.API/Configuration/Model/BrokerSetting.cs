@@ -2,16 +2,18 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-namespace Pulse.Authorization.API.Configuration.Models
+using System.Diagnostics.CodeAnalysis;
+
+namespace Pulse.Authorization.API.Configuration.Models;
+
+[ExcludeFromCodeCoverage]
+public class BrokerSetting
 {
-    public class BrokerSetting
-    {
-        public string? ServiceBusNamespace { get; set; }
+    public string? ServiceBusNamespace { get; set; }
 
-        public string? ManagedIdentityClientId { get; set; }
+    public string? ManagedIdentityClientId { get; set; }
 
-        public string? PushTopicName { get; set; }
+    public string? PushTopicName { get; set; }
 
-        public List<PullTopic>? PullTopics { get; set; }
-    }
+    public List<PullTopic>? PullTopics { get; set; }
 }

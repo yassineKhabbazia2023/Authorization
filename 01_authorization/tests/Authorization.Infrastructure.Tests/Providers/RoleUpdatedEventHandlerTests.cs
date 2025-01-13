@@ -68,6 +68,22 @@ namespace Pulse.Authorization.Infrastructure.Tests.Providers
         }
 
         [Fact]
+        public async Task HandleAsync_WithMessageInvalidAccountId_ShouldNotUpdateRole()
+        {
+            // Arrange
+            var loggerMock = new Mock<ILogger<RoleUpdatedEventHandler>>();
+            var repositoryMock = new Mock<IRoleEventRepository>();
+            var handler = new RoleUpdatedEventHandler(loggerMock.Object, repositoryMock.Object);
+            var message = "{\"EventType\":\"RoleUpdatedEvent\",\"Data\":{\"ContactId\":123,\"AccountId\":-2}}";
+
+            // Act
+            await handler.HandleAsync(message);
+
+            // Assert
+            repositoryMock.Verify(repo => repo.UpdateRoleAsync(It.IsAny<RoleEntity>()), Times.Never);
+        }
+
+        [Fact]
         public async Task HandleAsync_WithMessageMissingData_ShouldNotUpdateRole()
         {
             // Arrange

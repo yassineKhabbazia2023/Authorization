@@ -10,53 +10,60 @@ using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Back.Events.Abstractions;
 using Pulse.Back.Events.IntegrationEvents;
 
-namespace Pulse.Authorization.Infrastructure.Providers
+namespace Pulse.Authorization.Infrastructure.Providers;
+
+public class AccountCreatedEventHandler : IEventHandler
 {
-    public class AccountCreatedEventHandler : IEventHandler
+    private readonly ILogger<AccountCreatedEventHandler> _logger;
+    private readonly IAccountEventRepository _accountEventRepository;
+
+    private readonly IAuthorizationRepository _authorizationRepository;
+
+    private readonly IAuthorizationEventPublisher _authorizationEventPublisher;
+
+    public AccountCreatedEventHandler(
+    ILogger<AccountCreatedEventHandler> logger,
+    IAccountEventRepository accountEventRepository,
+    IAuthorizationRepository authorizationRepository,
+    IAuthorizationEventPublisher authorizationEventPublisher)
     {
-        private readonly ILogger<AccountCreatedEventHandler> _logger;
-        private readonly IAccountEventRepository _accountEventRepository;
+        _logger = logger;
+        _accountEventRepository = accountEventRepository;
+        _authorizationRepository = authorizationRepository;
+        _authorizationEventPublisher = authorizationEventPublisher;
+    }
 
-        private readonly IAuthorizationRepository _authorizationRepository;
-
-        private readonly IAuthorizationEventPublisher _authorizationEventPublisher;
-
-        public AccountCreatedEventHandler(
-       ILogger<AccountCreatedEventHandler> logger,
-       IAccountEventRepository accountEventRepository,
-       IAuthorizationRepository authorizationRepository,
-       IAuthorizationEventPublisher authorizationEventPublisher)
+    public async Task HandleAsync(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
         {
-            _logger = logger;
-            _accountEventRepository = accountEventRepository;
-            _authorizationRepository = authorizationRepository;
-            _authorizationEventPublisher = authorizationEventPublisher;
+            return;
         }
 
-        public async Task HandleAsync(string message)
+        var accountEvent = JsonConvert.DeserializeObject<AccountCreatedEvent>(message);
+        _logger.LogInformation("Consommation de l'event type: {EventType}, accountId: {AccountId}",
+        accountEvent?.EventType,
+        accountEvent?.Data?.AccountId);
+
+        if (accountEvent?.Data == null || accountEvent?.Data?.AccountId <= 0)
         {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return;
-            }
+            return;
+        }
 
-            var accountEvent = JsonConvert.DeserializeObject<AccountCreatedEvent>(message);
-            _logger.LogInformation("Consommation de l'event type: {EventType}, accountId: {AccountId}",
-            accountEvent?.EventType,
-            accountEvent?.Data?.AccountId);
+        var accountEntity = accountEvent!.Data.ToAccountEntity();
 
-            if (accountEvent?.Data == null || accountEvent?.Data?.AccountId <= 0)
-            {
-                return;
-            }
-
-            var accountEntity = accountEvent!.Data.ToAccountEntity();
+        if (!await _accountEventRepository.DoesAccountExistAsync(accountEntity.AccountId))
+        {
             await _accountEventRepository.CreateAccountAsync(accountEntity);
             _logger.LogInformation("L'entité avec l'identifiant: {AccountId} vient d'être ajoutée.", accountEvent!.Data.AccountId);
 
             var createdAuthorizations = await _authorizationRepository.CreateDefaultAuthorizationsOnAccountAsync(accountEntity.AccountId);
 
             await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(null!, accountEntity.AccountId, createdAuthorizations);
+        }
+        else
+        {
+            _logger.LogInformation("L'entité avec l'identifiant: {AccountId} existe déjà.", accountEvent!.Data.AccountId);
         }
     }
 }

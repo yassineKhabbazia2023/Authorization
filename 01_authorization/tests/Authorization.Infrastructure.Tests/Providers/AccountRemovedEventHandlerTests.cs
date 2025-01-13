@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
-using Xunit;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Providers;
 

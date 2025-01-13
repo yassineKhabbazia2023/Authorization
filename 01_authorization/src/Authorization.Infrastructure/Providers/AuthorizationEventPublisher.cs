@@ -31,13 +31,14 @@ public class AuthorizationEventPublisher : IAuthorizationEventPublisher
         await _eventPublisher.PublishAsync(@event);
     }
 
-    public async Task PublishAuthorizationUpdatedEventAsync(int? contactId, int accountId, IEnumerable<string> codes)
+    public async Task PublishAuthorizationUpdatedEventAsync(int? contactId, int accountId, IEnumerable<string> codes, bool fromOffer = false)
     {
         var eventData = new BaseAuthorizationEventData
         {
             AccountId = accountId,
             ContactId = contactId,
             Codes = codes.ToList(),
+            FromOfferActivation = fromOffer,
         };
 
         var @event = new AuthorizationUpdatedEvent(eventData);

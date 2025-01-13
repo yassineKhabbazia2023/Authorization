@@ -20,12 +20,14 @@ public class ConfigurationService : IConfigurationService
     private readonly IConfigurationRepository _configurationRepository;
     private readonly IContactRepository _contactRepository;
     private readonly IAuthorizationEventPublisher _authorizationEventPublisher;
+    private readonly IAccountRepository _accountRepository;
 
-    public ConfigurationService(IConfigurationRepository configurationRepository, IContactRepository contactRepository, IAuthorizationEventPublisher authorizationEventPublisher)
+    public ConfigurationService(IConfigurationRepository configurationRepository, IContactRepository contactRepository, IAuthorizationEventPublisher authorizationEventPublisher, IAccountRepository accountRepository)
     {
         _configurationRepository = configurationRepository;
         _contactRepository = contactRepository;
         _authorizationEventPublisher = authorizationEventPublisher;
+        _accountRepository = accountRepository;
     }
 
     public async Task<IEnumerable<Configuration>> GetContactAccountConfigurationAsync(int contactId, int? accountId)
@@ -42,13 +44,13 @@ public class ConfigurationService : IConfigurationService
 
         if (contact!.Type == ContactType.Customer.ToString())
         {
-            configurations = (await _configurationRepository.GetAccountConfigurationAsync(accountId!.Value, GlobalConstants.CustomerCategory)).MapAuthorizationToConfiguration();
-            contactAuthorization = (await _configurationRepository.GetContactConfigurationAsync(contactId, accountId!.Value)).MapAuthorizationToConfiguration();
+            configurations = (await _configurationRepository.GetAccountAuthorizationsAsync(accountId!.Value, GlobalConstants.CustomerCategory)).MapAuthorizationToConfiguration();
+            contactAuthorization = (await _configurationRepository.GetContactAuthorizationsAsync(contactId, accountId!.Value)).MapAuthorizationToConfiguration();
         }
         else if (contact!.Type == ContactType.Collaborator.ToString())
         {
-            configurations = (await _configurationRepository.GetAccountConfigurationAsync(GlobalConstants.DefaultAccountIdCollab, GlobalConstants.CollabCategory)).MapAuthorizationToConfiguration();
-            contactAuthorization = (await _configurationRepository.GetContactConfigurationAsync(contactId, GlobalConstants.DefaultAccountIdCollab)).MapAuthorizationToConfiguration();
+            configurations = (await _configurationRepository.GetAccountAuthorizationsAsync(GlobalConstants.DefaultAccountIdCollab, GlobalConstants.CollabCategory)).MapAuthorizationToConfiguration();
+            contactAuthorization = (await _configurationRepository.GetContactAuthorizationsAsync(contactId, GlobalConstants.DefaultAccountIdCollab)).MapAuthorizationToConfiguration();
         }
         else
         {
@@ -101,5 +103,47 @@ public class ConfigurationService : IConfigurationService
         }
 
         await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(contactId, accountId.Value, codes.ToList());
+    }
+
+    public async Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId, string? type, bool configurable = true)
+    {
+        var account = await _accountRepository.GetAccountByIdAsync(accountId);
+        if(account == null)
+        {
+            throw new NotFoundException(Errors.NotFoundAccountCode, Errors.NotFoundAccountMessage);
+        }
+
+        var accAuths =  (await _configurationRepository.GetAccountAuthorizationsAsync(accountId, type, configurable)).MapAuthorizationToConfiguration();
+        var availableAuths = (await _configurationRepository.GetAvailableAuthorizationsAsync(type, configurable)).MapAuthorizationToConfiguration();
+        return EnableAccountConfiguration(availableAuths, accAuths);
+    }
+
+    private static List<Configuration> EnableAccountConfiguration(IEnumerable<Configuration> configurations, IEnumerable<Configuration> accountConfiguration)
+    {
+        var tConfigurations = new List<Configuration>();
+        foreach (var conf in configurations.ToArray())
+        {
+            var actions = conf.Actions.ToArray();
+            foreach (var action in actions)
+            {
+                var cat = accountConfiguration.FirstOrDefault(a => a.Category == conf.Category);
+                if (cat != null)
+                {
+                    action.Enabled = cat.Actions.Any(ac => ac.ActionId == action.ActionId);
+                }
+            }
+
+            conf.Actions = actions;
+            tConfigurations.Add(conf);
+        }
+
+        return tConfigurations;
+    }
+
+    public async Task CreateOrUpdateAccountAuthorizationAsync(int accountId, IEnumerable<string> codes, string? type, bool configurable = true)
+    {
+        await _configurationRepository.CreateOrUpdateAccountAuthorizationAsync(accountId, codes, type, configurable);
+        await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(null, accountId, codes.ToList());
+
     }
 }

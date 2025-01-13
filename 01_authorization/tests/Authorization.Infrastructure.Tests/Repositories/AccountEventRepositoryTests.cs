@@ -2,7 +2,10 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Fare;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using Org.BouncyCastle.Utilities;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
@@ -129,5 +132,49 @@ public class AccountEventRepositoryTests
         // Assert
         Assert.Null(foundAutContact);
         Assert.Null(foundAutAccount);
+    }
+
+    [Fact]
+    public async Task DoesAccountExistAsync_WithExistingAccount_ShouldReturnTrue()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        using var context = new AuthorizationContext(options);
+
+        var account = new AccountEntity
+        {
+            AccountId = 1,
+            AccountGlobalUniqueId = Guid.NewGuid(),
+            AccountNumber = "number",
+            LegalName = "legal",
+            Status = "Invited",
+            CreationDate = DateTime.UtcNow,
+        };
+        context.AccountEntity.Add(account);
+        await context.SaveChangesAsync();
+
+        var repository = new AccountEventRepository(context);
+
+        var result = await repository.DoesAccountExistAsync(1);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task DoesAccountExistAsync_WithNoExistingAccount_ShouldReturnFalse()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        using var context = new AuthorizationContext(options);
+
+        var repository = new AccountEventRepository(context);
+
+        var result = await repository.DoesAccountExistAsync(1);
+
+        Assert.False(result);
     }
 }

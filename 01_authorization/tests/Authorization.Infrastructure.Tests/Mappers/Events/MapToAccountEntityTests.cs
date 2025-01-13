@@ -15,7 +15,7 @@ public class MapToAccountEntityTests
         var source = new AccountStateEventData
         {
             AccountId = 1,
-            AccountGlobalUniqueId = new Guid(),
+            AccountGlobalUniqueId = Guid.NewGuid(),
             AccountNumber = "1234CBD",
             LegalName = "illegal",
             Status = "ToDeploy"
@@ -29,6 +29,14 @@ public class MapToAccountEntityTests
         Assert.Equal(source.AccountNumber, result.AccountNumber);
         Assert.Equal(source.LegalName, result.LegalName);
         Assert.Equal(source.Status, result.Status);
+    }
+
+    [Fact]
+    public void ToAccountEntity_WithNullSource_ShouldReturnNull()
+    {
+        var result = MapToAccountEntity.ToAccountEntity(null!);
+
+        Assert.Null(result);
     }
 
     [Fact]
@@ -54,5 +62,22 @@ public class MapToAccountEntityTests
         Assert.Equal(accountCible.LegalName, existingAccount.LegalName);
         Assert.Equal(accountCible.Status, existingAccount.Status);
         Assert.NotNull(existingAccount.LastUpdateDate);
+    }
+
+    [Fact]
+    public void ToAccountEntity_WithSource_ShouldReturn()
+    {
+        var account = new AccountEntity
+        {
+            AccountNumber = "AUN029UD",
+            LegalName = "pas legal",
+            Status = "ToDeploy"
+        };
+
+        account.ToAccountEntity(null!);
+
+        Assert.Equal("AUN029UD", account.AccountNumber);
+        Assert.Equal("pas legal", account.LegalName);
+        Assert.Equal("ToDeploy", account.Status);
     }
 }

@@ -22,22 +22,16 @@ public class ConfigurationRepository : IConfigurationRepository
         _authorizationContext.HandleEFCoreFailure();
     }
 
-    public async Task<IEnumerable<AuthorizationEntity>> GetAccountConfigurationAsync(int accountId, string type)
+    public async Task<IEnumerable<AuthorizationEntity>> GetAccountAuthorizationsAsync(int accountId, string? type = null, bool configurable = true)
     {
-        var authorization = await _authorizationContext
-                     .AccountAuthorizationEntity
-                     .Include(x => x.Authorization)
-                     .Where(x => x.AccountId == accountId
-                            && x.Authorization.Configurable == true
-                            && x.Authorization.Type == type)
+        var authorization = (await GetAccountConfigurationAsync(accountId, type, configurable))
                      .Select(x => x.Authorization)
-                     .Distinct()
-                     .ToListAsync();
+                     .Distinct();
 
         return authorization;
     }
 
-    public async Task<IEnumerable<AuthorizationEntity>> GetContactConfigurationAsync(int contactId, int accountId)
+    public async Task<IEnumerable<AuthorizationEntity>> GetContactAuthorizationsAsync(int contactId, int accountId)
     {
         var authorization = await _authorizationContext
                      .ContactAuthorizationEntity
@@ -61,7 +55,7 @@ public class ConfigurationRepository : IConfigurationRepository
                      .ToListAsync();
     }
 
-    public async Task<IEnumerable<ContactAuthorizationEntity>> GetContactAccountConfigurationAsync(int contactId, int accountId)
+    private async Task<IEnumerable<ContactAuthorizationEntity>> GetContactAccountConfigurationAsync(int contactId, int accountId)
     {
         return await _authorizationContext
                      .ContactAuthorizationEntity
@@ -72,9 +66,35 @@ public class ConfigurationRepository : IConfigurationRepository
                      .ToListAsync();
     }
 
-    public async Task DeleteContactAccountAuthorizationAsync(IEnumerable<ContactAuthorizationEntity> contactAuthorizations)
+    private async Task<IEnumerable<AccountAuthorizationEntity>> GetAccountConfigurationAsync(int accountId, string? type = null, bool configurable = true)
+    {
+        var query = _authorizationContext
+                     .AccountAuthorizationEntity
+                     .Include(x => x.Authorization)
+                     .Where(x => x.AccountId == accountId);
+
+        if (configurable)
+        {
+            query = query.Where(x => x.Authorization.Configurable == true);
+        }
+
+        if (!string.IsNullOrWhiteSpace(type))
+        {
+            query = query.Where(x => x.Authorization.Type == type);
+        }
+
+        return await query.Distinct().ToListAsync();
+    }
+
+    private async Task DeleteContactAccountAuthorizationAsync(IEnumerable<ContactAuthorizationEntity> contactAuthorizations)
     {
         _authorizationContext.ContactAuthorizationEntity.RemoveRange(contactAuthorizations);
+        await _authorizationContext.SaveChangesAsync();
+    }
+
+    private async Task DeleteAccountAuthorizationAsync(IEnumerable<AccountAuthorizationEntity> accountAuthorizations)
+    {
+        _authorizationContext.AccountAuthorizationEntity.RemoveRange(accountAuthorizations);
         await _authorizationContext.SaveChangesAsync();
     }
 
@@ -108,5 +128,55 @@ public class ConfigurationRepository : IConfigurationRepository
 
         await _authorizationContext.ContactAuthorizationEntity.AddRangeAsync(newContactAuthorizationEntities);
         await _authorizationContext.SaveChangesAsync();
+    }
+
+    public async Task CreateOrUpdateAccountAuthorizationAsync(int accountId, IEnumerable<string> codes, string? type, bool configurableCheck = true)
+    {
+        var authorizations = await GetAuthorizationEntitiesByCodeAsync(codes);
+
+        if (configurableCheck)
+        {
+            var notConfigurable = authorizations.FirstOrDefault(a => a.Configurable == false);
+            if (notConfigurable != null)
+            {
+                var ex = new ArgumentException("La permission suivante n'est pas configurable: " + notConfigurable.Code);
+                ex.Data["Code"] = notConfigurable.Code;
+                throw ex;
+            }
+        }
+
+        var oldAccountAuthorizationEntities = await GetAccountConfigurationAsync(accountId, type, configurableCheck);
+
+        if (oldAccountAuthorizationEntities?.Count() > 0)
+        {
+            await DeleteAccountAuthorizationAsync(oldAccountAuthorizationEntities);
+        }
+
+        var authorizationIds = authorizations.Select(a => a.AuthorizationId);
+        var newAccountAuthorizations = authorizationIds.Select(auth => new AccountAuthorizationEntity()
+        {
+            AccountId = accountId,
+            AuthorizationId = auth,
+            Enabled = true,
+        });
+
+        await _authorizationContext.AccountAuthorizationEntity.AddRangeAsync(newAccountAuthorizations);
+        await _authorizationContext.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<AuthorizationEntity>> GetAvailableAuthorizationsAsync(string? type, bool configurable = true)
+    {
+        var query = _authorizationContext.AuthorizationEntity.AsQueryable();
+        if (configurable)
+        {
+            query = query.Where(a => a.Configurable == true);
+        }
+
+        if (!string.IsNullOrEmpty(type))
+        {
+            query = query.Where(a => a.Type == type);
+        }
+
+        return await query.ToListAsync();
     }
 }

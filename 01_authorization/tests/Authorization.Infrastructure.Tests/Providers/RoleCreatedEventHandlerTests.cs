@@ -24,7 +24,7 @@ namespace Pulse.Authorization.Infrastructure.Tests.Providers
             .ReturnsAsync(GlobalConstants.DefaultSignatoryPermissions)
                 .Verifiable();
 
-            _authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int?>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>()))
+            _authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int?>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>(), false))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
         }
@@ -44,7 +44,7 @@ namespace Pulse.Authorization.Infrastructure.Tests.Providers
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
 
             var handler = new RoleCreatedEventHandler(loggerMock.Object, repositoryMock.Object, _authorizationEventPublisherMock.Object, _authorizationRepository.Object);
-            var message = "{\"EventType\":\"RoleCreatedEvent\",\"Data\":{\"ContactId\":123,\"AccountId\":\"22\",\"IsSignatory\":1,\"IsFavorite\":1,\"IsDelegation\":1,}}";
+            var message = "{\"EventType\":\"RoleCreatedEvent\",\"Data\":{\"ContactId\":123,\"AccountId\":22,\"IsSignatory\":1,\"IsFavorite\":1,\"IsDelegation\":1,}}";
 
             // Act
             await handler.HandleAsync(message);
@@ -71,13 +71,29 @@ namespace Pulse.Authorization.Infrastructure.Tests.Providers
         }
 
         [Fact]
-        public async Task HandleAsync_WithInvalidMessage_ShouldNotCreateRole()
+        public async Task HandleAsync_WithInvalidAccountId_ShouldNotCreateRole()
         {
             // Arrange
             var loggerMock = new Mock<ILogger<RoleCreatedEventHandler>>();
             var repositoryMock = new Mock<IRoleEventRepository>();
             var handler = new RoleCreatedEventHandler(loggerMock.Object, repositoryMock.Object, _authorizationEventPublisherMock.Object, _authorizationRepository.Object);
-            var message = "{\"EventType\":\"RoleCreatedEvent\",\"Data\":{\"ContactId\":123,\"AccountId\":\"-2\",\"IsSignatory\":1,\"IsFavorite\":1,\"IsDelegation\":1,}}";
+            var message = "{\"EventType\":\"RoleCreatedEvent\",\"Data\":{\"ContactId\":123,\"AccountId\":-2,\"IsSignatory\":1,\"IsFavorite\":1,\"IsDelegation\":1,}}";
+
+            // Act
+            await handler.HandleAsync(message);
+
+            // Assert
+            repositoryMock.Verify(repo => repo.CreateRoleAsync(It.IsAny<RoleEntity>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task HandleAsync_WithInvalidContactId_ShouldNotCreateRole()
+        {
+            // Arrange
+            var loggerMock = new Mock<ILogger<RoleCreatedEventHandler>>();
+            var repositoryMock = new Mock<IRoleEventRepository>();
+            var handler = new RoleCreatedEventHandler(loggerMock.Object, repositoryMock.Object, _authorizationEventPublisherMock.Object, _authorizationRepository.Object);
+            var message = "{\"EventType\":\"RoleCreatedEvent\",\"Data\":{\"ContactId\":0,\"AccountId\":4,\"IsSignatory\":1,\"IsFavorite\":1,\"IsDelegation\":1,}}";
 
             // Act
             await handler.HandleAsync(message);

@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [account].[Account] (
     [AccountId]             INT              NOT NULL,
     [AccountGlobalUniqueId] UNIQUEIDENTIFIER NULL,
-    [AccountNumber]         VARCHAR (20)     NOT NULL,
+    [AccountNumber]         VARCHAR (100)     NOT NULL,
     [LegalName]             NVARCHAR (255)   NOT NULL,
     [Status]                VARCHAR(20)      NULL,
     [CreationDate]          DATETIME2        NOT NULL DEFAULT GETDATE(),

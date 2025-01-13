@@ -27,6 +27,7 @@
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
 		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.2.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Serilog" Version="3.1.1" />
@@ -37,6 +38,7 @@
 		<PackageReference Include="Kpmg.ExceptionMiddleware" Version="1.73.7" />
 		<PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
+		<PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
 		<PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.0" />
 		<PackageReference Include="System.Text.Json" Version="9.0.0" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />

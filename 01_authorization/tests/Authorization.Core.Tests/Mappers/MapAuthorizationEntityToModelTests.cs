@@ -3,9 +3,7 @@
 // </copyright>
 
 using AutoFixture;
-using Newtonsoft.Json;
 using Pulse.Authorization.Core.Mappers;
-using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Infrastructure.Entities;
 
 namespace Pulse.Authorization.Core.Tests.Mappers;
@@ -22,30 +20,65 @@ public class MapAuthorizationEntityToModelTests
     }
 
     [Fact]
-    public void MapToContact_ShouldReturnContact()
+    public void MapAuthorizationToAction_ShouldReturnActionModel()
     {
-        // Arrange
-        var contactEntity = _fixture.Create<ContactEntity>();
+        var authorization = _fixture.Create<AuthorizationEntity>();
 
-        var expectedContact = new Contact
+        var result = authorization.MapAuthorizationToAction();
+
+        Assert.NotNull(result);
+        Assert.Equal(authorization.AuthorizationId, result.ActionId);
+        Assert.Equal(authorization.Name, result.Name);
+        Assert.Equal(authorization.Code, result.Code);
+        Assert.Equal(authorization.Label, result.Label);
+        Assert.False(result.Enabled);
+    }
+
+    [Fact]
+    public void MapAuthorizationToAction_WithNullSource_ShouldReturnActionModel()
+    {
+        var result = MapAuthorizationEntityToModel.MapAuthorizationToAction(null!);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void MapAuthorizationToConfiguration_ShouldReturnConfiguration()
+    {
+        var category = "cat";
+        var authorizations = new List<AuthorizationEntity>
         {
-            ContactId = contactEntity.ContactId,
-            ContactGlobalUniqueId = contactEntity.ContactGlobalUniqueId,
-            CreationDate = contactEntity.CreationDate,
-            Email = contactEntity.Email,
-            FirstName = contactEntity.FirstName,
-            LastName = contactEntity.LastName,
-            Status = contactEntity.Status,
-            Type = contactEntity.Type,
-            PersonaName = contactEntity.PersonaName,
+            new()
+            {
+                AuthorizationId = 1,
+                Name = "name1",
+                Code = "code1",
+                Label = "label1",
+                Category = category
+            },
+            new()
+            {
+                AuthorizationId = 2,
+                Name = "name2",
+                Code = "code2",
+                Label = "label2",
+                Category = category
+            }
         };
 
-        // Act
-        var actionResult = MapContactEntityToModel.MapToContact(contactEntity);
+        var result = authorizations.MapAuthorizationToConfiguration();
 
-        // Assert
-        var actionExpectJson = JsonConvert.SerializeObject(expectedContact);
-        var actionResultJson = JsonConvert.SerializeObject(actionResult);
-        Assert.Equal(actionExpectJson, actionResultJson);
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(category, result.First().Category);
+        Assert.Equal(authorizations.Count, result.First().Actions.Count());
+    }
+
+    [Fact]
+    public void MapAuthorizationToConfiguration_WithNullSource_ShouldReturnEmptyList()
+    {
+        var result = MapAuthorizationEntityToModel.MapAuthorizationToConfiguration(null!);
+
+        Assert.Empty(result);
     }
 }

@@ -7,7 +7,6 @@ using Moq;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
-using Xunit;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Providers;
 
