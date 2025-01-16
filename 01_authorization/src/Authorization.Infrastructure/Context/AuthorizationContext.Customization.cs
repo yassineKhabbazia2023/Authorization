@@ -18,7 +18,7 @@ namespace Pulse.Authorization.Infrastructure.Context
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
         {
             // accepted status are Invited Connected Removed Declared
-            // modelBuilder.Entity<ContactEntity>(builder => builder.HasQueryFilter(contact => contact.Status.ToLower() != "removed"));
+            modelBuilder.Entity<ContactEntity>(builder => builder.HasQueryFilter(contact => contact.IsActive));
         }
     }
 }

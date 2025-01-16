@@ -35,6 +35,7 @@ namespace Pulse.Authorization.Infrastructure.Repositories
             if (existingContact != null)
             {
                 existingContact.Status = ContactStatus.Removed.ToString();
+                existingContact.IsActive = false;
                 existingContact.LastUpdateDate = DateTime.UtcNow;
 
                 await _authorizationContext.SaveChangesAsync();

@@ -26,6 +26,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
                 Status = source.Status,
                 Type = source.Type,
                 PersonaName = source.PersonaName,
+                IsActive = source.IsActive,
             };
         }
 
@@ -43,6 +44,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
             destination.Type = source.Type;
             destination.PersonaName = source.PersonaName;
             destination.LastUpdateDate = DateTime.UtcNow;
+            destination.IsActive = source.IsActive;
         }
     }
 }

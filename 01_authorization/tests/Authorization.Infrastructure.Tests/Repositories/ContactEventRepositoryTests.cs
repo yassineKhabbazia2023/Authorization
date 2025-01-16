@@ -129,6 +129,7 @@ public class ContactEventRepositoryTests
 
         Assert.NotNull(updatedContact);
         Assert.Equal(ContactStatus.Removed.ToString(), updatedContact.Status);
+        Assert.False(updatedContact.IsActive);
         Assert.NotNull(updatedContact.LastUpdateDate);
     }
 

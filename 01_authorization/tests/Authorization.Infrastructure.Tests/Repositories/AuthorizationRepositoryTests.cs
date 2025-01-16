@@ -245,6 +245,13 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
+
+            context.AuthorizationEntity.RemoveRange(context.AuthorizationEntity);
+            context.ContactAuthorizationEntity.RemoveRange(context.ContactAuthorizationEntity);
+            context.ContactEntity.RemoveRange(context.ContactEntity);
+            await context.SaveChangesAsync();
+
+
             var authorizations = new List<AuthorizationEntity>()
             {
                 new()
@@ -402,6 +409,7 @@ public class AuthorizationRepositoryTests
             context.ContactEntity.Add(_fixture.Build<ContactEntity>()
                                 .With(x => x.Type, "Customer")
                                 .With(x => x.ContactId, 128)
+                                .With(x => x.IsActive, true)
                                 .Without(x => x.ContactAuthorizationEntity)
                                 .Create());
             await context.SaveChangesAsync();
