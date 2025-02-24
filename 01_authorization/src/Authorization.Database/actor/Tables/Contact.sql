@@ -13,8 +13,8 @@
     CONSTRAINT [C_TContact_PK] PRIMARY KEY CLUSTERED ([ContactId] ASC)
 )
 GO
-CREATE NONCLUSTERED INDEX [IX_Contact_IsActive]
-    ON  [actor].[Contact]([IsActive] ASC);
+CREATE NONCLUSTERED INDEX [IX_Contact_Type_IsActive]
+    ON  [actor].[Contact]([Type], [IsActive]);
 
 
 
