@@ -11,7 +11,10 @@
     [LastUpdateDate]        DATETIME2        NULL,
     [IsActive]              BIT              NOT NULL DEFAULT(1)
     CONSTRAINT [C_TContact_PK] PRIMARY KEY CLUSTERED ([ContactId] ASC)
-);
+)
+GO
+CREATE NONCLUSTERED INDEX [IX_Contact_IsActive]
+    ON  [actor].[Contact]([IsActive] ASC);
 
 
 

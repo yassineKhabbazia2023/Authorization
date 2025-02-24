@@ -136,6 +136,8 @@ public partial class AuthorizationContext : DbContext
 
             entity.ToTable("Contact", "actor");
 
+            entity.HasIndex(e => e.IsActive, "IX_Contact_IsActive");
+
             entity.Property(e => e.ContactId).ValueGeneratedNever();
             entity.Property(e => e.CreationDate).HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.Email)
