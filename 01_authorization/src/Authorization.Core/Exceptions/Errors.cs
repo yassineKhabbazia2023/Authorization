@@ -2,12 +2,14 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Microsoft.AspNetCore.Http;
+
 namespace Pulse.Authorization.Core.Exceptions
 {
     public static class Errors
     {
         public static readonly string NotFoundAccountCode = "AUT001";
-        public static readonly string NotFoundAccountMessage = "L'identifiant de l'entité saisi est erroné";
+        public static readonly string NotFoundAccountMessage = "L'identifiant de l'entité saisi {0} est introuvable";
 
         public static readonly string NotFoundContactCode = "AUT002";
         public static readonly string NotFoundContactMessage = "Le contact avec l'identifiant {0} est introuvable";
@@ -32,5 +34,11 @@ namespace Pulse.Authorization.Core.Exceptions
 
         public static readonly string NotConfigurablePermissionCode = "AUT009";
         public static readonly string NotConfigurablePermissionMessage = "La permission avec le code suivant: {0} n'est pas configurable.";
+
+        public static readonly string NullArgumentCode = "AUT010";
+        public static readonly string NullArgumentMessage = "Le paramètre {0} est null ou vide";
+
+        public static readonly string PermissionNotConfigurableCode = "AUT011";
+        public static readonly string PermissionNotConfigurableMessage = "La permission suivante n'est pas configurable: {0}";
     }
 }

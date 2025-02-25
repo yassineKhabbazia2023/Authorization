@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.12.0" />
-    <PackageReference Include="Kpmg.ExceptionMiddleware" Version="1.47.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
       <PrivateAssets>all</PrivateAssets>
@@ -31,7 +30,12 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
     <PackageReference Include="Polly" Version="8.4.1" />
     <PackageReference Include="Pulse.Back.Events" Version="1.73.2" />
+    <PackageReference Include="Pulse.ExceptionMiddleware" Version="2.73.24" />
     <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Authorization.Core\Authorization.Core.csproj" />
   </ItemGroup>
 
 </Project>

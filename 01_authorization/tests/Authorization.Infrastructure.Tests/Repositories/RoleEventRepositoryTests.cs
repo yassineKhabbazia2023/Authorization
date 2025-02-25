@@ -2,7 +2,9 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
@@ -238,9 +240,8 @@ public class RoleEventRepositoryTests
         Assert.False(result);
     }
 
-    [Theory]
-    [MemberData(nameof(AccountAndContact))]
-    public async Task DoesRoleExistAsync_WithNoExistingContactOrAccount_ShouldThrowInvalidOperationException(int accountId, int contactId)
+    [Fact]
+    public async Task DoesRoleExistAsync_WithNoExistingContact_ShouldThrowInvalidOperationException()
     {
         var options = new DbContextOptionsBuilder<AuthorizationContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -274,9 +275,55 @@ public class RoleEventRepositoryTests
 
         var repository = new RoleEventRepository(context);
 
-        var result = await Assert.ThrowsAsync<InvalidOperationException>(async () => await repository.DoesRoleExistAsync(new RoleEntity { AccountId = accountId, ContactId = contactId }));
+        var action = async () => await repository.DoesRoleExistAsync(new RoleEntity { AccountId = account.AccountId, ContactId = 3 });
 
-        Assert.Equal("L'entité ou le contact n'existe pas", result.Message);
+        var result = await action.Should().ThrowAsync<Pulse.ExceptionMiddleware.Exceptions.InvalidOperationException>();
+
+        result.Which.Code.Should().Be(Errors.NotFoundContactCode);
+        result.WithMessage("Le contact avec l'identifiant 3 est introuvable");
+    }
+
+    [Fact]
+    public async Task DoesRoleExistAsync_WithNoExistingAccount_ShouldThrowInvalidOperationException()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        using var context = new AuthorizationContext(options);
+
+        var contact = new ContactEntity
+        {
+            ContactId = 1,
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john.doe@test.com",
+            Status = ContactStatus.Declared.ToString(),
+            Type = "Collaborator",
+            PersonaName = "None"
+        };
+        context.ContactEntity.Add(contact);
+
+        var account = new AccountEntity
+        {
+            AccountId = 1,
+            AccountGlobalUniqueId = Guid.NewGuid(),
+            AccountNumber = "number",
+            LegalName = "legal",
+            Status = "Invited",
+            CreationDate = DateTime.UtcNow,
+        };
+        context.AccountEntity.Add(account);
+        await context.SaveChangesAsync();
+
+        var repository = new RoleEventRepository(context);
+
+        var action = async () => await repository.DoesRoleExistAsync(new RoleEntity { AccountId = 3, ContactId = contact.ContactId });
+
+        var result = await action.Should().ThrowAsync<Pulse.ExceptionMiddleware.Exceptions.InvalidOperationException>();
+
+        result.Which.Code.Should().Be(Errors.NotFoundAccountCode);
+        result.WithMessage("L'identifiant de l'entité saisi 3 est introuvable");
     }
 
     public static IEnumerable<object[]> AccountAndContact()

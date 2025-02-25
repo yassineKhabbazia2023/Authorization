@@ -7,11 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Repositories;
 using Pulse.Authorization.Core.Interfaces;
-using Pulse.Authorization.Core.Services;
 using IAuthorizationService = Pulse.Authorization.Core.Interfaces.IAuthorizationService;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.API.Configuration.Models;
-using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Pulse.Back.Events.Configurations;
 using Pulse.Back.Events.Abstractions;
 using Pulse.Back.Events.IntegrationEvents;
@@ -20,6 +18,12 @@ using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Constants;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Options;
+using Pulse.ExceptionMiddleware;
+using Pulse.ExceptionMiddleware.Exceptions;
+using Pulse.Authorization.Infrastructure.Services;
 
 namespace Pulse.Authorization.API.Configuration
 {
@@ -96,9 +100,17 @@ namespace Pulse.Authorization.API.Configuration
 
         public static void RegisterDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            ArgumentNullException.ThrowIfNull(configuration);
+            if(configuration is null)
+            {
+                throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(configuration)));
+            }
+
             var connectionString = configuration["SqlAuthorizationConnectionString"];
-            ArgumentNullException.ThrowIfNullOrEmpty(connectionString);
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, "SqlAuthorizationConnectionString"));
+            }
 
             services.AddDbContextPool<AuthorizationContext>(options =>
             {
@@ -120,6 +132,16 @@ namespace Pulse.Authorization.API.Configuration
             services.AddApplicationInsightsTelemetry(options =>
             {
                 options.ConnectionString = applicationInsightsConexionString;
+            });
+
+
+            services.AddSingleton<ITelemetryInitializer, CustomTelemetryInitializer>();
+
+            // 3) Si on veut injecter TelemetryClient ailleurs
+            services.AddSingleton(provider =>
+            {
+                var telemetryConfig = provider.GetRequiredService<IOptions<TelemetryConfiguration>>().Value;
+                return new TelemetryClient(telemetryConfig);
             });
         }
 

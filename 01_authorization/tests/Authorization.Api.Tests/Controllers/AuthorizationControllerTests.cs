@@ -3,13 +3,13 @@
 // </copyright>
 
 using AutoFixture;
-using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Pulse.Authorization.API;
 using Pulse.Authorization.API.Controllers;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Api.Tests.Controllers;
 

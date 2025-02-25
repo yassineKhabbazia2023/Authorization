@@ -3,11 +3,13 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
+using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Extensions;
 using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
+using InvalidOperationException = Pulse.ExceptionMiddleware.Exceptions.InvalidOperationException;
 
 namespace Pulse.Authorization.Infrastructure.Repositories
 {
@@ -59,12 +61,18 @@ namespace Pulse.Authorization.Infrastructure.Repositories
 
         public async Task<bool> DoesRoleExistAsync(RoleEntity roleEntity)
         {
-            var account = await _authorizationContext.AccountEntity.FirstOrDefaultAsync(a => roleEntity.AccountId == a.AccountId);
-            var contact = await _authorizationContext.ContactEntity.FirstOrDefaultAsync(c => roleEntity.ContactId == c.ContactId);
-
-            if (account == null || contact == null)
+            var account = await _authorizationContext.AccountEntity.AsNoTracking()
+                .FirstOrDefaultAsync(a => roleEntity.AccountId == a.AccountId);
+            if (account == null)
             {
-                throw new InvalidOperationException("L'entité ou le contact n'existe pas");
+                throw new InvalidOperationException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, roleEntity.AccountId));
+            }
+
+            var contact = await _authorizationContext.ContactEntity.AsNoTracking()
+                .FirstOrDefaultAsync(c => roleEntity.ContactId == c.ContactId);
+            if (contact == null)
+            {
+                throw new InvalidOperationException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, roleEntity.ContactId));
             }
 
             var role = await _authorizationContext.RoleEntity

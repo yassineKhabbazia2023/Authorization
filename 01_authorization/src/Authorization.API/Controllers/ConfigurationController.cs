@@ -5,6 +5,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.ExceptionMiddleware.Model;
 using ConfigurationModel = Pulse.Authorization.Core.Models.Configuration;
 
 namespace Pulse.Authorization.API.Controllers;
@@ -28,6 +29,8 @@ public class ConfigurationController : ControllerBase
     /// <returns>La liste des configurations.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ConfigurationModel?>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
     public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetContactAccountConfigurationAsync([Required][FromQuery] int contactId, [FromQuery] int? accountId)
     {
         var configuration = await _configurationService.GetContactAccountConfigurationAsync(contactId, accountId);
@@ -43,6 +46,8 @@ public class ConfigurationController : ControllerBase
     /// <returns>La liste des configurations.</returns>
     [HttpGet("account")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ConfigurationModel?>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
     public async Task<ActionResult<IEnumerable<ConfigurationModel?>>> GetAccountConfigurationAsync([FromQuery] int accountId, string? type = null, bool configurable = true)
     {
         var configuration = await _configurationService.GetAccountConfigurationAsync(accountId, type, configurable);
@@ -58,8 +63,8 @@ public class ConfigurationController : ControllerBase
     /// <returns>Http 200.</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
     public async Task<ActionResult> CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IList<string> codes)
     {
         await _configurationService.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, codes);
@@ -76,8 +81,8 @@ public class ConfigurationController : ControllerBase
     /// <returns>Http 200.</returns>
     [HttpPost("account")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
     public async Task<ActionResult> CreateOrUpdateAccountAuthorizationAsync(int accountId, IList<string> codes, string? type = null, bool configurable = true)
     {
         await _configurationService.CreateOrUpdateAccountAuthorizationAsync(accountId, codes, type, configurable);

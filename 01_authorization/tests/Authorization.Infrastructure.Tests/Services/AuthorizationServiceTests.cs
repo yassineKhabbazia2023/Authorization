@@ -3,19 +3,18 @@
 // </copyright>
 
 using AutoFixture;
-using Kpmg.ExceptionMiddleware.AdvancedException;
-using Kpmg.ExceptionMiddleware.AdvancedExceptions;
+using FluentAssertions;
 using Moq;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
-using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Services;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Repositories;
+using Pulse.Authorization.Infrastructure.Services;
+using Pulse.ExceptionMiddleware.Exceptions;
 
-namespace Pulse.Authorization.Core.Tests.Services;
+namespace Pulse.Authorization.Infrastructure.Tests.Services;
 
 public class AuthorizationServiceTests
 {
@@ -156,11 +155,13 @@ public class AuthorizationServiceTests
             .Create();
         contactRepository.Setup(c => c.GetContactByIdAsync(It.IsAny<int>())).ReturnsAsync(contactMocked);
 
+        int? accountId = null;
         var service = new AuthorizationService(null!, contactRepository.Object);
 
-        var result = await Assert.ThrowsAsync<BadRequestException>(async () => await service.DeleteContactAuthorizationAsync(It.IsAny<int>(), null!));
+        var action = async () => await service.DeleteContactAuthorizationAsync(It.IsAny<int>(), null!);
+        var exceptionResult = await action.Should().ThrowAsync<BadRequestException>();
 
-        Assert.Equal(Errors.NotFoundAccountCode, result.Code);
-        Assert.Equal(Errors.NotFoundAccountMessage, result.Message);
+        exceptionResult.Which.Code.Should().Be(Errors.NotFoundAccountCode);
+        exceptionResult.WithMessage(string.Format(Errors.NotFoundAccountMessage, accountId));
     }
 }

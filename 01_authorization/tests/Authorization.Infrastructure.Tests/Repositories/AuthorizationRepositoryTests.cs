@@ -324,17 +324,20 @@ public class AuthorizationRepositoryTests
             var expectedAuthorization = authorizations.Select(c => c.Code);
             await context.SaveChangesAsync();
 
-            var repository = new AuthorizationRepository(context);
+            using(var newContext = new AuthorizationContext(_options))
+            {
+                var repository = new AuthorizationRepository(context);
 
-            var contactId = contactAuthorizationAccountEntity.First().ContactId;
-            var accountId = contactAuthorizationAccountEntity.First().AccountId;
+                var contactId = contactAuthorizationAccountEntity.First().ContactId;
+                var accountId = contactAuthorizationAccountEntity.First().AccountId;
 
-            var receivedAuthorization = await repository.GetContactAuthorizationAsync(contactId);
+                var receivedAuthorization = await repository.GetContactAuthorizationAsync(contactId);
 
-            var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
-            var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
-            Assert.Equal(authExpectJson, authResultJson);
-            Assert.NotNull(receivedAuthorization);
+                var authExpectJson = JsonConvert.SerializeObject(expectedAuthorization);
+                var authResultJson = JsonConvert.SerializeObject(receivedAuthorization);
+                Assert.Equal(authExpectJson, authResultJson);
+                Assert.NotNull(receivedAuthorization);
+            }
         }
     }
 
@@ -343,66 +346,74 @@ public class AuthorizationRepositoryTests
     {
         using (var context = new AuthorizationContext(_options))
         {
+            // Clear the context first
+            context.ChangeTracker.Clear();
+
             var authorizations = new List<AuthorizationEntity>()
+        {
+            new()
             {
-                new()
-                {
-                    AuthorizationId = 1,
-                    Name = "name1",
-                    Description = string.Empty,
-                    Code = "code1",
-                    Label = "label1",
-                    Type = "Customer",
-                    View = "Global"
-                },
-                new()
-                {
-                    AuthorizationId = 2,
-                    Name = "name2",
-                    Description = string.Empty,
-                    Code = "code2",
-                    Label = "label2",
-                    Type = "Customer",
-                    View = "Global"
-                },
-                new()
-                {
-                    AuthorizationId = 3,
-                    Name = "name3",
-                    Description = string.Empty,
-                    Code = "code3",
-                    Label = "label3",
-                    Type = "Customer",
-                    View = "Global"
-                }
-            };
+                AuthorizationId = 1,
+                Name = "name1",
+                Description = string.Empty,
+                Code = "code1",
+                Label = "label1",
+                Type = "Customer",
+                View = "Global"
+            },
+            new()
+            {
+                AuthorizationId = 2,
+                Name = "name2",
+                Description = string.Empty,
+                Code = "code2",
+                Label = "label2",
+                Type = "Customer",
+                View = "Global"
+            },
+            new()
+            {
+                AuthorizationId = 3,
+                Name = "name3",
+                Description = string.Empty,
+                Code = "code3",
+                Label = "label3",
+                Type = "Customer",
+                View = "Global"
+            }
+        };
+
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+
             context.AuthorizationEntity.AddRange(authorizations);
             await context.SaveChangesAsync();
 
             var contactAuthorizationAccountEntity = new List<ContactAuthorizationEntity>
+        {
+            new()
             {
-                new()
-                {
-                    ContactId = 128,
-                    AccountId = -1,
-                    AuthorizationId = 1,
-                    CreationDate = DateTime.UtcNow,
-                },
-                new()
-                {
-                    ContactId = 128,
-                    AccountId = -1,
-                    AuthorizationId = 2,
-                    CreationDate = DateTime.UtcNow,
-                },
-                new()
-                {
-                    ContactId = 128,
-                    AccountId = -1,
-                    AuthorizationId = 3,
-                    CreationDate = DateTime.UtcNow,
-                }
-            };
+                ContactId = 128,
+                AccountId = -1,
+                AuthorizationId = 1,
+                CreationDate = DateTime.UtcNow,
+            },
+            new()
+            {
+                ContactId = 128,
+                AccountId = -1,
+                AuthorizationId = 2,
+                CreationDate = DateTime.UtcNow,
+            },
+            new()
+            {
+                ContactId = 128,
+                AccountId = -1,
+                AuthorizationId = 3,
+                CreationDate = DateTime.UtcNow,
+            }
+        };
+
             context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
 
@@ -414,16 +425,22 @@ public class AuthorizationRepositoryTests
                                 .Create());
             await context.SaveChangesAsync();
 
-            var repository = new AuthorizationRepository(context);
+            // Create a new context instance for the repository operations
+            // I did this because context failed to track the same instance with the same context
+            using (var newContext = new AuthorizationContext(_options))
+            {
+                var repository = new AuthorizationRepository(newContext);
+                var permissionBefore = await repository.GetContactAccountAuthorizationsAsync(128, -1, null);
+                Assert.NotEmpty(permissionBefore);
 
-            var permissionBefore = await repository.GetContactAccountAuthorizationsAsync(128, -1, null);
-            Assert.NotEmpty(permissionBefore);
+                await repository.DeleteContactAuthorizationAsync(128, -1);
 
-            await repository.DeleteContactAuthorizationAsync(128, -1);
-            var permissionAfter = await repository.GetContactAccountAuthorizationsAsync(128, -1, null);
-            Assert.Empty(permissionAfter);
+                var permissionAfter = await repository.GetContactAccountAuthorizationsAsync(128, -1, null);
+                Assert.Empty(permissionAfter);
+            }
         }
     }
+
 
     [Fact]
     public async Task AddSubscriptionAuthorizationsOnAccountAsync_Should_AddAccountAuthorizations_And_ReturnSaidAuthorizations()

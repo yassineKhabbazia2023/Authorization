@@ -7,8 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Extensions;
-using Kpmg.ExceptionMiddleware.AdvancedException;
 using Pulse.Authorization.Infrastructure.Interfaces;
+using System.Configuration;
+using Pulse.ExceptionMiddleware.Exceptions;
+using Pulse.Authorization.Core.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
 
@@ -105,9 +107,7 @@ public class ConfigurationRepository : IConfigurationRepository
         var notConfigurable = authorizations.FirstOrDefault(a => a.Configurable == false);
         if (notConfigurable != null)
         {
-            var ex = new ArgumentException("La permission suivante n'est pas configurable: " + notConfigurable.Code);
-            ex.Data["Code"] = notConfigurable.Code;
-            throw ex;
+            throw new BadRequestException(Errors.NotConfigurablePermissionCode, string.Format(Errors.NotConfigurablePermissionMessage, notConfigurable.Code));
         }
 
         var oldContactAuthorizationEntities = await GetContactAccountConfigurationAsync(contactId, accountId);
@@ -139,9 +139,7 @@ public class ConfigurationRepository : IConfigurationRepository
             var notConfigurable = authorizations.FirstOrDefault(a => a.Configurable == false);
             if (notConfigurable != null)
             {
-                var ex = new ArgumentException("La permission suivante n'est pas configurable: " + notConfigurable.Code);
-                ex.Data["Code"] = notConfigurable.Code;
-                throw ex;
+                throw new BadRequestException(Errors.NotConfigurablePermissionCode, string.Format(Errors.NotConfigurablePermissionMessage, notConfigurable.Code));
             }
         }
 

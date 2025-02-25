@@ -4,12 +4,14 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using Kpmg.ExceptionMiddleware;
 using Microsoft.IdentityModel.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Pulse.Authorization.API.Configuration;
 using Pulse.Authorization.API.Configuration.Model;
+using Pulse.Authorization.Core.Exceptions;
+using Pulse.Back.ExceptionMiddleware;
+using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.API
 {
@@ -31,7 +33,16 @@ namespace Pulse.Authorization.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            ArgumentNullException.ThrowIfNull(_configuration);
+            if (_configuration is null)
+            {
+                throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(_configuration)));
+            }
+
+            if(_swaggerConfiguration is null)
+            {
+                throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(_swaggerConfiguration)));
+            }
+
             services.AddMemoryCache();
             services.AddApplicationInsightsTelemetry(_configuration);
             services.AddHsts(options =>

@@ -2,8 +2,6 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using Kpmg.ExceptionMiddleware.AdvancedException;
-using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Mappers;
@@ -12,8 +10,9 @@ using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
+using Pulse.ExceptionMiddleware.Exceptions;
 
-namespace Pulse.Authorization.Core.Services;
+namespace Pulse.Authorization.Infrastructure.Services;
 
 public class ConfigurationService : IConfigurationService
 {
@@ -108,12 +107,12 @@ public class ConfigurationService : IConfigurationService
     public async Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId, string? type, bool configurable = true)
     {
         var account = await _accountRepository.GetAccountByIdAsync(accountId);
-        if(account == null)
+        if (account == null)
         {
-            throw new NotFoundException(Errors.NotFoundAccountCode, Errors.NotFoundAccountMessage);
+            throw new NotFoundException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId));
         }
 
-        var accAuths =  (await _configurationRepository.GetAccountAuthorizationsAsync(accountId, type, configurable)).MapAuthorizationToConfiguration();
+        var accAuths = (await _configurationRepository.GetAccountAuthorizationsAsync(accountId, type, configurable)).MapAuthorizationToConfiguration();
         var availableAuths = (await _configurationRepository.GetAvailableAuthorizationsAsync(type, configurable)).MapAuthorizationToConfiguration();
         return EnableAccountConfiguration(availableAuths, accAuths);
     }

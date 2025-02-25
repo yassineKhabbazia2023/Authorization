@@ -4,19 +4,17 @@
 
 using AutoFixture;
 using FluentAssertions;
-using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Moq;
 using Pulse.Authorization.Core.Interfaces;
-using Pulse.Authorization.Core.Models;
-using Pulse.Authorization.Core.Services;
 using Pulse.Authorization.Core.Exceptions;
-using Kpmg.ExceptionMiddleware.AdvancedException;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using System;
+using Pulse.ExceptionMiddleware.Exceptions;
+using Pulse.Authorization.Infrastructure.Services;
 
 namespace Pulse.Authorization.Core.Tests.Services;
 
@@ -562,7 +560,8 @@ public class ConfigurationServiceTests
             await configurationService.GetAccountConfigurationAsync(accountId, null);
         });
 
-        exception.Message.Should().Be("L'identifiant de l'entité saisi est erroné");
+        exception.Message.Should().Be("L'identifiant de l'entité saisi 1 est introuvable");
+        exception.Code.Should().Be(Errors.NotFoundAccountCode);
     }
 
     [Fact]

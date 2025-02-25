@@ -5,6 +5,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.ExceptionMiddleware.Model;
 
 namespace Pulse.Authorization.API.Controllers;
 
@@ -27,6 +28,8 @@ public class AuthorizationController : ControllerBase
     /// <returns>Liste des codes de menu.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<string>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
     public async Task<ActionResult<IList<string>>> GetContactAuthorizationAsync([Required][FromQuery] int contactId, [FromQuery] int? accountId)
     {
         var result = await _authorizationService.GetContactAuthorizationAsync(contactId, accountId);
@@ -42,6 +45,8 @@ public class AuthorizationController : ControllerBase
     /// <returns>Status code.</returns>
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
     public async Task<ActionResult> DeleteContactAuthorizationAsync([Required][FromQuery] int contactId, [FromQuery] int? accountId)
     {
         await _authorizationService.DeleteContactAuthorizationAsync(contactId, accountId);

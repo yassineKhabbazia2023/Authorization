@@ -2,15 +2,14 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using Kpmg.ExceptionMiddleware.AdvancedException;
-using Kpmg.ExceptionMiddleware.AdvancedExceptions;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
+using Pulse.ExceptionMiddleware.Exceptions;
 
-namespace Pulse.Authorization.Core.Services;
+namespace Pulse.Authorization.Infrastructure.Services;
 
 public class AuthorizationService : IAuthorizationService
 {
@@ -75,7 +74,7 @@ public class AuthorizationService : IAuthorizationService
 
         if (contact.Type == ContactType.Customer.ToString() && accountId == null)
         {
-            throw new BadRequestException(Errors.NotFoundAccountCode, Errors.NotFoundAccountMessage);
+            throw new BadRequestException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId));
         }
 
         await _authorizationRepository.DeleteContactAuthorizationAsync(contactId, accountId ?? -1);

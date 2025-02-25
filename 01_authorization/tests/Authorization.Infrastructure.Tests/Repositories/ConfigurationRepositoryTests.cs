@@ -8,10 +8,12 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Identity.Client;
+using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Repositories;
+using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
 
@@ -295,9 +297,9 @@ public class ConfigurationRepositoryTests
             var repository = new ConfigurationRepository(context);
             var action = async () => await repository.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, new List<string> { code });
 
-            var exception = await action.Should().ThrowAsync<ArgumentException>();
-            exception.WithMessage($"La permission suivante n'est pas configurable: {code}");
-            exception.Which.Data["Code"].Should().Be(code);
+            var exceptionResult = await action.Should().ThrowAsync<BadRequestException>();
+            exceptionResult.WithMessage($"La permission avec le code suivant: HAKOUNA_MATATA n'est pas configurable.");
+            exceptionResult.Which.Code.Should().Be(Errors.NotConfigurablePermissionCode);
         }
     }
 
