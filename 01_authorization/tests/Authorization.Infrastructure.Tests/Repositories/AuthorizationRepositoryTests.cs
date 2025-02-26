@@ -589,6 +589,40 @@ public class AuthorizationRepositoryTests
         result.Should().BeEquivalentTo(GlobalConstants.DefaultAccountPermissions);
     }
 
+
+    [Fact]
+    public async Task CreateRapportBIAuthorizationsOnAccountAsync_Should_AddRapportBiAuthorizations()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        var authorizationEntities = GlobalConstants.PowerBIDefaultPermissions.Select(p =>
+        {
+            var a = _fixture.Create<AuthorizationEntity>();
+            a.Code = p;
+            return a;
+        });
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 44)
+            .Create();
+
+        using var context = new AuthorizationContext(options);
+        context.AccountEntity.Add(account);
+        context.AuthorizationEntity.AddRange(authorizationEntities);
+        context.SaveChanges();
+        var repository = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repository.CreateRapportBIAuthorizationsOnAccountAsync(account.AccountId, GlobalConstants.PowerBIDefaultPermissions.ToList());
+
+        // Assert
+        Assert.NotNull(result);
+        result.Should().BeEquivalentTo(GlobalConstants.PowerBIDefaultPermissions);
+    }
+
     [Fact]
     public async Task CreateDefaultAuthorizationsOnSignatoryAsync_Should_AddDefaultSignatoryAuthorizations_And_ReturnSaidAuthorizations()
     {

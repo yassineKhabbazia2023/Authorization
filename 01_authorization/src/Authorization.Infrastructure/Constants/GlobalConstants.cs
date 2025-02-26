@@ -17,6 +17,8 @@ namespace Pulse.Authorization.Infrastructure.Constants
         public static readonly string CustomerCategory = "customer";
         public static readonly string CollabCategory = "collaborator";
 
+        public static readonly string[] PowerBIDefaultPermissions = ["CORAP001", "CLRAPP001", "CLRAP002"];
+
         public static readonly string[] DefaultAccountPermissions =
         [
             "CLADMI001", "CLUSER001", "CLUSER002", "CLUSER003",

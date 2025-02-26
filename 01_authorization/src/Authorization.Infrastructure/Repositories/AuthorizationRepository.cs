@@ -194,6 +194,25 @@ public class AuthorizationRepository : IAuthorizationRepository
         return GlobalConstants.DefaultAccountPermissions;
     }
 
+    public async Task<IEnumerable<string>> CreateRapportBIAuthorizationsOnAccountAsync(int accountId, List<string> codes)
+    {
+        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => codes.Contains(a.Code)).Distinct().ToListAsync();
+        _authorizationContext.AccountAuthorizationEntity.AddRange(authorizations.Where(a => !a.AccountAuthorizationEntity.Any(ac => ac.AuthorizationId == a.AuthorizationId && ac.AccountId == accountId))
+            .Select(a =>
+            {
+                return new AccountAuthorizationEntity
+                {
+                    AccountId = accountId,
+                    AuthorizationId = a.AuthorizationId,
+                    Enabled = true,
+                };
+            }));
+
+        await _authorizationContext.SaveChangesAsync();
+
+        return codes;
+    }
+
     public async Task<IEnumerable<string>> CreateDefaultAuthorizationsOnSignatoryAsync(int contactId, int accountId)
     {
         var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => GlobalConstants.DefaultSignatoryPermissions.Contains(a.Code)).Distinct().ToListAsync();
