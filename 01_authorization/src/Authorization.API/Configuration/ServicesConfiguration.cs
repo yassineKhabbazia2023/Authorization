@@ -81,6 +81,7 @@ namespace Pulse.Authorization.API.Configuration
             services.AddKeyedScoped<IEventHandler, RoleUpdatedEventHandler>(nameof(RoleUpdatedEvent));
             services.AddKeyedScoped<IEventHandler, RoleDeletedEventHandler>(nameof(RoleDeletedEvent));
             services.AddKeyedScoped<IEventHandler, SubscriptionValidatedEventHandler>(nameof(SubscriptionValidatedEvent));
+            services.AddKeyedScoped<IEventHandler, AuthorizationCreatedEventHandler>(nameof(AuthorizationCreatedEvent));
 
             services.AddScoped<IAuthorizationEventPublisher, AuthorizationEventPublisher>();
 
@@ -100,7 +101,7 @@ namespace Pulse.Authorization.API.Configuration
 
         public static void RegisterDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            if(configuration is null)
+            if (configuration is null)
             {
                 throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(configuration)));
             }
