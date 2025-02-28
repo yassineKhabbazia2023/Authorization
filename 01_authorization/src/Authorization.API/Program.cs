@@ -3,29 +3,27 @@
 // </copyright>
 
 using System.Diagnostics.CodeAnalysis;
-using Serilog;
 
-namespace Pulse.Authorization.API
+namespace Pulse.Authorization.API;
+
+[ExcludeFromCodeCoverage]
+public static class Program
 {
-    [ExcludeFromCodeCoverage]
-    public static class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
-
-            Host.CreateDefaultBuilder(args)
-                .ConfigureLogging((context, loggerConfiguration) =>
-                {
-                    loggerConfiguration.AddApplicationInsights();
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>()
-                        .UseDefaultServiceProvider(options => options.ValidateScopes = false);
-                });
+        CreateHostBuilder(args).Build().Run();
     }
+
+    private static IHostBuilder CreateHostBuilder(string[] args) =>
+
+        Host.CreateDefaultBuilder(args)
+            .ConfigureLogging((context, loggerConfiguration) =>
+            {
+                loggerConfiguration.AddApplicationInsights();
+            })
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>()
+                    .UseDefaultServiceProvider(options => options.ValidateScopes = false);
+            });
 }
