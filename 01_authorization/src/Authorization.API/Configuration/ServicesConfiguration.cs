@@ -18,10 +18,6 @@ using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Constants;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights;
-using Microsoft.Extensions.Options;
-using Pulse.ExceptionMiddleware;
 using Pulse.ExceptionMiddleware.Exceptions;
 using Pulse.Authorization.Infrastructure.Services;
 
@@ -133,16 +129,6 @@ namespace Pulse.Authorization.API.Configuration
             services.AddApplicationInsightsTelemetry(options =>
             {
                 options.ConnectionString = applicationInsightsConexionString;
-            });
-
-
-            services.AddSingleton<ITelemetryInitializer, CustomTelemetryInitializer>();
-
-            // 3) Si on veut injecter TelemetryClient ailleurs
-            services.AddSingleton(provider =>
-            {
-                var telemetryConfig = provider.GetRequiredService<IOptions<TelemetryConfiguration>>().Value;
-                return new TelemetryClient(telemetryConfig);
             });
         }
 

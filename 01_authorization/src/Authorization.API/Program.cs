@@ -18,9 +18,9 @@ namespace Pulse.Authorization.API
         private static IHostBuilder CreateHostBuilder(string[] args) =>
 
             Host.CreateDefaultBuilder(args)
-                .UseSerilog((context, loggerConfiguration) =>
+                .ConfigureLogging((context, loggerConfiguration) =>
                 {
-                    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+                    loggerConfiguration.AddApplicationInsights();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
