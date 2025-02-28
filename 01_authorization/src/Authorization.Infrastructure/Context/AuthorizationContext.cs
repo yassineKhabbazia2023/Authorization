@@ -60,6 +60,7 @@ public partial class AuthorizationContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.CreationDate).HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LegalName)
                 .IsRequired()
                 .HasMaxLength(255);

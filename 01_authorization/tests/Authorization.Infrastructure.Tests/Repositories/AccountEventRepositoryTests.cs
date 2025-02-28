@@ -22,6 +22,7 @@ public class AccountEventRepositoryTests
         AccountNumber = "4242424242",
         LegalName = "Jooooohnnnnyyyy Piza",
         Status = "Happy",
+        IsActive = true,
     };
 
     [Fact]
@@ -63,6 +64,7 @@ public class AccountEventRepositoryTests
             AccountNumber = "4242424242",
             LegalName = "Jooooohnnnnyyyy Pasta",
             Status = "Sad",
+            IsActive = true,
         };
 
         // Act
@@ -76,6 +78,7 @@ public class AccountEventRepositoryTests
         Assert.Equal(modifiedAccountEntity.LegalName, updatedAccount.LegalName);
         Assert.Equal(modifiedAccountEntity.AccountNumber, updatedAccount.AccountNumber);
         Assert.Equal(modifiedAccountEntity.Status, updatedAccount.Status);
+        Assert.Equal(modifiedAccountEntity.IsActive, updatedAccount.IsActive);
         Assert.NotNull(updatedAccount.LastUpdateDate);
     }
 
@@ -99,6 +102,7 @@ public class AccountEventRepositoryTests
         // Assert
         Assert.NotNull(removedAccount);
         Assert.Equal(AccountStatus.Revoked.ToString(), removedAccount.Status);
+        Assert.False(removedAccount.IsActive);
         Assert.NotNull(removedAccount.LastUpdateDate);
     }
 
@@ -150,6 +154,7 @@ public class AccountEventRepositoryTests
             AccountNumber = "number",
             LegalName = "legal",
             Status = "Invited",
+            IsActive = true,
             CreationDate = DateTime.UtcNow,
         };
         context.AccountEntity.Add(account);

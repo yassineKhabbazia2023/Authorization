@@ -17,6 +17,8 @@ public partial class AccountEntity
 
     public string Status { get; set; }
 
+    public bool IsActive { get; set; }
+
     public DateTime CreationDate { get; set; }
 
     public DateTime? LastUpdateDate { get; set; }

@@ -40,6 +40,7 @@ public class AccountEventRepository : IAccountEventRepository
     {
             var existingAccount = await _authorizationContext.AccountEntity.SingleAsync(x => x.AccountId == accountId);
             existingAccount.Status = AccountStatus.Revoked.ToString();
+            existingAccount.IsActive = false;
             existingAccount.LastUpdateDate = DateTime.UtcNow;
 
             await _authorizationContext.SaveChangesAsync();

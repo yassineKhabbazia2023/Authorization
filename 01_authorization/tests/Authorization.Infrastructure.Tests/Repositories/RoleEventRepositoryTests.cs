@@ -181,6 +181,7 @@ public class RoleEventRepositoryTests
             AccountNumber = "number",
             LegalName = "legal",
             Status = "Invited",
+            IsActive = true,
             CreationDate = DateTime.UtcNow,
         };
         context.AccountEntity.Add(account);
@@ -228,6 +229,7 @@ public class RoleEventRepositoryTests
             AccountNumber = "number",
             LegalName = "legal",
             Status = "Invited",
+            IsActive = true,
             CreationDate = DateTime.UtcNow,
         };
         context.AccountEntity.Add(account);
@@ -267,6 +269,7 @@ public class RoleEventRepositoryTests
             AccountGlobalUniqueId = Guid.NewGuid(),
             AccountNumber = "number",
             LegalName = "legal",
+            IsActive = true,
             Status = "Invited",
             CreationDate = DateTime.UtcNow,
         };
@@ -310,6 +313,7 @@ public class RoleEventRepositoryTests
             AccountGlobalUniqueId = Guid.NewGuid(),
             AccountNumber = "number",
             LegalName = "legal",
+            IsActive = true,
             Status = "Invited",
             CreationDate = DateTime.UtcNow,
         };
