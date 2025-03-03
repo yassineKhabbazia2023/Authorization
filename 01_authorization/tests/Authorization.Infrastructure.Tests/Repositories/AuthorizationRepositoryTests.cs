@@ -519,6 +519,7 @@ public class AuthorizationRepositoryTests
 
         var contacts = _fixture.Build<ContactEntity>()
             .With(c => c.Type, ContactType.Customer.ToString())
+            .With(c => c.IsActive, true)
             .CreateMany(12).DistinctBy(c => c.ContactId);
 
         using (var context = new AuthorizationContext(options))

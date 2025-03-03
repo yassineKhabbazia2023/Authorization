@@ -248,13 +248,16 @@ public class ConfigurationRepositoryTests
                             .Create();
         var contactEntity = _fixture.Build<ContactEntity>()
                             .With(a => a.ContactId, contactId)
+                            .With(a => a.IsActive, true)
                             .Without(a => a.ContactAuthorizationEntity)
                             .Create();
         var auth1 = _fixture.Build<AuthorizationEntity>()
             .With(a => a.Code, "DDD")
+            .With(a => a.Configurable, true)
             .Create();
         var auth2 = _fixture.Build<AuthorizationEntity>()
             .With(a => a.Code, "EEE")
+            .With(a => a.Configurable, true)
             .Create();
 
         context.AccountEntity.Add(accountEntity);
