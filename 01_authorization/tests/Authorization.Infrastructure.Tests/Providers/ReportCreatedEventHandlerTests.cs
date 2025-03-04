@@ -11,17 +11,17 @@ using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Providers;
 
-public class AuthorizationCreatedEventHandlerTests
+public class ReportCreatedEventHandlerTests
 {
     private readonly Mock<IAuthorizationEventPublisher> _authorizationEventPublisherMock = new(MockBehavior.Strict);
     private readonly Mock<IAuthorizationRepository> _authorizationRepositoryMock = new(MockBehavior.Strict);
 
-    public AuthorizationCreatedEventHandlerTests()
+    public ReportCreatedEventHandlerTests()
     {
         _authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int?>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>(), false))
             .Returns(Task.CompletedTask)
             .Verifiable();
-        _authorizationRepositoryMock.Setup(a => a.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<List<string>>()))
+        _authorizationRepositoryMock.Setup(a => a.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()))
             .ReturnsAsync(GlobalConstants.PowerBIDefaultPermissions)
             .Verifiable();
     }
@@ -30,7 +30,7 @@ public class AuthorizationCreatedEventHandlerTests
     public async Task HandleAsync_WithValidMessage_ShouldCreatesAuthorization()
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<AuthorizationCreatedEventHandler>>();
+        var loggerMock = new Mock<ILogger<ReportCreatedEventHandler>>();
 
         loggerMock.Setup(x => x.Log(
             It.IsAny<LogLevel>(),
@@ -39,7 +39,7 @@ public class AuthorizationCreatedEventHandlerTests
             It.IsAny<Exception?>(),
             (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
 
-        var handler = new AuthorizationCreatedEventHandler(loggerMock.Object, _authorizationRepositoryMock.Object, _authorizationEventPublisherMock.Object);
+        var handler = new ReportCreatedEventHandler(loggerMock.Object, _authorizationRepositoryMock.Object, _authorizationEventPublisherMock.Object);
         var message = "{\"EventType\":\"AuthorizationCreatedEvent\",\"Data\":{\"AccountId\":123,\"Codes\":[\"code1\",\"code2\"]}}";
 
         // Act
@@ -54,43 +54,43 @@ public class AuthorizationCreatedEventHandlerTests
     public async Task HandleAsync_WithNullMessage_ShouldNotCreateAuthorization()
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<AuthorizationCreatedEventHandler>>();
-        var handler = new AuthorizationCreatedEventHandler(loggerMock.Object, _authorizationRepositoryMock.Object, _authorizationEventPublisherMock.Object);
+        var loggerMock = new Mock<ILogger<ReportCreatedEventHandler>>();
+        var handler = new ReportCreatedEventHandler(loggerMock.Object, _authorizationRepositoryMock.Object, _authorizationEventPublisherMock.Object);
 
         // Act
         await handler.HandleAsync(null!);
 
         // Assert
-        _authorizationRepositoryMock.Verify(repo => repo.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<List<string>>()), Times.Never);
+        _authorizationRepositoryMock.Verify(repo => repo.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()), Times.Never);
     }
 
     [Fact]
     public async Task HandleAsync_WithMessageMissingAccountId_ShouldNotCreateAuthorization()
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<AuthorizationCreatedEventHandler>>();
-        var handler = new AuthorizationCreatedEventHandler(loggerMock.Object, _authorizationRepositoryMock.Object, _authorizationEventPublisherMock.Object);
-        var message = "{\"EventType\":\"AuthorizationCreatedEvent\",\"Data\":{\"Codes\":[\"code1\",\"code2\"]}}";
+        var loggerMock = new Mock<ILogger<ReportCreatedEventHandler>>();
+        var handler = new ReportCreatedEventHandler(loggerMock.Object, _authorizationRepositoryMock.Object, _authorizationEventPublisherMock.Object);
+        var message = "{\"EventType\":\"ReportCreatedEvent\",\"Data\":{\"Codes\":[\"code1\",\"code2\"]}}";
 
         // Act
         await handler.HandleAsync(message);
 
         // Assert
-        _authorizationRepositoryMock.Verify(repo => repo.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<List<string>>()), Times.Never);
+        _authorizationRepositoryMock.Verify(repo => repo.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()), Times.Never);
     }
 
     [Fact]
     public async Task HandleAsync_WithMessageMissingData_ShouldNotCreateAuthorization()
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<AuthorizationCreatedEventHandler>>();
-        var handler = new AuthorizationCreatedEventHandler(loggerMock.Object, _authorizationRepositoryMock.Object, _authorizationEventPublisherMock.Object);
-        var message = "{\"EventType\":\"AuthorizationCreatedEvent\"}";
+        var loggerMock = new Mock<ILogger<ReportCreatedEventHandler>>();
+        var handler = new ReportCreatedEventHandler(loggerMock.Object, _authorizationRepositoryMock.Object, _authorizationEventPublisherMock.Object);
+        var message = "{\"EventType\":\"ReportCreatedEvent\"}";
 
         // Act
         await handler.HandleAsync(message);
 
         // Assert
-        _authorizationRepositoryMock.Verify(repo => repo.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<List<string>>()), Times.Never);
+        _authorizationRepositoryMock.Verify(repo => repo.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()), Times.Never);
     }
 }

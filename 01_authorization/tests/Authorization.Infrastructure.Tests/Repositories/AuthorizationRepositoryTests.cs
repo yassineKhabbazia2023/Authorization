@@ -617,7 +617,7 @@ public class AuthorizationRepositoryTests
         var repository = new AuthorizationRepository(context);
 
         // Act
-        var result = await repository.CreateRapportBIAuthorizationsOnAccountAsync(account.AccountId, GlobalConstants.PowerBIDefaultPermissions.ToList());
+        var result = await repository.CreateRapportBIAuthorizationsOnAccountAsync(account.AccountId, GlobalConstants.PowerBIDefaultPermissions);
 
         // Assert
         Assert.NotNull(result);
@@ -698,6 +698,5 @@ public class AuthorizationRepositoryTests
 
             context.AccountAuthorizationEntity.Where(x => x.AccountId == 1).ToList().Count().Should().Be(defaultPermissions.Count());
         }
-
     }
 }

@@ -9,6 +9,7 @@ using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Back.Events.Abstractions;
 using Pulse.Back.Events.IntegrationEvents;
+using Pulse.Back.Events.IntegrationEvents.Events.Account;
 
 namespace Pulse.Authorization.Infrastructure.Providers;
 

@@ -18,7 +18,7 @@ public interface IAuthorizationRepository
 
     Task<IEnumerable<string>> CreateDefaultAuthorizationsOnSignatoryAsync(int contactId, int accountId);
 
-    Task<IEnumerable<string>> CreateRapportBIAuthorizationsOnAccountAsync(int accountId, List<string> codes);
+    Task<IEnumerable<string>> CreateRapportBIAuthorizationsOnAccountAsync(int accountId, string[] codes);
 
     public Task<IEnumerable<Entities.AccountAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes);
 
