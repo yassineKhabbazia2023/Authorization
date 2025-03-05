@@ -4,6 +4,7 @@
 
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Back.Events.Abstractions;
@@ -15,13 +16,16 @@ namespace Pulse.Authorization.Infrastructure.Providers
     {
         private readonly ILogger<RoleUpdatedEventHandler> _logger;
         private readonly IRoleEventRepository _roleEventRepository;
+        private readonly IAuthorizationRepository _authorizationRepository;
 
         public RoleUpdatedEventHandler(
         ILogger<RoleUpdatedEventHandler> logger,
-        IRoleEventRepository roleEventRepository)
+        IRoleEventRepository roleEventRepository,
+        IAuthorizationRepository authorizationRepository)
         {
             _logger = logger;
             _roleEventRepository = roleEventRepository;
+            _authorizationRepository = authorizationRepository;
         }
 
         public async Task HandleAsync(string message)
@@ -45,6 +49,11 @@ namespace Pulse.Authorization.Infrastructure.Providers
             var roleEntity = roleEvent!.Data.ToRoleEntity();
 
             await _roleEventRepository.UpdateRoleAsync(roleEntity!);
+
+            if (roleEntity.IsSignatory == true)
+            {
+                await _authorizationRepository.SetContactAuthorizationFromAccountAuthorization(roleEntity.AccountId, roleEntity.ContactId);
+            }
 
             _logger.LogInformation("Le role de contact l'identifiant: {ContactId} et account: {AccountId} vient d'être modifié.", roleEntity.ContactId, roleEntity.AccountId);
         }

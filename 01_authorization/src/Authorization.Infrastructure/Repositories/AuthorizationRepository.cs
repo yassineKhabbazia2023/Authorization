@@ -3,12 +3,14 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
+using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Extensions;
 using Pulse.Authorization.Infrastructure.Interfaces;
+using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
 
@@ -114,7 +116,7 @@ public class AuthorizationRepository : IAuthorizationRepository
         var mirrorCodes = authorizations.Where(a => GlobalConstants.CustomerToMirrorCodes.ContainsKey(a.Code))
             .Select(a =>
             {
-               return GlobalConstants.CustomerToMirrorCodes[a.Code];
+                return GlobalConstants.CustomerToMirrorCodes[a.Code];
             });
 
         var authorizationCodes = await _authorizationContext.AuthorizationEntity.Where(a => mirrorCodes.Contains(a.Code)).ToListAsync();
@@ -234,5 +236,70 @@ public class AuthorizationRepository : IAuthorizationRepository
         await _authorizationContext.SaveChangesAsync();
 
         return GlobalConstants.DefaultSignatoryPermissions;
+    }
+
+    public async Task SetContactAuthorizationFromAccountAuthorization(int accountId, int contactId)
+    {
+        if (accountId == default)
+        {
+            throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(accountId)));
+        }
+
+        if (contactId == default)
+        {
+            throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(contactId)));
+        }
+
+        var accountAuthorizations = this.GetAuthorizationIdsOfAccount(accountId);
+        var existedContactAuthorizations = this.GetAuthorizationIdsOfContact(accountId, contactId);
+        var deltaContactAuthorizations = accountAuthorizations.Except(existedContactAuthorizations);
+
+        IEnumerable<ContactAuthorizationEntity> contactAuthorizations = deltaContactAuthorizations.Select(authorizationId => new ContactAuthorizationEntity
+        {
+            AccountId = accountId,
+            ContactId = contactId,
+            AuthorizationId = authorizationId,
+            CreationDate = DateTime.UtcNow
+        }).AsEnumerable();
+
+        if (contactAuthorizations.Any())
+        {
+            await _authorizationContext.ContactAuthorizationEntity.AddRangeAsync(contactAuthorizations);
+            await _authorizationContext.SaveChangesAsync();
+        }
+    }
+
+    private IEnumerable<int> GetAuthorizationIdsOfAccount(int accountId)
+    {
+        if (accountId == default)
+        {
+            throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(accountId)));
+        }
+
+        var authorizationIds = _authorizationContext.AccountAuthorizationEntity
+            .Include(a => a.Authorization)
+            .Where(a => a.AccountId == accountId && a.Authorization.Type == AuthorizationType.Customer)
+            .Select(a => a.AuthorizationId).AsEnumerable();
+
+        return authorizationIds;
+    }
+
+    private IEnumerable<int> GetAuthorizationIdsOfContact(int accountId, int contactId)
+    {
+        if (accountId == default)
+        {
+            throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(accountId)));
+        }
+
+        if (contactId == default)
+        {
+            throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(contactId)));
+        }
+
+        var contactAuthorizationIds = _authorizationContext.ContactAuthorizationEntity
+            .Where(c => c.AccountId == accountId && c.ContactId == contactId)
+            .Select(a => a.AuthorizationId).Distinct().AsEnumerable();
+
+        return contactAuthorizationIds;
     }
 }

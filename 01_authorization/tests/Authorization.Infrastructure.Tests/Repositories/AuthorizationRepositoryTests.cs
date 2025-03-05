@@ -7,6 +7,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Newtonsoft.Json;
+using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
@@ -324,7 +325,7 @@ public class AuthorizationRepositoryTests
             var expectedAuthorization = authorizations.Select(c => c.Code);
             await context.SaveChangesAsync();
 
-            using(var newContext = new AuthorizationContext(_options))
+            using (var newContext = new AuthorizationContext(_options))
             {
                 var repository = new AuthorizationRepository(context);
 
@@ -389,6 +390,7 @@ public class AuthorizationRepositoryTests
             context.AuthorizationEntity.AddRange(authorizations);
             await context.SaveChangesAsync();
 
+            context.ChangeTracker.Clear();
             var contactAuthorizationAccountEntity = new List<ContactAuthorizationEntity>
         {
             new()
@@ -416,6 +418,8 @@ public class AuthorizationRepositoryTests
 
             context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
             await context.SaveChangesAsync();
+
+            context.ChangeTracker.Clear();
 
             context.ContactEntity.Add(_fixture.Build<ContactEntity>()
                                 .With(x => x.Type, "Customer")
@@ -697,6 +701,214 @@ public class AuthorizationRepositoryTests
             await repos.CreateDefaultAuthorizationsOnAccountAsync(1);
 
             context.AccountAuthorizationEntity.Where(x => x.AccountId == 1).ToList().Count.Should().Be(defaultPermissions.Count());
+        }
+    }
+
+    [Fact]
+    public async Task SetContactAuthorizationFromAccountAuthoriztion_ShouldAddAllAuthorizationOfAccountInContact()
+    {
+        var defaultAccountPermissions = GlobalConstants.DefaultAccountPermissions;
+        List<AuthorizationEntity> customerAuthorizations = defaultAccountPermissions
+            .Select(code => _fixture.Build<AuthorizationEntity>()
+            .With(auth => auth.Code, code)
+            .With(auth => auth.Type, AuthorizationType.Customer)
+            .Without(auth => auth.AccountAuthorizationEntity)
+            .Without(auth => auth.ContactAuthorizationEntity)
+            .Without(auth => auth.Persona)
+            .Create())
+            .ToList();
+
+        List<AuthorizationEntity> collabAuthorizations = _fixture.Build<AuthorizationEntity>()
+            .Without(x => x.AccountAuthorizationEntity)
+            .Without(x => x.ContactAuthorizationEntity)
+            .With(x => x.Type, AuthorizationType.Collaborator)
+            .CreateMany(10).ToList();
+
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+               .Options;
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(x => x.AccountId, 1)
+            .Without(x => x.ContactAuthorizationEntity)
+            .Without(x => x.AccountAuthorizationEntity)
+            .Without(x => x.RoleEntity)
+            .Create();
+
+        var contact = new ContactEntity
+        {
+            ContactGlobalUniqueId = Guid.NewGuid(),
+            ContactId = 2,
+            CreationDate = DateTime.UtcNow,
+            Email = "email@email.com",
+            IsActive = true,
+            FirstName = "Test",
+            LastName = "test",
+            PersonaName = "test test",
+            Type = "customer"
+        };
+
+        using (var context = new AuthorizationContext(options))
+        {
+            context.AccountEntity.Add(account);
+            context.ContactEntity.Add(contact);
+            context.AuthorizationEntity.AddRange(customerAuthorizations);
+            context.AuthorizationEntity.AddRange(collabAuthorizations);
+            context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+            var authorizationIds = context.AuthorizationEntity.Select(a => a.AuthorizationId).ToList();
+
+            var accountAuthorizations = authorizationIds.Select(authorizationId => new AccountAuthorizationEntity() { AccountId = 1, AuthorizationId = authorizationId }).ToList();
+
+            context.AccountAuthorizationEntity.AddRange(accountAuthorizations);
+            context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+            var authorizationRepos = new AuthorizationRepository(context);
+            await authorizationRepos.SetContactAuthorizationFromAccountAuthorization(account.AccountId, contact.ContactId);
+
+            context.ChangeTracker.Clear();
+            var contactAuthorizations = context.ContactAuthorizationEntity.ToList();
+
+            contactAuthorizations.Should().NotBeEmpty();
+            contactAuthorizations.Count().Should().Be(customerAuthorizations.Count());
+        }
+    }
+
+    [Fact]
+    public async Task SetContactAuthorizationFromContactAuthoriztion_ShouldAddDeltaAuthorizationBetweenAccountAndContact()
+    {
+        var defaultAccountPermissions = GlobalConstants.DefaultAccountPermissions;
+        List<AuthorizationEntity> customerAuthorizations = defaultAccountPermissions
+            .Select(code => _fixture.Build<AuthorizationEntity>()
+            .With(auth => auth.Code, code)
+            .With(auth => auth.Type, AuthorizationType.Customer)
+            .Without(auth => auth.AccountAuthorizationEntity)
+            .Without(auth => auth.ContactAuthorizationEntity)
+            .Without(auth => auth.Persona)
+            .Create())
+            .ToList();
+
+        List<AuthorizationEntity> collabAuthorizations = _fixture.Build<AuthorizationEntity>()
+            .Without(x => x.AccountAuthorizationEntity)
+            .Without(x => x.ContactAuthorizationEntity)
+            .With(x => x.Type, AuthorizationType.Collaborator)
+            .CreateMany(10).ToList();
+
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+               .Options;
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(x => x.AccountId, 1)
+            .Without(x => x.ContactAuthorizationEntity)
+            .Without(x => x.AccountAuthorizationEntity)
+            .Without(x => x.RoleEntity)
+            .Create();
+
+        var contact = new ContactEntity
+        {
+            ContactGlobalUniqueId = Guid.NewGuid(),
+            ContactId = 2,
+            CreationDate = DateTime.UtcNow,
+            Email = "email@email.com",
+            IsActive = true,
+            FirstName = "Test",
+            LastName = "test",
+            PersonaName = "test test",
+            Type = "customer"
+        };
+
+        using (var context = new AuthorizationContext(options))
+        {
+            // add account, contacts and authorizations
+            context.AccountEntity.Add(account);
+            context.ContactEntity.Add(contact);
+            context.AuthorizationEntity.AddRange(customerAuthorizations);
+            context.AuthorizationEntity.AddRange(collabAuthorizations);
+            context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+            // add account authorizations from all the authorizations created before
+            var authorizationIds = context.AuthorizationEntity.Select(a => a.AuthorizationId).ToList();
+            var accountAuthorizations = authorizationIds.Select(authorizationId => new AccountAuthorizationEntity() { AccountId = 1, AuthorizationId = authorizationId }).ToList();
+            context.AccountAuthorizationEntity.AddRange(accountAuthorizations);
+            context.SaveChanges();
+            context.ChangeTracker.Clear();
+
+            // add three authorization of type customer into contact authorization
+            var existedContactAuthorizations = context.AuthorizationEntity
+                .Where(a => a.Type == AuthorizationType.Customer)
+                .Take(3).ToList().Select(authorization => new ContactAuthorizationEntity()
+                {
+                    AccountId = account.AccountId,
+                    AuthorizationId = authorization.AuthorizationId,
+                    ContactId = contact.ContactId,
+                    CreationDate = DateTime.UtcNow
+                });
+            context.ContactAuthorizationEntity.AddRange(existedContactAuthorizations);
+            context.SaveChanges();
+            context.ChangeTracker.Clear();
+
+            // execute
+            var authorizationRepos = new AuthorizationRepository(context);
+            await authorizationRepos.SetContactAuthorizationFromAccountAuthorization(account.AccountId, contact.ContactId);
+
+            context.ChangeTracker.Clear();
+            var contactAuthorizations = context.ContactAuthorizationEntity.ToList();
+
+            contactAuthorizations.Should().NotBeEmpty();
+            contactAuthorizations.Count().Should().Be(customerAuthorizations.Count());
+        }
+    }
+
+    [Fact]
+    public async Task SetContactAuthorizationFromContactAuthoriztion_ShouldThrowExceptionIfContactIsNullOrDefault()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+               .Options;
+
+        int contactId = 0;
+        int accountId = 2;
+
+        using (var context = new AuthorizationContext(options))
+        {
+            var authorizationRepos = new AuthorizationRepository(context);
+
+            var action = async () => await authorizationRepos.SetContactAuthorizationFromAccountAuthorization(accountId, contactId);
+
+            var exception = await action.Should().ThrowAsync<Pulse.ExceptionMiddleware.Exceptions.NullArgumentException>();
+
+            exception.Which.Code.Should().Be(Errors.NullArgumentCode);
+            exception.WithMessage(string.Format(Errors.NullArgumentMessage, nameof(contactId)));
+        }
+    }
+
+    [Fact]
+    public async Task SetContactAuthorizationFromContactAuthoriztion_ShouldThrowExceptionIfAccountIsNullOrDefault()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+               .Options;
+
+        int contactId = 2;
+        int accountId = 0;
+
+        using (var context = new AuthorizationContext(options))
+        {
+            var authorizationRepos = new AuthorizationRepository(context);
+
+            var action = async () => await authorizationRepos.SetContactAuthorizationFromAccountAuthorization(accountId, contactId);
+
+            var exception = await action.Should().ThrowAsync<Pulse.ExceptionMiddleware.Exceptions.NullArgumentException>();
+
+            exception.Which.Code.Should().Be(Errors.NullArgumentCode);
+            exception.WithMessage(string.Format(Errors.NullArgumentMessage, nameof(accountId)));
         }
     }
 }
