@@ -696,7 +696,7 @@ public class AuthorizationRepositoryTests
 
             await repos.CreateDefaultAuthorizationsOnAccountAsync(1);
 
-            context.AccountAuthorizationEntity.Where(x => x.AccountId == 1).ToList().Count().Should().Be(defaultPermissions.Count());
+            context.AccountAuthorizationEntity.Where(x => x.AccountId == 1).ToList().Count.Should().Be(defaultPermissions.Count());
         }
     }
 }

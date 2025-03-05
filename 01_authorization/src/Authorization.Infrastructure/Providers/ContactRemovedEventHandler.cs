@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using Pulse.Back.Events.Abstractions;
 using Pulse.Back.Events.IntegrationEvents;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
-using Pulse.Back.Events.IntegrationEvents.Events.Contact;
 
 namespace Pulse.Authorization.Infrastructure.Providers
 {

@@ -29,7 +29,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
     <PackageReference Include="Polly" Version="8.4.1" />
-    <PackageReference Include="Pulse.Back.Events" Version="2.73.38" />
+    <PackageReference Include="Pulse.Back.Events" Version="2.73.45" />
     <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
   </ItemGroup>
 

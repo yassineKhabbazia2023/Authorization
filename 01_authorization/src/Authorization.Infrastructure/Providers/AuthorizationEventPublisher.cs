@@ -4,8 +4,8 @@
 
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Back.Events.Abstractions;
-using Pulse.Back.Events.IntegrationEvents.Events.Authorization;
-using Pulse.Back.Events.IntegrationEvents.EventsData.BaseEventData;
+using Pulse.Back.Events.IntegrationEvents;
+using Pulse.Back.Events.IntegrationEvents.EventsData;
 
 namespace Pulse.Authorization.Infrastructure.Providers;
 
@@ -20,7 +20,7 @@ public class AuthorizationEventPublisher : IAuthorizationEventPublisher
 
     public async Task PublishAuthorizationCreatedEventAsync(int contactId, int accountId, IEnumerable<string> codes)
     {
-        var eventData = new AuthorizationEventData
+        var eventData = new BaseAuthorizationEventData
         {
             AccountId = accountId,
             ContactId = contactId,
@@ -33,7 +33,7 @@ public class AuthorizationEventPublisher : IAuthorizationEventPublisher
 
     public async Task PublishAuthorizationUpdatedEventAsync(int? contactId, int accountId, IEnumerable<string> codes, bool fromOffer = false)
     {
-        var eventData = new AuthorizationEventData
+        var eventData = new BaseAuthorizationEventData
         {
             AccountId = accountId,
             ContactId = contactId,

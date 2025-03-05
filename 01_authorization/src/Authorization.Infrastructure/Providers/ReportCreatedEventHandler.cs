@@ -8,8 +8,7 @@ using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Back.Events.Abstractions;
-using Pulse.Back.Events.IntegrationEvents.Events.Reporting;
-using Pulse.Back.Events.IntegrationEvents.EventsData;
+using Pulse.Back.Events.IntegrationEvents;
 
 namespace Pulse.Authorization.Infrastructure.Providers;
 

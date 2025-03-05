@@ -7,7 +7,7 @@ using FluentAssertions;
 using Moq;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Back.Events.Abstractions;
-using Pulse.Back.Events.IntegrationEvents.EventsData.BaseEventData;
+using Pulse.Back.Events.IntegrationEvents.EventsData;
 
 namespace Pulse.Account.Infrastructure.Tests.Providers
 {
@@ -28,7 +28,7 @@ namespace Pulse.Account.Infrastructure.Tests.Providers
             var authorizationEventPublisher = new AuthorizationEventPublisher(publisherMock.Object);
             var codes = _fixture.Create<List<string>>();
 
-            publisherMock.Setup(p => p.PublishAsync(It.IsAny<BaseEvent<AuthorizationEventData>>(), null!, null)).Callback<BaseEvent<AuthorizationEventData>, string, string>((@event, _, _) =>
+            publisherMock.Setup(p => p.PublishAsync(It.IsAny<BaseEvent<BaseAuthorizationEventData>>(), null!, null)).Callback<BaseEvent<BaseAuthorizationEventData>, string, string>((@event, _, _) =>
             {
                 @event.Data.Codes.Should().BeEquivalentTo(codes);
                 @event.Data.AccountId.Should().Be(1);
@@ -39,7 +39,7 @@ namespace Pulse.Account.Infrastructure.Tests.Providers
             await authorizationEventPublisher.PublishAuthorizationCreatedEventAsync(1, 1, codes);
 
             // Assert
-            publisherMock.Verify(p => p.PublishAsync(It.IsAny<BaseEvent<AuthorizationEventData>>(), null!, null), Times.Once);
+            publisherMock.Verify(p => p.PublishAsync(It.IsAny<BaseEvent<BaseAuthorizationEventData>>(), null!, null), Times.Once);
         }
 
         [Theory]
@@ -52,7 +52,7 @@ namespace Pulse.Account.Infrastructure.Tests.Providers
             var authorizationEventPublisher = new AuthorizationEventPublisher(publisherMock.Object);
             var codes = _fixture.Create<List<string>>();
 
-            publisherMock.Setup(p => p.PublishAsync(It.IsAny<BaseEvent<AuthorizationEventData>>(), null!, null)).Callback<BaseEvent<AuthorizationEventData>, string, string>((@event, _, _) =>
+            publisherMock.Setup(p => p.PublishAsync(It.IsAny<BaseEvent<BaseAuthorizationEventData>>(), null!, null)).Callback<BaseEvent<BaseAuthorizationEventData>, string, string>((@event, _, _) =>
             {
                 @event.Data.Codes.Should().BeEquivalentTo(codes);
                 @event.Data.AccountId.Should().Be(1);
@@ -64,7 +64,7 @@ namespace Pulse.Account.Infrastructure.Tests.Providers
             await authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(1, 1, codes, fromOffer);
 
             // Assert
-            publisherMock.Verify(p => p.PublishAsync(It.IsAny<BaseEvent<AuthorizationEventData>>(), null!, null), Times.Once);
+            publisherMock.Verify(p => p.PublishAsync(It.IsAny<BaseEvent<BaseAuthorizationEventData>>(), null!, null), Times.Once);
         }
     }
 }

@@ -20,10 +20,6 @@ using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.ExceptionMiddleware.Exceptions;
 using Pulse.Authorization.Infrastructure.Services;
-using Pulse.Back.Events.IntegrationEvents.Events.Reporting;
-using Pulse.Back.Events.IntegrationEvents.Events.Offer;
-using Pulse.Back.Events.IntegrationEvents.Events.Account;
-using Pulse.Back.Events.IntegrationEvents.Events.Contact;
 
 namespace Pulse.Authorization.API.Configuration
 {

@@ -63,7 +63,7 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
-    public async void DeletePermissionAsync_Should_ReturnOk()
+    public async Task DeletePermissionAsyncShouldReturnOkAsync()
     {
         // Arrange
         var accountId = 6000;
