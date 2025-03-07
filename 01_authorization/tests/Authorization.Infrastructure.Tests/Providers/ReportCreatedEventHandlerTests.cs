@@ -21,7 +21,7 @@ public class ReportCreatedEventHandlerTests
         _authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(It.IsAny<int?>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>(), false))
             .Returns(Task.CompletedTask)
             .Verifiable();
-        _authorizationRepositoryMock.Setup(a => a.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()))
+        _authorizationRepositoryMock.Setup(a => a.CreateReportingAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()))
             .ReturnsAsync(GlobalConstants.PowerBIDefaultPermissions)
             .Verifiable();
     }
@@ -61,7 +61,7 @@ public class ReportCreatedEventHandlerTests
         await handler.HandleAsync(null!);
 
         // Assert
-        _authorizationRepositoryMock.Verify(repo => repo.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()), Times.Never);
+        _authorizationRepositoryMock.Verify(repo => repo.CreateReportingAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()), Times.Never);
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public class ReportCreatedEventHandlerTests
         await handler.HandleAsync(message);
 
         // Assert
-        _authorizationRepositoryMock.Verify(repo => repo.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()), Times.Never);
+        _authorizationRepositoryMock.Verify(repo => repo.CreateReportingAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()), Times.Never);
     }
 
     [Fact]
@@ -91,6 +91,6 @@ public class ReportCreatedEventHandlerTests
         await handler.HandleAsync(message);
 
         // Assert
-        _authorizationRepositoryMock.Verify(repo => repo.CreateRapportBIAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()), Times.Never);
+        _authorizationRepositoryMock.Verify(repo => repo.CreateReportingAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<string[]>()), Times.Never);
     }
 }

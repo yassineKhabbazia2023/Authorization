@@ -196,23 +196,32 @@ public class AuthorizationRepository : IAuthorizationRepository
         return GlobalConstants.DefaultAccountPermissions;
     }
 
-    public async Task<IEnumerable<string>> CreateRapportBIAuthorizationsOnAccountAsync(int accountId, string[] codes)
+    public async Task<IEnumerable<string>> CreateReportingAuthorizationsOnAccountAsync(int accountId, string[] codes)
     {
-        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => codes.Contains(a.Code)).Distinct().ToListAsync();
-        _authorizationContext.AccountAuthorizationEntity.AddRange(authorizations.Where(a => !a.AccountAuthorizationEntity.Any(ac => ac.AuthorizationId == a.AuthorizationId && ac.AccountId == accountId))
-            .Select(a =>
-            {
-                return new AccountAuthorizationEntity
-                {
-                    AccountId = accountId,
-                    AuthorizationId = a.AuthorizationId,
-                    Enabled = true,
-                };
-            }));
+        var authorizations = await _authorizationContext
+            .AuthorizationEntity
+            .Include(a => a.AccountAuthorizationEntity)
+            .Where(a => codes.Contains(a.Code))
+            .Distinct()
+            .ToListAsync();
 
+        var newAuthorizations = authorizations
+            .Where(a => !a.AccountAuthorizationEntity
+                         .Any(ac => ac.AccountId == accountId
+                                    && ac.AuthorizationId == a.AuthorizationId))
+            .ToList();
+
+        var newAccountAuths = newAuthorizations.Select(a => new AccountAuthorizationEntity
+        {
+            AccountId = accountId,
+            AuthorizationId = a.AuthorizationId,
+            Enabled = true
+        });
+
+        _authorizationContext.AccountAuthorizationEntity.AddRange(newAccountAuths);
         await _authorizationContext.SaveChangesAsync();
 
-        return codes;
+        return newAuthorizations.Select(a => a.Code);
     }
 
     public async Task<IEnumerable<string>> CreateDefaultAuthorizationsOnSignatoryAsync(int contactId, int accountId)

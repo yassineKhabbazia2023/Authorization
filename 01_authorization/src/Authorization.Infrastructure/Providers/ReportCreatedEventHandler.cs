@@ -1,8 +1,9 @@
-﻿// <copyright file="AuthorizationCreatedEventHandler.cs" company="Pulse">
+﻿// <copyright file="ReportCreatedEventHandler.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Interfaces;
@@ -43,7 +44,15 @@ public class ReportCreatedEventHandler : IEventHandler
         }
 
         var reportEventData = reportEvent!.Data;
-        var createdAuthorizations = await _authorizationRepository.CreateRapportBIAuthorizationsOnAccountAsync(reportEventData.AccountId, GlobalConstants.PowerBIDefaultPermissions);
+
+        var createdAuthorizations = await _authorizationRepository.CreateReportingAuthorizationsOnAccountAsync(reportEventData.AccountId, GlobalConstants.PowerBIDefaultPermissions);
+
+        if (createdAuthorizations.IsNullOrEmpty())
+        {
+            _logger.LogWarning("Les codes d'authorization reporting existent déjà pour l'account: {AccountId}", reportEventData.AccountId);
+            return;
+        }
+
         await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(null!, reportEventData.AccountId, createdAuthorizations);
     }
 }

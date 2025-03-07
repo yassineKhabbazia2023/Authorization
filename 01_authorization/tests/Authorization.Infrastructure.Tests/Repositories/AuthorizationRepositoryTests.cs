@@ -596,7 +596,7 @@ public class AuthorizationRepositoryTests
 
 
     [Fact]
-    public async Task CreateRapportBIAuthorizationsOnAccountAsync_Should_AddRapportBiAuthorizations()
+    public async Task CreateReportingAuthorizationsOnAccountAsync_Should_AddReportinghorizations()
     {
         // Arrange
         var options = new DbContextOptionsBuilder<AuthorizationContext>()
@@ -617,11 +617,11 @@ public class AuthorizationRepositoryTests
         using var context = new AuthorizationContext(options);
         context.AccountEntity.Add(account);
         context.AuthorizationEntity.AddRange(authorizationEntities);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         var repository = new AuthorizationRepository(context);
 
         // Act
-        var result = await repository.CreateRapportBIAuthorizationsOnAccountAsync(account.AccountId, GlobalConstants.PowerBIDefaultPermissions);
+        var result = await repository.CreateReportingAuthorizationsOnAccountAsync(account.AccountId, GlobalConstants.PowerBIDefaultPermissions);
 
         // Assert
         Assert.NotNull(result);
@@ -692,9 +692,9 @@ public class AuthorizationRepositoryTests
         {
             context.ContactEntity.Add(contactEntity);
             context.AuthorizationEntity.AddRange(defaultAuthorizationEntities);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             context.ContactAuthorizationEntity.AddRange(defaultAuthorizationsThatAlreadyExistedForContact);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             var repos = new AuthorizationRepository(context);
 
@@ -910,5 +910,78 @@ public class AuthorizationRepositoryTests
             exception.Which.Code.Should().Be(Errors.NullArgumentCode);
             exception.WithMessage(string.Format(Errors.NullArgumentMessage, nameof(accountId)));
         }
+    }
+
+    [Fact]
+    public async Task CreateReportingAuthorizationsOnAccountAsync_Should_OnlyInsertNewCodes_WhenSomeAlreadyExist()
+    {
+        // Arrange
+        using var context = new AuthorizationContext(_options);
+
+        var accountId = 100;
+        var auth1 = new AuthorizationEntity
+        {
+            AuthorizationId = 17,
+            Code = "CLRAPP001",
+            Name = "View bi financial",
+            Type = "Customer",
+            View = "Partial",
+            Label = "Accéder aux rapports BI Financier",
+            Configurable = true,
+            Description = string.Empty,
+            AccountAuthorizationEntity = new List<AccountAuthorizationEntity>()
+        };
+        var auth2 = new AuthorizationEntity
+        {
+            AuthorizationId = 18,
+            Code = "CLRAPP002",
+            Name = "View bi HR",
+            Type = "Customer",
+            View = "Partial",
+            Label = "Accéder aux rapports BI RH\r\nAccéder aux rapports BI RH",
+            Configurable = false,
+            Description = string.Empty,
+        };
+        var auth3 = new AuthorizationEntity
+        {
+            AuthorizationId = 39,
+            Code = "CORAPP001",
+            Name = "Mirror report",
+            Type = "Customer",
+            View = "Partial",
+            Label = "Accéder aux rapports BI ",
+            Configurable = true,
+            Description = string.Empty,
+        };
+
+        auth1.AccountAuthorizationEntity.Add(new AccountAuthorizationEntity
+        {
+            AccountId = accountId,
+            AuthorizationId = auth1.AuthorizationId,
+            Enabled = true
+        });
+
+        context.AuthorizationEntity.AddRange(auth1, auth2, auth3);
+        await context.SaveChangesAsync();
+
+        var repository = new AuthorizationRepository(context);
+
+        var codesToInsert = new[] { "CLRAPP001", "CLRAPP002", "CORAPP001" };
+
+        // Act
+        var result = await repository.CreateReportingAuthorizationsOnAccountAsync(accountId, codesToInsert);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(["CLRAPP002", "CORAPP001"]);
+
+        var allLinksForAccount = await context.AccountAuthorizationEntity
+            .Where(ac => ac.AccountId == accountId)
+            .ToListAsync();
+        allLinksForAccount.Count.Should().Be(3);
+
+        allLinksForAccount.Any(x => x.AuthorizationId == 17).Should().BeTrue();
+        allLinksForAccount.Any(x => x.AuthorizationId == 18).Should().BeTrue();
+        allLinksForAccount.Any(x => x.AuthorizationId == 39).Should().BeTrue();
     }
 }
