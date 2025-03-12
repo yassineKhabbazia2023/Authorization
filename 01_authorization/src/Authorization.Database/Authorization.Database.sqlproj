@@ -66,7 +66,9 @@
     <Folder Include="account\Tables\" />
     <Folder Include="Security\" />
     <Folder Include="postDeployment" />
-    <Folder Include="ScriptRec" />
+    <Folder Include="Scripts" />
+    <Folder Include="Scripts\REC" />
+    <Folder Include="Scripts\PROD" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="auth\Tables\Authorization.sql" />
@@ -82,13 +84,19 @@
     <Build Include="auth\Tables\PersonaAuthorization.sql" />
     <None Include="postDeployment\auth.Persona.sql" />
     <Build Include="account\Tables\Role.sql" />
+    <Build Include="Scripts\PROD\0001_Droits_reporting_account.sql" />
+    <Build Include="Scripts\PROD\0002_Add_mirror_permissions_for_collabs.sql" />
+    <Build Include="Scripts\PROD\0003_Add_mirror_permissions_for_collabs.sql" />
+    <Build Include="Scripts\PROD\0004_Add_ged_permissions_depending_on_persona.sql" />
+    <Build Include="Scripts\PROD\0005_Add_base_permissions_for_accounts.sql" />
+    <Build Include="Scripts\PROD\0006_Script_Init_Auth_PowerBi_Account.sql" />
+    <None Include="Scripts\REC\actor.Contact.ExpertDigitaux.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Authorization.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
     <None Include="postDeployment\actor.Contact.sql" />
-    <None Include="ScriptRec\actor.Contact.ExpertDigitaux.sql" />
     <None Include="postDeployment\auth.InitPermissionCollab.sql" />
     <None Include="postDeployment\tablesMigration.sql" />
     <None Include="postDeployment\auth.InitAuthorization.sql" />
