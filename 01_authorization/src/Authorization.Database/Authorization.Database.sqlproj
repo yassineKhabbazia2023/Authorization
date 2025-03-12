@@ -84,12 +84,12 @@
     <Build Include="auth\Tables\PersonaAuthorization.sql" />
     <None Include="postDeployment\auth.Persona.sql" />
     <Build Include="account\Tables\Role.sql" />
-    <Build Include="Scripts\PROD\0001_Droits_reporting_account.sql" />
-    <Build Include="Scripts\PROD\0002_Add_mirror_permissions_for_collabs.sql" />
-    <Build Include="Scripts\PROD\0003_Add_mirror_permissions_for_collabs.sql" />
-    <Build Include="Scripts\PROD\0004_Add_ged_permissions_depending_on_persona.sql" />
-    <Build Include="Scripts\PROD\0005_Add_base_permissions_for_accounts.sql" />
-    <Build Include="Scripts\PROD\0006_Script_Init_Auth_PowerBi_Account.sql" />
+    <None Include="Scripts\PROD\0001_Droits_reporting_account.sql" />
+    <None Include="Scripts\PROD\0002_Add_mirror_permissions_for_collabs.sql" />
+    <None Include="Scripts\PROD\0003_Add_mirror_permissions_for_collabs.sql" />
+    <None Include="Scripts\PROD\0004_Add_ged_permissions_depending_on_persona.sql" />
+    <None Include="Scripts\PROD\0005_Add_base_permissions_for_accounts.sql" />
+    <None Include="Scripts\PROD\0006_Script_Init_Auth_PowerBi_Account.sql" />
     <None Include="Scripts\REC\actor.Contact.ExpertDigitaux.sql" />
   </ItemGroup>
   <ItemGroup>
