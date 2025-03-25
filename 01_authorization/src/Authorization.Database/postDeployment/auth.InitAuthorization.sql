@@ -7,7 +7,7 @@ INSERT INTO auth.[Authorization] (
 	('View User', '', 'CLUSER001', 'Consulter les utilisateurs', 'CLTGESTION', '1', 'Both', NULL, 'customer'),
 	('Add User', '', 'CLUSER002', 'Ajouter un utilisateur', 'CLTGESTION', '1', 'Partial',NULL, 'customer'),
 	('Delete User', '', 'CLUSER003', 'Supprimer un utilisateur', 'CLTGESTION', '1', 'Partial',NULL, 'customer'),
-	('Update right', '', 'CLUSER004', 'Gérer les droits utilisateurs', 'CLTGESTION', '1', 'Partial', NULL, 'customer'),
+	('Update right', '', 'CLUSER004', 'Gérer les droits utilisateurs', 'CLTGESTION', '1', 'Both', NULL, 'customer'),
 	('View offers', '', 'CLOFF001', 'Accéder aux offres souscrites', 'CLTGESTION', '1', 'Partial', NULL, 'customer'),
 	('View informations', '', 'CLINFO001', 'Accéder aux informations d''entreprise', 'CLTGESTION', '1', 'Both', NULL, 'customer'),
 	('View Invoice', '', 'CLINVO001', 'Accéder aux factures Pulse', 'CLTGESTION', '0', 'Partial', NULL, 'customer'),

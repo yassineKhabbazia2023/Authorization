@@ -78,7 +78,6 @@
     <Build Include="Security\actor.sql" />
     <Build Include="Security\auth.sql" />
     <Build Include="auth\Tables\ContactAuthorization.sql" />
-    <None Include="postDeployment\account.Account.sql" />
     <Build Include="auth\Tables\AccountAuthorization.sql" />
     <Build Include="auth\Tables\Persona.sql" />
     <Build Include="auth\Tables\PersonaAuthorization.sql" />
@@ -97,11 +96,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="postDeployment\actor.Contact.sql" />
-    <None Include="postDeployment\auth.InitPermissionCollab.sql" />
     <None Include="postDeployment\tablesMigration.sql" />
     <None Include="postDeployment\auth.InitAuthorization.sql" />
-    <None Include="postDeployment\account.Role.sql" />
-    <None Include="postDeployment\auth.InitPermissionsClients.sql" />
+    <None Include="Scripts\PROD\0007_Script_update_CLUSER004_view.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
