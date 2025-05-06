@@ -2,8 +2,10 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
@@ -53,6 +55,10 @@ namespace Pulse.Authorization.Infrastructure.Providers
             if (roleEntity.IsSignatory == true)
             {
                 await _authorizationRepository.SetContactAuthorizationFromAccountAuthorization(roleEntity.AccountId, roleEntity.ContactId);
+            }
+            else
+            {
+                await _authorizationRepository.DeleteContactAuthorizationsAsync(roleEntity.ContactId, roleEntity.AccountId, GlobalConstants.OnSignatoryRemovedPermissions);
             }
 
             _logger.LogInformation("Le role de contact l'identifiant: {ContactId} et account: {AccountId} vient d'être modifié.", roleEntity.ContactId, roleEntity.AccountId);

@@ -32,6 +32,14 @@ namespace Pulse.Authorization.Infrastructure.Constants
             "CLUSER004", "CLOFF001", "CLINFO001",
         ];
 
+        public static readonly string[] OnSignatoryRemovedPermissions =
+        [
+            "CLUSER001", "CLUSER002", "CLUSER003", "CLUSER004", "CLOFF001",
+            "CLINFO001", "CLGED0001", "CLSPGDS01", "CLSPGDS02", "CLGED0002",
+            "CLSPGDC01", "CLSPGDC02", "CLSILA001", "CLMEG001", "CLPEN001",
+            "CLRAPP001"
+        ];
+
         public static readonly ReadOnlyDictionary<string, string> CustomerToMirrorCodes = new(new Dictionary<string, string>{
             { "CLGED0001", "COGED0001" },
             { "CLGED0002", "COGED0002" },

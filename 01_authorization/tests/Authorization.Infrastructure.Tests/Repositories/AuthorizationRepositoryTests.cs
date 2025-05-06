@@ -4,6 +4,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Azure.Amqp;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Newtonsoft.Json;
@@ -983,5 +984,129 @@ public class AuthorizationRepositoryTests
         allLinksForAccount.Any(x => x.AuthorizationId == 17).Should().BeTrue();
         allLinksForAccount.Any(x => x.AuthorizationId == 18).Should().BeTrue();
         allLinksForAccount.Any(x => x.AuthorizationId == 39).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DeleteContactAuthorizationsAsync_WithInvalidContact_ShouldThrowNullArgumentException()
+    {
+        int contactId = 0;
+        int accountId = 123;
+        string[] permissions = { "COADMI001", "COADMI002" };
+
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+               .Options;
+
+        using (var context = new AuthorizationContext(options))
+        {
+            var authRepos = new AuthorizationRepository(context);
+            var action = async () => await authRepos.DeleteContactAuthorizationsAsync(contactId, accountId, permissions);
+            var exception = await action.Should().ThrowAsync<Pulse.ExceptionMiddleware.Exceptions.NullArgumentException>();
+            exception.Which.Code.Should().Be(Errors.NullArgumentCode);
+            exception.WithMessage(string.Format(Errors.NullArgumentMessage, "contactId"));
+        }
+    }
+
+    [Fact]
+    public async Task DeleteContactAuthorizationsAsync_WithInvalidAccount_ShouldThrowNullArgumentException()
+    {
+        int contactId = 123;
+        int accountId = 0;
+        string[] permissions = { "COADMI001", "COADMI002" };
+
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+               .Options;
+
+        using (var context = new AuthorizationContext(options))
+        {
+            var authRepos = new AuthorizationRepository(context);
+            var action = async () => await authRepos.DeleteContactAuthorizationsAsync(contactId, accountId, permissions);
+            var exception = await action.Should().ThrowAsync<Pulse.ExceptionMiddleware.Exceptions.NullArgumentException>();
+            exception.Which.Code.Should().Be(Errors.NullArgumentCode);
+            exception.WithMessage(string.Format(Errors.NullArgumentMessage, "accountId"));
+        }
+    }
+
+    [Fact]
+    public async Task DeleteContactAuthorizationsAsync_WithInvalidPermissions_ShouldThrowNullArgumentException()
+    {
+        int contactId = 123;
+        int accountId = 22;
+        string[] permissions = { };
+
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+               .Options;
+
+        using (var context = new AuthorizationContext(options))
+        {
+            var authRepos = new AuthorizationRepository(context);
+            var action = async () => await authRepos.DeleteContactAuthorizationsAsync(contactId, accountId, permissions);
+            var exception = await action.Should().ThrowAsync<Pulse.ExceptionMiddleware.Exceptions.NullArgumentException>();
+            exception.Which.Code.Should().Be(Errors.NullArgumentCode);
+            exception.WithMessage(string.Format(Errors.NullArgumentMessage, "permissions"));
+        }
+    }
+
+    [Fact]
+    public async Task DeleteContactAuthorizationsAsync_WithValidAccountContactAndPermission_ShouldDeleteContactAuthrorizations()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+               .Options;
+
+        var authorizationsEntities = _fixture.Build<AuthorizationEntity>()
+            .Without(auth => auth.ContactAuthorizationEntity)
+            .Without(auth => auth.AccountAuthorizationEntity)
+            .Without(auth => auth.Persona)
+            .CreateMany(5);
+
+        var accountEntity = _fixture.Build<AccountEntity>()
+            .Without(acc => acc.ContactAuthorizationEntity)
+            .Without(acc => acc.AccountAuthorizationEntity)
+            .Without(acc => acc.RoleEntity)
+            .Create();
+
+        var contactEntity = _fixture.Build<ContactEntity>()
+            .Without(acc => acc.ContactAuthorizationEntity)
+            .Without(acc => acc.RoleEntity)
+            .Create();
+
+        var permissions = authorizationsEntities.TakeLast(3).Select(auth => auth.Code).ToArray();
+        int accountId = accountEntity.AccountId;
+        int contactId = contactEntity.ContactId;
+
+        var contactAuthorizationEntities = new List<ContactAuthorizationEntity>();
+
+        foreach (var auth in authorizationsEntities)
+        {
+            var contactAuthorization = _fixture.Build<ContactAuthorizationEntity>()
+            .Without(cnt => cnt.Authorization)
+            .Without(cnt => cnt.Account)
+            .Without(cnt => cnt.Contact)
+            .With(cnt => cnt.ContactId, contactId)
+            .With(cnt => cnt.AccountId, accountId)
+            .With(cnt => cnt.AuthorizationId, auth.AuthorizationId)
+            .Create();
+            contactAuthorizationEntities.Add(contactAuthorization);
+        }
+
+        using (var context = new AuthorizationContext(options))
+        {
+            context.ContactEntity.Add(contactEntity);
+            context.AccountEntity.Add(accountEntity);
+            context.AuthorizationEntity.AddRange(authorizationsEntities);
+            await context.SaveChangesAsync();
+
+            await context.ContactAuthorizationEntity.AddRangeAsync(contactAuthorizationEntities);
+            await context.SaveChangesAsync();
+
+            var authRepos = new AuthorizationRepository(context);
+            await authRepos.DeleteContactAuthorizationsAsync(contactId, accountId, permissions);
+
+            var permissionList = context.ContactAuthorizationEntity.ToList();
+            permissionList.Count().Should().Be(2);
+        }
     }
 }

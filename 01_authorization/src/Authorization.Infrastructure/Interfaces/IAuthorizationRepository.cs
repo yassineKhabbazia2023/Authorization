@@ -25,4 +25,6 @@ public interface IAuthorizationRepository
     public Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<string> productCodes);
 
     public Task SetContactAuthorizationFromAccountAuthorization(int accountId, int contactId);
+
+    Task DeleteContactAuthorizationsAsync(int contactId, int accountId, string[] permissions);
 }

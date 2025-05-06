@@ -311,4 +311,37 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         return contactAuthorizationIds;
     }
+
+    public async Task DeleteContactAuthorizationsAsync(int contactId, int accountId, string[] permissions)
+    {
+        if (contactId == default(int))
+        {
+            throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(contactId)));
+        }
+
+        if (accountId == default(int))
+        {
+            throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(accountId)));
+        }
+
+        if (permissions.Count() == 0)
+        {
+            throw new NullArgumentException(Errors.NullArgumentCode, string.Format(Errors.NullArgumentMessage, nameof(permissions)));
+        }
+
+        var authorizationIds = _authorizationContext.AuthorizationEntity
+            .AsNoTracking()
+            .Where(authorization => permissions.Contains(authorization.Code))?
+            .Select(auth => auth.AuthorizationId).ToArray();
+
+        var contactAuthorizationsToDelete = _authorizationContext.ContactAuthorizationEntity
+            .Where(contactAuth => authorizationIds.Contains(contactAuth.AuthorizationId) && contactAuth.ContactId == contactId && contactAuth.AccountId == accountId)
+            .ToList();
+
+        if (contactAuthorizationsToDelete is not null && contactAuthorizationsToDelete.Count() > 0)
+        {
+            _authorizationContext.ContactAuthorizationEntity.RemoveRange(contactAuthorizationsToDelete);
+            await _authorizationContext.SaveChangesAsync();
+        }
+    }
 }

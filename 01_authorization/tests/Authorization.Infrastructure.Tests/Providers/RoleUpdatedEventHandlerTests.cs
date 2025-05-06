@@ -59,11 +59,40 @@ namespace Pulse.Authorization.Infrastructure.Tests.Providers
             var message = "{\"EventType\":\"RoleUpdatedEvent\",\"Data\":{\"ContactId\":123,\"AccountId\":22, \"IsSignatory\":0}}";
 
             authorizationReposMock.Setup(a => a.SetContactAuthorizationFromAccountAuthorization(It.IsAny<int>(), It.IsAny<int>()));
-// Act
+            // Act
             await handler.HandleAsync(message);
 
             // Assert
             repositoryMock.Verify(repo => repo.UpdateRoleAsync(It.IsAny<RoleEntity>()), Times.Once);
+
+            authorizationReposMock.Verify(repo => repo.SetContactAuthorizationFromAccountAuthorization(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task HandleAsync_WithValidMessage_WithNonSignatory_ShouldUpdateRoleAndDeleteContactPermissions()
+        {
+            // Arrange
+            var loggerMock = new Mock<ILogger<RoleUpdatedEventHandler>>();
+            var repositoryMock = new Mock<IRoleEventRepository>();
+            var authorizationReposMock = new Mock<IAuthorizationRepository>();
+            loggerMock.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
+
+            var handler = new RoleUpdatedEventHandler(loggerMock.Object, repositoryMock.Object, authorizationReposMock.Object);
+            var message = "{\"EventType\":\"RoleUpdatedEvent\",\"Data\":{\"ContactId\":123,\"AccountId\":22, \"IsSignatory\":0}}";
+
+            authorizationReposMock.Setup(a => a.SetContactAuthorizationFromAccountAuthorization(It.IsAny<int>(), It.IsAny<int>()));
+            // Act
+            await handler.HandleAsync(message);
+
+            // Assert
+            repositoryMock.Verify(repo => repo.UpdateRoleAsync(It.IsAny<RoleEntity>()), Times.Once);
+
+            authorizationReposMock.Verify(repo => repo.DeleteContactAuthorizationsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string[]>()), Times.Once);
 
             authorizationReposMock.Verify(repo => repo.SetContactAuthorizationFromAccountAuthorization(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         }
