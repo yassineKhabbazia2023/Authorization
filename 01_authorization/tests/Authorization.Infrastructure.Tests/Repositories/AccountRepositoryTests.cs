@@ -1,10 +1,9 @@
-﻿// <copyright file="ContactRepositoryTests.cs" company="Pulse">
+﻿// <copyright file="AccountRepositoryTests.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Repositories;

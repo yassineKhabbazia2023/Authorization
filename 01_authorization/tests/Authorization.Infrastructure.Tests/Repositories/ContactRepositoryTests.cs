@@ -4,9 +4,9 @@
 
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Repositories;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
@@ -47,27 +47,120 @@ public class ContactRepositoryTests
     }
 
     [Fact]
-    public async Task GetContacts_Will_Return_Only_DifferentThan_Removed()
+    public async Task GetSignatoriesAsync_Nominal()
     {
-        using (var context = new AuthorizationContext(_options))
-        {
-            var ContactEntitiesWithStatusRemoved = _fixture.CreateMany<ContactEntity>(5).ToList();
+        var accountId = 1;
 
-            var ContactEntitiesWithStatusInvited = _fixture.CreateMany<ContactEntity>(10).ToList();
+        using var context = new AuthorizationContext(_options);
 
-            ContactEntitiesWithStatusInvited.ForEach((e) => e.Status = "Invited");
-            ContactEntitiesWithStatusRemoved.ForEach((e) => e.Status = "Removed");
+        var contactProperties = _fixture.Build<string>();
+        context.RoleEntity.AddRange(
+            new RoleEntity
+            {
+                AccountId = accountId,
+                IsSignatory = true,
+                Contact = new ContactEntity
+                {
+                    ContactId = 101,
+                    Email = contactProperties.Create(),
+                    FirstName = contactProperties.Create(),
+                    LastName = contactProperties.Create(),
+                    PersonaName = contactProperties.Create(),
+                    Type = ContactType.Customer.ToString(),
+                }
+            },
+            new RoleEntity
+            {
+                AccountId = accountId,
+                IsSignatory = true,
+                Contact = new ContactEntity
+                {
+                    ContactId = 102,
+                    Email = contactProperties.Create(),
+                    FirstName = contactProperties.Create(),
+                    LastName = contactProperties.Create(),
+                    PersonaName = contactProperties.Create(),
+                    Type = ContactType.Customer.ToString(),
+                }
+            });
+        await context.SaveChangesAsync();
 
-            context.ContactEntity.AddRange(ContactEntitiesWithStatusInvited);
-            context.ContactEntity.AddRange(ContactEntitiesWithStatusInvited);
-            await context.SaveChangesAsync();
+        var repository = new ContactRepository(context);
 
+        var result = await repository.GetSignatoriesAsync(accountId);
 
-            var repository = new ContactRepository(context);
-
-            var contactsViewed = context.ContactEntity.ToList();
-
-            Assert.Equivalent(true, contactsViewed.All(x => x.Status == "Invited"));
-        }
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Equal(2, result.Count());
+        Assert.Equal(101, result.First());
+        Assert.Equal(102, result.ElementAt(1));
     }
+
+    [Theory]
+    [MemberData(nameof(InvalidContacts))]
+    public async Task GetSignatoriesAsync_ShouldReturnEmptyList_WhenNoClientSignatoryOnAccount(int accountId, bool isSignatory,ContactEntity contact)
+    {
+        using var context = new AuthorizationContext(_options);
+
+        var contactProperties = _fixture.Build<string>();
+        context.RoleEntity.AddRange(
+            new RoleEntity
+            {
+                AccountId = accountId,
+                IsSignatory = isSignatory,
+                Contact = contact
+            });
+        await context.SaveChangesAsync();
+
+        var repository = new ContactRepository(context);
+
+        var result = await repository.GetSignatoriesAsync(1);
+
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    public static TheoryData<int, bool, ContactEntity> InvalidContacts =>
+        new TheoryData<int, bool, ContactEntity>
+        {
+            {
+                1,
+                true,
+                new ContactEntity
+                {
+                    ContactId = 104,
+                    Email = "email",
+                    FirstName = "fistName",
+                    LastName = "lastName",
+                    PersonaName = "personaName",
+                    Type = ContactType.Collaborator.ToString(),
+                }
+            },
+            {
+                1,
+                false,
+                new ContactEntity
+                {
+                    ContactId = 104,
+                    Email = "email",
+                    FirstName = "fistName",
+                    LastName = "lastName",
+                    PersonaName = "personaName",
+                    Type = ContactType.Customer.ToString(),
+                }
+            },
+            {
+                2,
+                true,
+                new ContactEntity
+                {
+                    ContactId = 104,
+                    Email = "email",
+                    FirstName = "fistName",
+                    LastName = "lastName",
+                    PersonaName = "personaName",
+                    Type = ContactType.Customer.ToString(),
+                }
+            },
+        };
 }

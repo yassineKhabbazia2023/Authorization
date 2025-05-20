@@ -4,7 +4,6 @@
 
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.Azure.Amqp;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Newtonsoft.Json;
@@ -451,9 +450,6 @@ public class AuthorizationRepositoryTests
     public async Task AddSubscriptionAuthorizationsOnAccountAsync_Should_AddAccountAuthorizations_And_ReturnSaidAuthorizations()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
         var productCodes = new Dictionary<string, string>
         {
             { "123", "CLGED0001" },
@@ -492,7 +488,7 @@ public class AuthorizationRepositoryTests
             .With(a => a.AccountId, 42)
             .Create();
 
-        using var context = new AuthorizationContext(options);
+        using var context = new AuthorizationContext(_options);
         context.AccountEntity.Add(account);
         context.AuthorizationEntity.AddRange(authorizationEntities);
         context.SaveChanges();
@@ -511,10 +507,6 @@ public class AuthorizationRepositoryTests
     public async Task AddSubscriptionAuthorizationsOnContactAsync_Should_AddContactAuthorizations_And_ReturnSaidAuthorizations()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
         var authorizationEntities = _fixture.Build<AuthorizationEntity>()
                             .With(a => a.ProductCode)
                             .CreateMany(3);
@@ -527,7 +519,7 @@ public class AuthorizationRepositoryTests
             .With(c => c.IsActive, true)
             .CreateMany(12).DistinctBy(c => c.ContactId);
 
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             context.AccountEntity.Add(account);
             context.ContactEntity.AddRange(contacts);
@@ -548,7 +540,7 @@ public class AuthorizationRepositoryTests
             context.SaveChanges();
         }
 
-        using var ct = new AuthorizationContext(options);
+        using var ct = new AuthorizationContext(_options);
         var contactIds = contacts.Select(c => c.ContactId);
         var productCodes = authorizationEntities.Select(a => a.ProductCode).Distinct();
         var repository = new AuthorizationRepository(ct);
@@ -566,10 +558,6 @@ public class AuthorizationRepositoryTests
     public async Task CreateDefaultAuthorizationsOnAccountAsync_Should_AddDefaultAccountAuthorizations_And_ReturnSaidAuthorizations()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
         var authorizationEntities = GlobalConstants.DefaultAccountPermissions.Select(p =>
         {
             var a = _fixture.Create<AuthorizationEntity>();
@@ -581,7 +569,7 @@ public class AuthorizationRepositoryTests
             .With(a => a.AccountId, 44)
             .Create();
 
-        using var context = new AuthorizationContext(options);
+        using var context = new AuthorizationContext(_options);
         context.AccountEntity.Add(account);
         context.AuthorizationEntity.AddRange(authorizationEntities);
         context.SaveChanges();
@@ -600,10 +588,6 @@ public class AuthorizationRepositoryTests
     public async Task CreateReportingAuthorizationsOnAccountAsync_Should_AddReportinghorizations()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
         var authorizationEntities = GlobalConstants.PowerBIDefaultPermissions.Select(p =>
         {
             var a = _fixture.Create<AuthorizationEntity>();
@@ -615,7 +599,7 @@ public class AuthorizationRepositoryTests
             .With(a => a.AccountId, 44)
             .Create();
 
-        using var context = new AuthorizationContext(options);
+        using var context = new AuthorizationContext(_options);
         context.AccountEntity.Add(account);
         context.AuthorizationEntity.AddRange(authorizationEntities);
         await context.SaveChangesAsync();
@@ -633,10 +617,6 @@ public class AuthorizationRepositoryTests
     public async Task CreateDefaultAuthorizationsOnSignatoryAsync_Should_AddDefaultSignatoryAuthorizations_And_ReturnSaidAuthorizations()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
         var authorizationEntities = GlobalConstants.DefaultSignatoryPermissions.Select(p =>
         {
             var a = _fixture.Create<AuthorizationEntity>();
@@ -644,7 +624,7 @@ public class AuthorizationRepositoryTests
             return a;
         });
 
-        using var context = new AuthorizationContext(options);
+        using var context = new AuthorizationContext(_options);
         context.AuthorizationEntity.AddRange(authorizationEntities);
         context.SaveChanges();
         var repository = new AuthorizationRepository(context);
@@ -685,11 +665,7 @@ public class AuthorizationRepositoryTests
             .With(x => x.AccountId, 1).Create())
             .ToList();
 
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             context.ContactEntity.Add(contactEntity);
             context.AuthorizationEntity.AddRange(defaultAuthorizationEntities);
@@ -725,10 +701,6 @@ public class AuthorizationRepositoryTests
             .With(x => x.Type, AuthorizationType.Collaborator)
             .CreateMany(10).ToList();
 
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-               .Options;
-
         var account = _fixture.Build<AccountEntity>()
             .With(x => x.AccountId, 1)
             .Without(x => x.ContactAuthorizationEntity)
@@ -749,7 +721,7 @@ public class AuthorizationRepositoryTests
             Type = "customer"
         };
 
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             context.AccountEntity.Add(account);
             context.ContactEntity.Add(contact);
@@ -799,10 +771,6 @@ public class AuthorizationRepositoryTests
             .With(x => x.Type, AuthorizationType.Collaborator)
             .CreateMany(10).ToList();
 
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-               .Options;
-
         var account = _fixture.Build<AccountEntity>()
             .With(x => x.AccountId, 1)
             .Without(x => x.ContactAuthorizationEntity)
@@ -823,7 +791,7 @@ public class AuthorizationRepositoryTests
             Type = "customer"
         };
 
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             // add account, contacts and authorizations
             context.AccountEntity.Add(account);
@@ -870,14 +838,10 @@ public class AuthorizationRepositoryTests
     [Fact]
     public async Task SetContactAuthorizationFromContactAuthoriztion_ShouldThrowExceptionIfContactIsNullOrDefault()
     {
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-               .Options;
-
         int contactId = 0;
         int accountId = 2;
 
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             var authorizationRepos = new AuthorizationRepository(context);
 
@@ -893,14 +857,10 @@ public class AuthorizationRepositoryTests
     [Fact]
     public async Task SetContactAuthorizationFromContactAuthoriztion_ShouldThrowExceptionIfAccountIsNullOrDefault()
     {
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-               .Options;
-
         int contactId = 2;
         int accountId = 0;
 
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             var authorizationRepos = new AuthorizationRepository(context);
 
@@ -993,11 +953,7 @@ public class AuthorizationRepositoryTests
         int accountId = 123;
         string[] permissions = { "COADMI001", "COADMI002" };
 
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-               .Options;
-
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             var authRepos = new AuthorizationRepository(context);
             var action = async () => await authRepos.DeleteContactAuthorizationsAsync(contactId, accountId, permissions);
@@ -1014,11 +970,7 @@ public class AuthorizationRepositoryTests
         int accountId = 0;
         string[] permissions = { "COADMI001", "COADMI002" };
 
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-               .Options;
-
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             var authRepos = new AuthorizationRepository(context);
             var action = async () => await authRepos.DeleteContactAuthorizationsAsync(contactId, accountId, permissions);
@@ -1035,11 +987,7 @@ public class AuthorizationRepositoryTests
         int accountId = 22;
         string[] permissions = { };
 
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-               .Options;
-
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             var authRepos = new AuthorizationRepository(context);
             var action = async () => await authRepos.DeleteContactAuthorizationsAsync(contactId, accountId, permissions);
@@ -1052,10 +1000,6 @@ public class AuthorizationRepositoryTests
     [Fact]
     public async Task DeleteContactAuthorizationsAsync_WithValidAccountContactAndPermission_ShouldDeleteContactAuthrorizations()
     {
-        var options = new DbContextOptionsBuilder<AuthorizationContext>()
-               .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-               .Options;
-
         var authorizationsEntities = _fixture.Build<AuthorizationEntity>()
             .Without(auth => auth.ContactAuthorizationEntity)
             .Without(auth => auth.AccountAuthorizationEntity)
@@ -1092,7 +1036,7 @@ public class AuthorizationRepositoryTests
             contactAuthorizationEntities.Add(contactAuthorization);
         }
 
-        using (var context = new AuthorizationContext(options))
+        using (var context = new AuthorizationContext(_options))
         {
             context.ContactEntity.Add(contactEntity);
             context.AccountEntity.Add(accountEntity);
@@ -1108,5 +1052,83 @@ public class AuthorizationRepositoryTests
             var permissionList = context.ContactAuthorizationEntity.ToList();
             permissionList.Count().Should().Be(2);
         }
+    }
+
+    [Fact]
+    public async Task CreateReportingAuthorizationsForSignatoriesAsync_Nominal()
+    {
+        var accountId = 1;
+        var contacts = new List<int> { 1, 2 };
+
+        var auth1 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.Code, GlobalConstants.PowerBIDefaultSignatoryPermissions[0])
+            .Without(a => a.ContactAuthorizationEntity)
+            .Without(a => a.AccountAuthorizationEntity)
+            .Create();
+        var auth2 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.Code, GlobalConstants.PowerBIDefaultSignatoryPermissions[1])
+            .Without(a => a.ContactAuthorizationEntity)
+            .Without(a => a.AccountAuthorizationEntity)
+            .Create();
+
+        using var context = new AuthorizationContext(_options);
+        context.AuthorizationEntity.AddRange(new List<AuthorizationEntity> { auth1,  auth2 });
+        await context.SaveChangesAsync();
+
+        var repository = new AuthorizationRepository(context);
+
+        var result = await repository.CreateReportingAuthorizationsForSignatoriesAsync(contacts, accountId);
+
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Equal(4, result.Count());
+    }
+
+    [Fact]
+    public async Task CreateReportingAuthorizationsForSignatoriesAsync_ShouldReturnEmptyList_WhenContactAuthorizationsAlreadyExist()
+    {
+        var accountId = 1;
+        var contactId = new List<int> { 1 };
+
+        var contactAuth1 = _fixture.Build<ContactAuthorizationEntity>()
+            .With(c => c.ContactId, 1)
+            .With(c => c.AccountId, accountId)
+            .With(c => c.AuthorizationId, 1)
+            .Without(c => c.Authorization)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .Create();
+        var contactAuth2 = _fixture.Build<ContactAuthorizationEntity>()
+            .With(c => c.ContactId, 1)
+            .With(c => c.AccountId, accountId)
+            .With(c => c.AuthorizationId, 2)
+            .Without(c => c.Authorization)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .Create();
+        var auth1 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 1)
+            .With(a => a.Code, GlobalConstants.PowerBIDefaultSignatoryPermissions[0])
+            .With(a => a.ContactAuthorizationEntity, new List<ContactAuthorizationEntity> { contactAuth1 })
+            .Without(a => a.AccountAuthorizationEntity)
+            .Create();
+        var auth2 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 2)
+            .With(a => a.Code, GlobalConstants.PowerBIDefaultSignatoryPermissions[1])
+            .With(a => a.ContactAuthorizationEntity, new List<ContactAuthorizationEntity> { contactAuth2 })
+            .Without(a => a.AccountAuthorizationEntity)
+            .Create();
+
+        using var context = new AuthorizationContext(_options);
+        context.ContactAuthorizationEntity.AddRange(new List<ContactAuthorizationEntity> { contactAuth1, contactAuth2 });
+        context.AuthorizationEntity.AddRange(new List<AuthorizationEntity> { auth1, auth2 });
+        await context.SaveChangesAsync();
+
+        var repository = new AuthorizationRepository(context);
+
+        var result = await repository.CreateReportingAuthorizationsForSignatoriesAsync(contactId, accountId);
+
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 }

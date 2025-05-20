@@ -344,4 +344,35 @@ public class AuthorizationRepository : IAuthorizationRepository
             await _authorizationContext.SaveChangesAsync();
         }
     }
+
+    public async Task<IEnumerable<(int, string)>> CreateReportingAuthorizationsForSignatoriesAsync(IEnumerable<int> contactIds, int accountId)
+    {
+        var authorizations = await _authorizationContext
+            .AuthorizationEntity
+            .Include(a => a.ContactAuthorizationEntity)
+            .Where(a => GlobalConstants.PowerBIDefaultSignatoryPermissions.Contains(a.Code))
+            .Distinct()
+            .ToListAsync();
+
+        var newContactAuthorizations = authorizations
+            .SelectMany(auth => contactIds
+                .Where(contactId => !auth.ContactAuthorizationEntity
+                    .Any(ca => ca.ContactId == contactId
+                               && ca.AccountId == accountId
+                               && ca.AuthorizationId == auth.AuthorizationId))
+                .Select(contactId => new ContactAuthorizationEntity
+                {
+                    ContactId = contactId,
+                    AccountId = accountId,
+                    AuthorizationId = auth.AuthorizationId,
+                    CreationDate = DateTime.UtcNow,
+                    Authorization = auth
+                }))
+            .ToList();
+
+        _authorizationContext.ContactAuthorizationEntity.AddRange(newContactAuthorizations);
+        await _authorizationContext.SaveChangesAsync();
+
+        return newContactAuthorizations.Select(a => (a.ContactId, a.Authorization.Code));
+    }
 }
