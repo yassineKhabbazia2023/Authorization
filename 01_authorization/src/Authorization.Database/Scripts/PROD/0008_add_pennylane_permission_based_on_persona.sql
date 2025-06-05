@@ -7,7 +7,7 @@ SET @COGED0002 = (SELECT a.AuthorizationId FROM [auth].[Authorization] a WHERE a
 -- ATTRIBUTION DE LA PERMISSION COPEN001
 INSERT INTO 
 	[auth].[ContactAuthorization] (ContactId, AccountId, AuthorizationId, CreationDate)
-SELECT 
+SELECT DISTINCT
 	ca.ContactId,
 	-1,
 	@COPEN001,
