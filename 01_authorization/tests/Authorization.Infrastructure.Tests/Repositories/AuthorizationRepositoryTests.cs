@@ -127,6 +127,46 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
+    public async Task GetAllAccountAuthorizations_Return_AuthorizationCode()
+    {
+        var contact = new ContactEntity
+        {
+            ContactId = 124,
+            IsActive = true,
+            FirstName = "FirstName",
+            LastName = "LastName",
+            Email = "Email",
+            PersonaName = "PersonaName",
+            Type = "Type"
+        };
+        using var context = new AuthorizationContext(_options);
+        var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
+                        .With(a => a.Authorization)
+                        .With(a => a.ContactId, contact.ContactId)
+                        .With(a => a.AccountId, 458)
+                        .With(a => a.Contact, contact)
+                        .With(a => a.Account, new AccountEntity
+                        {
+                            AccountId = Random.Shared.Next(),
+                            IsActive = true,
+                            AccountNumber = Random.Shared.Next().ToString(),
+                            LegalName = Random.Shared.Next().ToString()
+                        })
+                        .CreateMany(3);
+
+        var expectedAuthorization = contactAuthorizationAccountEntity.Select(c => c.Authorization.Code);
+
+        context.ContactAuthorizationEntity.AddRange(contactAuthorizationAccountEntity);
+        await context.SaveChangesAsync();
+
+        var repository = new AuthorizationRepository(context);
+        var contactId = contactAuthorizationAccountEntity.First().ContactId;
+
+        var receivedAuthorization = await repository.GetAllContactAuthorizationsAsync(contactId);
+        receivedAuthorization.Should().BeEquivalentTo(expectedAuthorization);
+    }
+
+    [Fact]
     public async Task GetAccountAuthorizations_Return_AuthorizationCode()
     {
         using (var context = new AuthorizationContext(_options))
@@ -1072,7 +1112,7 @@ public class AuthorizationRepositoryTests
             .Create();
 
         using var context = new AuthorizationContext(_options);
-        context.AuthorizationEntity.AddRange(new List<AuthorizationEntity> { auth1,  auth2 });
+        context.AuthorizationEntity.AddRange(new List<AuthorizationEntity> { auth1, auth2 });
         await context.SaveChangesAsync();
 
         var repository = new AuthorizationRepository(context);

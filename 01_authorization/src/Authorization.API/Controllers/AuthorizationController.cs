@@ -9,7 +9,7 @@ using Pulse.ExceptionMiddleware.Model;
 
 namespace Pulse.Authorization.API.Controllers;
 
-[Route("api/authorization")]
+[Route("api")]
 [ApiController]
 public class AuthorizationController : ControllerBase
 {
@@ -21,12 +21,28 @@ public class AuthorizationController : ControllerBase
     }
 
     /// <summary>
+    /// Récupère la liste des codes associés à un contact.
+    /// </summary>
+    /// <param name="contactId">Identifiant du contact.</param>
+    /// <returns>Liste des codes.</returns>
+    [HttpGet("authorizations")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<string>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
+    public async Task<ActionResult<IList<string>>> GetAllContactAuthorizationsAsync([Required][FromQuery] int contactId)
+    {
+        var result = await _authorizationService.GetAllContactAuthorizationsAsync(contactId);
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Récupère la liste des menus authorisés par contact.
     /// </summary>
     /// <param name="contactId">Identifiant du contat.</param>
     /// <param name="accountId">Identifiant de l'entité morale.</param>
     /// <returns>Liste des codes de menu.</returns>
-    [HttpGet]
+    [HttpGet("authorization")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<string>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
@@ -43,7 +59,7 @@ public class AuthorizationController : ControllerBase
     /// <param name="contactId">Identifiant du contat.</param>
     /// <param name="accountId">Identifiant de l'entité morale.</param>
     /// <returns>Status code.</returns>
-    [HttpDelete]
+    [HttpDelete("authorization")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]

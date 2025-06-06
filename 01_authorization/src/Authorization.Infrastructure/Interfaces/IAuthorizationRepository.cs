@@ -29,4 +29,6 @@ public interface IAuthorizationRepository
     Task DeleteContactAuthorizationsAsync(int contactId, int accountId, string[] permissions);
 
     Task<IEnumerable<(int, string)>> CreateReportingAuthorizationsForSignatoriesAsync(IEnumerable<int> contactIds, int accountId);
+
+    Task<List<string>> GetAllContactAuthorizationsAsync(int contactId);
 }

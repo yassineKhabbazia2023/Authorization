@@ -80,6 +80,9 @@ public class AuthorizationService : IAuthorizationService
         await _authorizationRepository.DeleteContactAuthorizationAsync(contactId, accountId ?? -1);
     }
 
+    public async Task<List<string>> GetAllContactAuthorizationsAsync(int contactId)
+        => await _authorizationRepository.GetAllContactAuthorizationsAsync(contactId);
+
     private static bool IsViewGlobal(int accountId)
     {
         return accountId == GlobalConstants.DefaultAccountIdCollab;

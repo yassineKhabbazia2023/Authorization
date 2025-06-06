@@ -1,4 +1,4 @@
-﻿// <copyright file="AuthorizationRepository.cs" company="Pulse">
+// <copyright file="AuthorizationRepository.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
@@ -374,5 +374,18 @@ public class AuthorizationRepository : IAuthorizationRepository
         await _authorizationContext.SaveChangesAsync();
 
         return newContactAuthorizations.Select(a => (a.ContactId, a.Authorization.Code));
+    }
+
+    public async Task<List<string>> GetAllContactAuthorizationsAsync(int contactId)
+    {
+        return await _authorizationContext
+            .ContactAuthorizationEntity
+            .AsNoTracking()
+            .Include(ca => ca.Authorization)
+            .Include(ca => ca.Account)
+            .Include(ca => ca.Contact)
+            .Where(ca => ca.ContactId == contactId && ca.Contact.IsActive && ca.Account.IsActive)
+            .Select(x => x.Authorization.Code)
+            .Distinct().ToListAsync();
     }
 }

@@ -3,6 +3,7 @@
 // </copyright>
 
 using AutoFixture;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
@@ -22,6 +23,25 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
         _fixture = new Fixture();
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+    }
+
+    [Fact]
+    public async Task GetAllContactAuthorizationsAsync_Should_Returns_AuthorizationCodeList()
+    {
+        // Arrange
+        var contactId = 3;
+        var expected = _fixture.Create<List<string>>();
+
+        var authorizationService = new Mock<IAuthorizationService>(MockBehavior.Strict);
+        authorizationService.Setup(service => service.GetAllContactAuthorizationsAsync(contactId))
+            .ReturnsAsync(expected);
+        var authorizationController = new AuthorizationController(authorizationService.Object);
+
+        // Act
+        var result = await authorizationController.GetAllContactAuthorizationsAsync(contactId);
+
+        // Assert
+        result.Result.Should().BeEquivalentTo(new OkObjectResult(expected));
     }
 
     [Fact]

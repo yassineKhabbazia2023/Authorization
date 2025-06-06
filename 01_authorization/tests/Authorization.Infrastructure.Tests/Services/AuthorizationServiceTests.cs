@@ -30,6 +30,25 @@ public class AuthorizationServiceTests
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
     }
 
+    [Fact]
+    public async Task GetAllContactAuthorizationsAsync_Should_ReturnsAuthorizationList()
+    {
+        // Arrange
+        var contactId = 234;
+        var expectedResult = _fixture.Create<List<string>>();
+        _authorizationRepository.Setup(repository => repository.GetAllContactAuthorizationsAsync(contactId))
+            .ReturnsAsync(expectedResult);
+
+        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
+        var authorizationService = new AuthorizationService(_authorizationRepository.Object, contactRepository.Object);
+
+        // Act
+        var result = await authorizationService.GetAllContactAuthorizationsAsync(contactId);
+
+        // Assert
+        result.Should().BeEquivalentTo(expectedResult);
+    }
+
     [Theory]
     [InlineData("Collaborator")]
     [InlineData("Customer")]
