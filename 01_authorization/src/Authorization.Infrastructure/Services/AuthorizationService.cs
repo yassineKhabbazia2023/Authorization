@@ -3,7 +3,10 @@
 // </copyright>
 
 using Pulse.Authorization.Core.Exceptions;
+using Pulse.Authorization.Core.Extensions;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Core.Models.Utils;
+using Pulse.Authorization.Core.Request;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
@@ -86,5 +89,13 @@ public class AuthorizationService : IAuthorizationService
     private static bool IsViewGlobal(int accountId)
     {
         return accountId == GlobalConstants.DefaultAccountIdCollab;
+    }
+
+    public async Task<Paging<int>> GetContactIdsByAuthorizationCodesAsync(List<string> codes, Pagination? pagination)
+    {
+        pagination = pagination ?? new Pagination();
+        pagination.PageNumber = Paginator.GetValidPageNumber(pagination.PageNumber);
+        pagination.PageSize = Paginator.GetValidPageSize(pagination.PageSize);
+        return await _authorizationRepository.GetContactIdsByAuthorizationCodesAsync(codes, pagination);
     }
 }

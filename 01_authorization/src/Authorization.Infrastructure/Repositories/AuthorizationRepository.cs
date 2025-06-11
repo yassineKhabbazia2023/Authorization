@@ -2,14 +2,22 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Linq;
+using System.Linq.Expressions;
+using Azure.Core.Pipeline;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Pulse.Authorization.Core.Exceptions;
+using Pulse.Authorization.Core.Extensions;
+using Pulse.Authorization.Core.Models.Utils;
+using Pulse.Authorization.Core.Request;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Extensions;
 using Pulse.Authorization.Infrastructure.Interfaces;
+using Pulse.Authorization.Infrastructure.Mappers;
 using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
@@ -387,5 +395,38 @@ public class AuthorizationRepository : IAuthorizationRepository
             .Where(ca => ca.ContactId == contactId && ca.Contact.IsActive && ca.Account.IsActive)
             .Select(x => x.Authorization.Code)
             .Distinct().ToListAsync();
+    }
+
+    public async Task<Paging<int>> GetContactIdsByAuthorizationCodesAsync(List<string> codes, Pagination? pagination)
+    {
+        var authorizationIdRequired = _authorizationContext.AuthorizationEntity
+                                        .AsNoTracking()
+                                        .Where(a => codes.Contains(a.Code))
+                                        .Select(a => a.AuthorizationId);
+        if (await authorizationIdRequired.CountAsync() != codes.Count)
+        {
+            throw new NotFoundException(Errors.NotFoundPermissionCode, string.Format(Errors.NotFoundPermissionMessage, string.Join(',', codes)));
+        }
+
+        var query = _authorizationContext.ContactAuthorizationEntity
+                        .AsNoTracking()
+                        .Where(ca => authorizationIdRequired.Contains(ca.AuthorizationId))
+                        .GroupBy(ca => ca.ContactId)
+                        .Where(g => g.Select(ca => ca.AuthorizationId).Distinct().Count() == codes.Count)
+                        .Select(g => g.Key);
+
+        var totalItems = await query.CountAsync();
+        var totalPages = Paginator.GetTotalPages(totalItems, pagination!.PageSize);
+
+        query = query.Skip((pagination!.PageNumber - 1) * pagination!.PageSize);
+        query = query.Take(pagination!.PageSize);
+
+        return new Paging<int>
+        {
+            Items = await query.ToListAsync(),
+            CurrentPage = pagination!.PageNumber,
+            TotalItems = totalItems,
+            TotalPage = totalPages
+        };
     }
 }

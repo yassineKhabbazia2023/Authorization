@@ -2,6 +2,10 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Microsoft.AspNetCore.Mvc;
+using Pulse.Authorization.Core.Models.Utils;
+using Pulse.Authorization.Core.Request;
+
 namespace Pulse.Authorization.Core.Interfaces;
 
 public interface IAuthorizationService
@@ -11,4 +15,6 @@ public interface IAuthorizationService
     Task DeleteContactAuthorizationAsync(int contactId, int? accountId);
 
     Task<List<string>> GetAllContactAuthorizationsAsync(int contactId);
+
+    Task<Paging<int>> GetContactIdsByAuthorizationCodesAsync(List<string> codes, Pagination? pagination);
 }

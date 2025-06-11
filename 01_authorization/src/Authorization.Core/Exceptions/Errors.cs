@@ -30,7 +30,7 @@ namespace Pulse.Authorization.Core.Exceptions
         public static readonly string NotFoundRoleMessage = "Le role avec l'identifiant {0} est introuvable";
 
         public static readonly string NotFoundPermissionCode = "AUT008";
-        public static readonly string NotFoundPermissionMessage = "La permission avec l'identifiant {0} est introuvable.";
+        public static readonly string NotFoundPermissionMessage = "Les permission(s) avec l'identifiant(s) {0} est introuvable.";
 
         public static readonly string NotConfigurablePermissionCode = "AUT009";
         public static readonly string NotConfigurablePermissionMessage = "La permission avec le code suivant: {0} n'est pas configurable.";
@@ -40,5 +40,8 @@ namespace Pulse.Authorization.Core.Exceptions
 
         public static readonly string PermissionNotConfigurableCode = "AUT011";
         public static readonly string PermissionNotConfigurableMessage = "La permission suivante n'est pas configurable: {0}";
+
+        public static readonly string NoContentCode = "AUT012";
+        public static readonly string NoContentMessage = "Aucune résult retourne.";
     }
 }

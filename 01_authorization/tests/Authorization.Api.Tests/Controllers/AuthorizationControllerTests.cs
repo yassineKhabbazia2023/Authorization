@@ -4,12 +4,15 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Pulse.Authorization.API;
 using Pulse.Authorization.API.Controllers;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Core.Models.Utils;
+using Pulse.Authorization.Core.Request;
 using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Api.Tests.Controllers;
@@ -98,5 +101,45 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
 
         // Assert
         Assert.Equal(200, (result as OkResult)?.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetContactIdsByAuthorizationCodes_ShouldReturnOk()
+    {
+        // Arrange
+        var expected = new Paging<int>
+        {
+            CurrentPage = 1,
+            Items =[1],
+            TotalItems = 1,
+            TotalPage = 1
+        };
+
+        var authorizationService = new Mock<IAuthorizationService>();
+        authorizationService.Setup(c => c.GetContactIdsByAuthorizationCodesAsync(It.IsAny<List<string>>(), It.IsAny<Pagination?>()))
+            .ReturnsAsync(expected);
+        var authorizationController = new AuthorizationController(authorizationService.Object);
+
+        // Act
+        var result = await authorizationController.GetContactIdsByAuthorizationCodes(["CORAPP001"], null);
+
+        // Assert
+        Assert.Equal(200, (result.Result as OkObjectResult)?.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetContactIdsByAuthorizationCodes_ShouldReturnNotFoundException()
+    {
+        // Arrange
+        var authorizationService = new Mock<IAuthorizationService>();
+        authorizationService.Setup(c => c.GetContactIdsByAuthorizationCodesAsync(It.IsAny<List<string>>(), It.IsAny<Pagination?>()))
+            .ThrowsAsync(new NotFoundException(" ", " "));
+        var authorizationController = new AuthorizationController(authorizationService.Object);
+
+        // Act
+        var result = async () => await authorizationController.GetContactIdsByAuthorizationCodes(["CORAPP001"], null);
+
+        // Assert
+        await Assert.ThrowsAsync<NotFoundException>(result);
     }
 }

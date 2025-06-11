@@ -2,6 +2,9 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Pulse.Authorization.Core.Models.Utils;
+using Pulse.Authorization.Core.Request;
+
 namespace Pulse.Authorization.Infrastructure.Interfaces;
 
 public interface IAuthorizationRepository
@@ -31,4 +34,6 @@ public interface IAuthorizationRepository
     Task<IEnumerable<(int, string)>> CreateReportingAuthorizationsForSignatoriesAsync(IEnumerable<int> contactIds, int accountId);
 
     Task<List<string>> GetAllContactAuthorizationsAsync(int contactId);
+
+    Task<Paging<int>> GetContactIdsByAuthorizationCodesAsync(List<string> codes, Pagination? pagination);
 }

@@ -4,7 +4,10 @@
 
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Core.Request;
+using Pulse.ExceptionMiddleware.Exceptions;
 using Pulse.ExceptionMiddleware.Model;
 
 namespace Pulse.Authorization.API.Controllers;
@@ -68,5 +71,26 @@ public class AuthorizationController : ControllerBase
         await _authorizationService.DeleteContactAuthorizationAsync(contactId, accountId);
 
         return Ok();
+    }
+
+    /// <summary>
+    /// Récupérer des ContactId qui a permission particulier.
+    /// </summary>
+    /// <param name="codes">Listes des permissions.</param>
+    /// <param name="pagination">Pagination params.</param>
+    /// <returns>Listes des ContactId.</returns>
+    [HttpGet("authorization/contacts")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(ErrorResponse))]
+    public async Task<ActionResult<IEnumerable<string>>> GetContactIdsByAuthorizationCodes([FromQuery] List<string> codes, [FromQuery] Pagination? pagination)
+    {
+        var result = await _authorizationService.GetContactIdsByAuthorizationCodesAsync(codes, pagination);
+        if(result.TotalItems == 0)
+        {
+            throw new NoContentException(Errors.NoContentCode, Errors.NoContentMessage);
+        }
+
+        return Ok(result);
     }
 }
