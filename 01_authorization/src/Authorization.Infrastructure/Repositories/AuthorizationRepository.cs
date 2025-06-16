@@ -6,7 +6,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using Azure.Core.Pipeline;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Crypto.Prng;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Extensions;
 using Pulse.Authorization.Core.Models.Utils;
@@ -428,5 +430,36 @@ public class AuthorizationRepository : IAuthorizationRepository
             TotalItems = totalItems,
             TotalPage = totalPages
         };
+    }
+
+    public async Task SetPermissionByContactEmailAsync(string permission, List<string> emails)
+    {
+        var authorization = await _authorizationContext.AuthorizationEntity.FirstOrDefaultAsync(x => x.Code == permission)
+            ?? throw new NotFoundException(Errors.NotFoundPermissionCode, Errors.NotFoundPermissionMessage);
+
+        var contactIds = _authorizationContext.ContactEntity.Where(c => emails.Contains(c.Email) && c.Type == ContactType.Collaborator.ToString()).Select(c => c.ContactId);
+        if (contactIds.IsNullOrEmpty())
+        {
+            throw new NotFoundException(Errors.NotFoundContactCode, Errors.NotFoundContactMessage);
+        }
+
+        List<ContactAuthorizationEntity> contactAuthorizations =[];
+        foreach (var contactId in contactIds)
+        {
+            var contactAuthorizationToAdd = new ContactAuthorizationEntity
+            {
+                AccountId = -1,
+                AuthorizationId = authorization.AuthorizationId,
+                ContactId = contactId,
+                CreationDate = DateTime.UtcNow,
+            };
+            if (!_authorizationContext.ContactAuthorizationEntity.Contains(contactAuthorizationToAdd))
+            {
+                contactAuthorizations.Add(contactAuthorizationToAdd);
+            }
+        }
+
+        await _authorizationContext.ContactAuthorizationEntity.AddRangeAsync(contactAuthorizations);
+        await _authorizationContext.SaveChangesAsync();
     }
 }

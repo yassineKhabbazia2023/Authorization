@@ -2,6 +2,9 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Drawing.Drawing2D;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Extensions;
 using Pulse.Authorization.Core.Interfaces;
@@ -97,5 +100,20 @@ public class AuthorizationService : IAuthorizationService
         pagination.PageNumber = Paginator.GetValidPageNumber(pagination.PageNumber);
         pagination.PageSize = Paginator.GetValidPageSize(pagination.PageSize);
         return await _authorizationRepository.GetContactIdsByAuthorizationCodesAsync(codes, pagination);
+    }
+
+    public async Task SetPermissionForContactEmailAsync(string permission, IFormFile file)
+    {
+        List<string> emails =[];
+        using var reader = new StreamReader(file.OpenReadStream());
+
+        var line = await reader.ReadLineAsync();
+        while(line != null)
+        {
+            emails.Add(line);
+            line = await reader.ReadLineAsync();
+        }
+
+        await _authorizationRepository.SetPermissionByContactEmailAsync(permission, emails);
     }
 }

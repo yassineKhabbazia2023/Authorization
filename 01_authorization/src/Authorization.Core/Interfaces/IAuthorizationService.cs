@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pulse.Authorization.Core.Models.Utils;
 using Pulse.Authorization.Core.Request;
@@ -17,4 +18,6 @@ public interface IAuthorizationService
     Task<List<string>> GetAllContactAuthorizationsAsync(int contactId);
 
     Task<Paging<int>> GetContactIdsByAuthorizationCodesAsync(List<string> codes, Pagination? pagination);
+
+    Task SetPermissionForContactEmailAsync(string permission, IFormFile file);
 }

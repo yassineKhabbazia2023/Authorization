@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
@@ -83,7 +84,7 @@ public class AuthorizationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
     [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(ErrorResponse))]
-    public async Task<ActionResult<IEnumerable<string>>> GetContactIdsByAuthorizationCodes([FromQuery] List<string> codes, [FromQuery] Pagination? pagination)
+    public async Task<ActionResult<IEnumerable<int>>> GetContactIdsByAuthorizationCodes([FromQuery] List<string> codes, [FromQuery] Pagination? pagination)
     {
         var result = await _authorizationService.GetContactIdsByAuthorizationCodesAsync(codes, pagination);
         if(result.TotalItems == 0)
@@ -92,5 +93,28 @@ public class AuthorizationController : ControllerBase
         }
 
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Attribuer une permission à une liste d'user.
+    /// </summary>
+    /// <param name="permission">Permission code.</param>
+    /// <param name="fileCSV">Fichier csv des emails d'user.</param>
+    /// <returns>Status code.</returns>
+    /// <exception cref="BadRequestException">Fichier csv manquant.</exception>
+    /// <exception cref="NotFoundException">Account ou content n'existe pas.</exception>
+    [HttpPost("authorization/setPermission")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> SetPermissionForContactEmailAsync([Required][FromQuery] string permission, IFormFile fileCSV)
+    {
+        if (fileCSV == null || fileCSV.Length == 0)
+        {
+            throw new ArgumentNullException(Errors.NullArgumentCode, Errors.NullArgumentMessage);
+        }
+
+        await _authorizationService.SetPermissionForContactEmailAsync(permission, fileCSV);
+        return Ok();
     }
 }

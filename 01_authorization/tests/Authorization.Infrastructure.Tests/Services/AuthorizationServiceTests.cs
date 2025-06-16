@@ -2,8 +2,10 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Text;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
@@ -182,5 +184,36 @@ public class AuthorizationServiceTests
 
         exceptionResult.Which.Code.Should().Be(Errors.NotFoundAccountCode);
         exceptionResult.WithMessage(string.Format(Errors.NotFoundAccountMessage, accountId));
+    }
+
+    [Fact]
+    public async Task SetPermissionForContactEmailAsync_ReadsEmailsAndCallsRepository()
+    {
+        // Arrange
+        var csvContent = "user1@example.com\nuser2@example.com\n";
+        var bytes = Encoding.UTF8.GetBytes(csvContent);
+        var stream = new MemoryStream(bytes);
+
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.OpenReadStream()).Returns(stream);
+        fileMock.Setup(f => f.Length).Returns(stream.Length);
+        fileMock.Setup(f => f.FileName).Returns("emails.csv");
+        fileMock.Setup(f => f.ContentType).Returns("text/csv");
+
+        var repoMock = new Mock<IAuthorizationRepository>();
+        var service = new AuthorizationService(repoMock.Object, null!);
+
+        var permission = "COGED002";
+
+        // Act
+        await service.SetPermissionForContactEmailAsync(permission, fileMock.Object);
+
+        // Assert
+        repoMock.Verify(r => r.SetPermissionByContactEmailAsync(
+            permission,
+            It.Is<List<string>>(l =>
+                l.Count == 2 &&
+                l[0] == "user1@example.com" &&
+                l[1] == "user2@example.com")), Times.Once);
     }
 }

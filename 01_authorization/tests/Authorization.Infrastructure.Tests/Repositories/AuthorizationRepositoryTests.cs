@@ -14,6 +14,8 @@ using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Repositories;
+using Pulse.Authorization.Infrastructure.Services;
+using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
 
@@ -132,7 +134,7 @@ public class AuthorizationRepositoryTests
     {
         var contact = new ContactEntity
         {
-            ContactId = 124,
+            ContactId = 12456,
             IsActive = true,
             FirstName = "FirstName",
             LastName = "LastName",
@@ -298,7 +300,7 @@ public class AuthorizationRepositoryTests
             {
                 new()
                 {
-                    AuthorizationId = 7,
+                    AuthorizationId = 77,
                     Name = "name7",
                     Description = string.Empty,
                     Code = "code7",
@@ -308,7 +310,7 @@ public class AuthorizationRepositoryTests
                 },
                 new()
                 {
-                    AuthorizationId = 8,
+                    AuthorizationId = 87,
                     Name = "name8",
                     Description = string.Empty,
                     Code = "code8",
@@ -318,7 +320,7 @@ public class AuthorizationRepositoryTests
                 },
                 new()
                 {
-                    AuthorizationId = 9,
+                    AuthorizationId = 97,
                     Name = "name9",
                     Description = string.Empty,
                     Code = "code9",
@@ -336,21 +338,21 @@ public class AuthorizationRepositoryTests
                 {
                     ContactId = 3,
                     AccountId = 3,
-                    AuthorizationId = 9,
+                    AuthorizationId = 97,
                     CreationDate = DateTime.UtcNow,
                 },
                 new()
                 {
                     ContactId = 3,
                     AccountId = 3,
-                    AuthorizationId = 8,
+                    AuthorizationId = 87,
                     CreationDate = DateTime.UtcNow,
                 },
                 new()
                 {
                     ContactId = 3,
                     AccountId = 3,
-                    AuthorizationId = 7,
+                    AuthorizationId = 77,
                     CreationDate = DateTime.UtcNow,
                 }
             };
@@ -395,7 +397,7 @@ public class AuthorizationRepositoryTests
         {
             new()
             {
-                AuthorizationId = 1,
+                AuthorizationId = 1234,
                 Name = "name1",
                 Description = string.Empty,
                 Code = "code1",
@@ -405,7 +407,7 @@ public class AuthorizationRepositoryTests
             },
             new()
             {
-                AuthorizationId = 2,
+                AuthorizationId = 2345,
                 Name = "name2",
                 Description = string.Empty,
                 Code = "code2",
@@ -415,7 +417,7 @@ public class AuthorizationRepositoryTests
             },
             new()
             {
-                AuthorizationId = 3,
+                AuthorizationId = 3456,
                 Name = "name3",
                 Description = string.Empty,
                 Code = "code3",
@@ -438,21 +440,21 @@ public class AuthorizationRepositoryTests
             {
                 ContactId = 128,
                 AccountId = -1,
-                AuthorizationId = 1,
+                AuthorizationId = 1234,
                 CreationDate = DateTime.UtcNow,
             },
             new()
             {
                 ContactId = 128,
                 AccountId = -1,
-                AuthorizationId = 2,
+                AuthorizationId = 2345,
                 CreationDate = DateTime.UtcNow,
             },
             new()
             {
                 ContactId = 128,
                 AccountId = -1,
-                AuthorizationId = 3,
+                AuthorizationId = 3456,
                 CreationDate = DateTime.UtcNow,
             }
         };
@@ -1266,5 +1268,163 @@ public class AuthorizationRepositoryTests
 
         // Assert
         Assert.DoesNotContain(1, result.Items!);
+    }
+
+    [Fact]
+    public async Task SetPermissionByContactEmailAsync_CreatesPermissions_WhenValid()
+    {
+        // Arrange
+        using var context = new AuthorizationContext(_options);
+
+        var permissionCode = "COGED0002";
+        var auth3 = new AuthorizationEntity
+        {
+            AuthorizationId = 391,
+            Code = permissionCode,
+            Name = "name",
+            Type = "type",
+            View = "Partial",
+            Label = "Accéder aux rapports BI ",
+            Configurable = true,
+            Description = string.Empty,
+        };
+        context.AuthorizationEntity.Add(auth3);
+        context.ContactEntity.AddRange(new List<ContactEntity>
+        {
+            new() { ContactId = 101, Email = "a@example.com", Type = "Collaborator", FirstName = "fname", LastName = "lname", PersonaName = "personaName" },
+            new() { ContactId = 102, Email = "b@example.com", Type = "Collaborator", FirstName = "fname1", LastName = "lname1", PersonaName = "personaName1" }
+        });
+        context.AccountEntity.Add(new AccountEntity
+        {
+            AccountId = -1,
+            AccountNumber = "AUN029UD",
+            LegalName = "legal",
+            IsActive = true,
+            Status = "ToDeploy"
+        });
+
+        await context.SaveChangesAsync();
+
+        var service = new AuthorizationRepository(context);
+
+        var emails = new List<string> { "a@example.com", "b@example.com" };
+
+        // Act
+        await service.SetPermissionByContactEmailAsync(permissionCode, emails);
+
+        // Assert
+        var inserted = context.ContactAuthorizationEntity.ToList();
+        Assert.Equal(2, inserted.Count);
+        Assert.All(inserted, i => Assert.Equal(391, i.AuthorizationId));
+    }
+
+    [Fact]
+    public async Task SetPermissionByContactEmailAsync_CreatesPermissions_NotDuplicate()
+    {
+        // Arrange
+        using var context = new AuthorizationContext(_options);
+
+        var permissionCode = "COGED0002";
+        var auth3 = new AuthorizationEntity
+        {
+            AuthorizationId = 391,
+            Code = permissionCode,
+            Name = "name",
+            Type = "type",
+            View = "Partial",
+            Label = "Accéder aux rapports BI ",
+            Configurable = true,
+            Description = string.Empty,
+        };
+        context.AuthorizationEntity.Add(auth3);
+        context.ContactEntity.AddRange(new List<ContactEntity>
+        {
+            new() { ContactId = 101, Email = "a@example.com", Type = "Collaborator", FirstName = "fname", LastName = "lname", PersonaName = "personaName" }
+        });
+        context.ContactAuthorizationEntity.Add(
+            new ContactAuthorizationEntity
+            {
+                AccountId = -1,
+                AuthorizationId = 391,
+                ContactId = 101
+            });
+        context.AccountEntity.Add(new AccountEntity
+        {
+            AccountId = -1,
+            AccountNumber = "AUN029UD",
+            LegalName = "legal",
+            IsActive = true,
+            Status = "ToDeploy"
+        });
+
+        await context.SaveChangesAsync();
+
+        var service = new AuthorizationRepository(context);
+
+        var emails = new List<string> { "a@example.com", "b@example.com" };
+        var contactAuthorizationBefore = context.ContactAuthorizationEntity.Where(c => c.AuthorizationId == 391);
+        Assert.Equal(1, contactAuthorizationBefore.Count());
+
+        // Act
+        await service.SetPermissionByContactEmailAsync(permissionCode, emails);
+
+        // Assert
+        var contactAuthorizationAfter = context.ContactAuthorizationEntity.Where(c => c.AuthorizationId == 391);
+        Assert.Equal(1, contactAuthorizationAfter.Count());
+    }
+
+    [Fact]
+    public async Task SetPermissionByContactEmailAsync_ThrowsNotFound_WhenPermissionNotFound()
+    {
+        // Arrange
+        using var context = new AuthorizationContext(_options);
+        var service = new AuthorizationRepository(context);
+
+        var emails = new List<string> { "a@example.com" };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() =>
+            service.SetPermissionByContactEmailAsync("INVALID", emails));
+
+        Assert.Equal(Errors.NotFoundPermissionCode, ex.Code);
+    }
+
+    [Fact]
+    public async Task SetPermissionByContactEmailAsync_ThrowsNotFound_WhenNoMatchingContacts()
+    {
+        // Arrange
+        using var context = new AuthorizationContext(_options);
+        var service = new AuthorizationRepository(context);
+        context.AuthorizationEntity.Add(new AuthorizationEntity
+        {
+            AuthorizationId = 3911,
+            Code = "COGED0002",
+            Name = "name",
+            Type = "type",
+            View = "Partial",
+            Label = "Accéder aux rapports BI ",
+            Configurable = true,
+            Description = string.Empty,
+        });
+
+        context.ContactEntity.Add(new ContactEntity
+        {
+            ContactId = 201,
+            Email = "a@example.com",
+            Type = "Client",
+            FirstName = "fname",
+            LastName = "lname",
+            PersonaName = "personaName"
+        });
+
+        await context.SaveChangesAsync();
+
+        var emails = new List<string> { "a@example.com" };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() =>
+            service.SetPermissionByContactEmailAsync("COGED0002", emails));
+
+        Assert.Equal(Errors.NotFoundContactCode, ex.Code);
     }
 }

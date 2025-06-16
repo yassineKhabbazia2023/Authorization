@@ -2,14 +2,18 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Text;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Azure.Amqp.Transaction;
 using Moq;
 using Pulse.Authorization.API;
 using Pulse.Authorization.API.Controllers;
+using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models.Utils;
 using Pulse.Authorization.Core.Request;
@@ -141,5 +145,60 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
 
         // Assert
         await Assert.ThrowsAsync<NotFoundException>(result);
+    }
+
+    [Fact]
+    public async Task SetPermissionForContactEmailAsync_ReturnsOk_WhenFileIsValid()
+    {
+        // Arrange
+        var permission = "COGED0002";
+        var content = "email@example.com";
+        var fileName = "emails.csv";
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+        var formFile = new FormFile(stream, 0, stream.Length, "file", fileName)
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "text/csv"
+        };
+        var authServiceMock = new Mock<IAuthorizationService>();
+        var controller = new AuthorizationController(authServiceMock.Object);
+        authServiceMock
+            .Setup(x => x.SetPermissionForContactEmailAsync(permission, formFile))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await controller.SetPermissionForContactEmailAsync(permission, formFile);
+
+        // Assert
+        Assert.IsType<OkResult>(result);
+        authServiceMock.Verify(x => x.SetPermissionForContactEmailAsync(permission, formFile), Times.Once);
+    }
+
+    [Fact]
+    public async Task SetPermissionForContactEmailAsync_ThrowsBadRequest_WhenFileIsNull()
+    {
+        // Arrange
+        var permission = "COGED0002";
+        var authServiceMock = new Mock<IAuthorizationService>();
+        var controller = new AuthorizationController(authServiceMock.Object);
+
+        // Act
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await controller.SetPermissionForContactEmailAsync(permission, null!));
+    }
+
+    [Fact]
+    public async Task SetPermissionForContactEmailAsync_ThrowsBadRequest_WhenFileIsEmpty()
+    {
+        // Arrange
+        var permission = "admin";
+        var emptyStream = new MemoryStream();
+        var emptyFile = new FormFile(emptyStream, 0, 0, "file", "empty.csv");
+        var authServiceMock = new Mock<IAuthorizationService>();
+        var controller = new AuthorizationController(authServiceMock.Object);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await controller.SetPermissionForContactEmailAsync(permission, emptyFile));
     }
 }
