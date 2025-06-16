@@ -174,7 +174,14 @@ public class AuthorizationRepository : IAuthorizationRepository
                     CreationDate = DateTime.UtcNow,
                 };
             });
+
+            var existingContactAuthorization = await _authorizationContext.ContactAuthorizationEntity.AsNoTracking()
+                                                                                   .Include(c => c.Authorization).AsNoTracking()
+                                                                                   .Where(c => c.ContactId == role.ContactId && c.AccountId == accountId)
+                                                                                   .ToListAsync();
+
             toReturn.AddRange(range);
+            toReturn.AddRange(existingContactAuthorization);
         }
 
         toReturn = toReturn.Distinct().ToList();

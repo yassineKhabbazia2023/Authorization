@@ -553,6 +553,12 @@ public class AuthorizationRepositoryTests
         var authorizationEntities = _fixture.Build<AuthorizationEntity>()
                             .With(a => a.ProductCode)
                             .CreateMany(3);
+
+        var otherAuthorizationEntities = _fixture.Build<AuthorizationEntity>()
+                            .With(a => a.ProductCode, "other")
+                            .Without(a => a.ContactAuthorizationEntity)
+                            .Create();
+
         var account = _fixture.Build<AccountEntity>()
             .With(a => a.AccountId, 43)
             .Create();
@@ -562,11 +568,21 @@ public class AuthorizationRepositoryTests
             .With(c => c.IsActive, true)
             .CreateMany(12).DistinctBy(c => c.ContactId);
 
+        var contactAuthorization = _fixture.Build<ContactAuthorizationEntity>()
+            .With(a => a.AccountId, account.AccountId)
+            .Without(a => a.Account)
+            .Without(a => a.Contact)
+            .With(a => a.ContactId, contacts.Select(c => c.ContactId).First())
+            .With(a => a.Authorization, otherAuthorizationEntities)
+            .Create();
+
         using (var context = new AuthorizationContext(_options))
         {
             context.AccountEntity.Add(account);
             context.ContactEntity.AddRange(contacts);
             context.AuthorizationEntity.AddRange(authorizationEntities);
+            context.AuthorizationEntity.Add(otherAuthorizationEntities);
+            context.ContactAuthorizationEntity.Add(contactAuthorization);
             context.SaveChanges();
 
             var roles = contacts.Select(c =>
@@ -584,17 +600,18 @@ public class AuthorizationRepositoryTests
         }
 
         using var ct = new AuthorizationContext(_options);
-        var contactIds = contacts.Select(c => c.ContactId);
         var productCodes = authorizationEntities.Select(a => a.ProductCode).Distinct();
         var repository = new AuthorizationRepository(ct);
 
         // Act
         var result = await repository.AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(account.AccountId, productCodes!);
 
+        var totalCountWithOther = (productCodes.Count() * contacts.Count()) + 1;
+
         // Assert
         Assert.NotNull(result);
         result.Should().NotBeEmpty();
-        Assert.Equal(result.Count(), productCodes.Count() * contacts.Count());
+        Assert.Equal(result.Count(), totalCountWithOther);
     }
 
     [Fact]

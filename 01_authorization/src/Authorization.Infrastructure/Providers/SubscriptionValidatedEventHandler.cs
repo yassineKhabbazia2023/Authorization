@@ -52,7 +52,7 @@ namespace Pulse.Authorization.Infrastructure.Providers
             foreach (var group in groupedByContact)
             {
                 var contactId = group.Key;
-                var codes = group.Select(g => g.Authorization.Code);
+                var codes = group.Select(g => g.Authorization.Code).Distinct();
 
                 await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(contactId, subEvent.Data.AccountId, codes!, true);
             }
