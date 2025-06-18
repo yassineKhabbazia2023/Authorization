@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Pulse.Authorization.Core.Models.Subscriptions;
 using Pulse.Authorization.Infrastructure.Entities;
 
 namespace Pulse.Authorization.Core.Interfaces
@@ -11,5 +12,7 @@ namespace Pulse.Authorization.Core.Interfaces
         Task<ContactEntity> GetContactByIdAsync(int contactId);
 
         Task<IEnumerable<int>> GetSignatoriesAsync(int accountId);
+
+        ContactsSubscription RetrieveExistedContacts(IEnumerable<int> contactIds);
     }
 }

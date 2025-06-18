@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Pulse.Authorization.Core.Models.Subscriptions;
 using Pulse.Authorization.Infrastructure.Entities;
 
 namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
@@ -17,5 +18,7 @@ namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
         Task DeleteContactRolesAsync(int contactId);
 
         Task<bool> DoesRoleExistAsync(RoleEntity roleEntity);
+
+        ContactRolesSubscription RetrieveContactsHavingRole(IEnumerable<int> contactIds, int accountId);
     }
 }

@@ -11,5 +11,7 @@ namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
         public Task<IEnumerable<AccountAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountAsync(int accountId, IEnumerable<string> productCodes);
 
         public Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<string> productCodes);
+
+        Task<(IEnumerable<ContactAuthorizationEntity>, IEnumerable<string>)> AddSubscriptionAuthorizationsForContacts(IEnumerable<int> contactIds, int accountId, IEnumerable<string> productCodes);
     }
 }

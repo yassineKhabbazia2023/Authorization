@@ -5,6 +5,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Core.Exceptions;
+using Pulse.Authorization.Core.Models.Subscriptions;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
@@ -329,6 +330,178 @@ public class RoleEventRepositoryTests
         result.Which.Code.Should().Be(Errors.NotFoundAccountCode);
         result.WithMessage("L'identifiant de l'entité saisi 3 est introuvable");
     }
+
+    [Fact]
+    public void RetrieveContactsHavingRole_WithNoContacts_ShouldReturnEmptyLists()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var repository = new RoleEventRepository(context);
+
+        var contactIds = new List<int>();
+        var accountId = 1;
+
+        // Act
+        var result = repository.RetrieveContactsHavingRole(contactIds, accountId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.ExistedContactRoles.Should().BeEmpty();
+        result.UnexistedContactRoles.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void RetrieveContactsHavingRole_WithNoMatchingRoles_ShouldReturnAllContactsAsUnexisted()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var repository = new RoleEventRepository(context);
+
+        var contactIds = new List<int> { 1, 2, 3 };
+        var accountId = 1;
+
+        // Act
+        var result = repository.RetrieveContactsHavingRole(contactIds, accountId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.ExistedContactRoles.Should().BeEmpty();
+        result.UnexistedContactRoles.Should().BeEquivalentTo(contactIds);
+    }
+
+    [Fact]
+    public void RetrieveContactsHavingRole_WithSomeMatchingRoles_ShouldReturnCorrectlySeparatedLists()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var repository = new RoleEventRepository(context);
+
+        var accountId = 1;
+        var existingContactIds = new List<int> { 1, 2 };
+        var nonExistingContactIds = new List<int> { 3, 4 };
+        var allContactIds = existingContactIds.Concat(nonExistingContactIds).ToList();
+
+        // Add roles for existing contacts
+        foreach (var contactId in existingContactIds)
+        {
+            context.RoleEntity.Add(new RoleEntity
+            {
+                ContactId = contactId,
+                AccountId = accountId
+            });
+        }
+        context.SaveChanges();
+
+        // Act
+        var result = repository.RetrieveContactsHavingRole(allContactIds, accountId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.ExistedContactRoles.Should().BeEquivalentTo(existingContactIds);
+        result.UnexistedContactRoles.Should().BeEquivalentTo(nonExistingContactIds);
+    }
+
+    [Fact]
+    public void RetrieveContactsHavingRole_WithAllMatchingRoles_ShouldReturnAllContactsAsExisted()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var repository = new RoleEventRepository(context);
+
+        var accountId = 1;
+        var contactIds = new List<int> { 1, 2, 3 };
+
+        // Add roles for all contacts
+        foreach (var contactId in contactIds)
+        {
+            context.RoleEntity.Add(new RoleEntity
+            {
+                ContactId = contactId,
+                AccountId = accountId
+            });
+        }
+        context.SaveChanges();
+
+        // Act
+        var result = repository.RetrieveContactsHavingRole(contactIds, accountId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.ExistedContactRoles.Should().BeEquivalentTo(contactIds);
+        result.UnexistedContactRoles.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void RetrieveContactsHavingRole_WithDifferentAccountId_ShouldNotReturnThoseContacts()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var repository = new RoleEventRepository(context);
+
+        var accountId1 = 1;
+        var accountId2 = 2;
+        var contactIds = new List<int> { 1, 2, 3 };
+
+        // Add roles for account 1
+        foreach (var contactId in contactIds)
+        {
+            context.RoleEntity.Add(new RoleEntity
+            {
+                ContactId = contactId,
+                AccountId = accountId1
+            });
+        }
+        context.SaveChanges();
+
+        // Act - query for account 2
+        var result = repository.RetrieveContactsHavingRole(contactIds, accountId2);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.ExistedContactRoles.Should().BeEmpty();
+        result.UnexistedContactRoles.Should().BeEquivalentTo(contactIds);
+    }
+
+    [Fact]
+    public void BuildErrors_ShouldReturnCorrectErrorMessages()
+    {
+        // Arrange
+        var accountId = 1;
+        var unexistedContactIds = new List<int> { 1, 2 };
+        var subscription = new ContactRolesSubscription(accountId)
+        {
+            UnexistedContactRoles = unexistedContactIds
+        };
+
+        // Act
+        var errors = subscription.BuildErrors().ToList();
+
+        // Assert
+        errors.Should().HaveCount(2);
+        errors[0].Should().Be(string.Format(Errors.NotFoundRoleMessage, accountId, unexistedContactIds[0]));
+        errors[1].Should().Be(string.Format(Errors.NotFoundRoleMessage, accountId, unexistedContactIds[1]));
+    }
+
 
     public static IEnumerable<object[]> AccountAndContact()
     {

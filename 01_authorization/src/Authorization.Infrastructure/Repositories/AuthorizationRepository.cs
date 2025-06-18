@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Org.BouncyCastle.Crypto.Prng;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Extensions;
+using Pulse.Authorization.Core.Models.Subscriptions;
 using Pulse.Authorization.Core.Models.Utils;
 using Pulse.Authorization.Core.Request;
 using Pulse.Authorization.Infrastructure.Constants;
@@ -475,5 +476,34 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         await _authorizationContext.ContactAuthorizationEntity.AddRangeAsync(contactAuthorizations);
         await _authorizationContext.SaveChangesAsync();
+    }
+
+    public ProductCodesSubscriptions RetrieveExistedProductCodes(IEnumerable<string> productCodes)
+    {
+        var authorizations = _authorizationContext.AuthorizationEntity.AsNoTracking().Where(x => productCodes.Contains(x.ProductCode));
+        ProductCodesSubscriptions productCodesSubscriptions = new ProductCodesSubscriptions
+        {
+            ClientAuthorizationIds = authorizations.Where(x => x.Type == ContactType.Customer.ToString()).Select(x => x.AuthorizationId).AsEnumerable(),
+            CollabAuthorizationIds = authorizations.Where(x => x.Type == ContactType.Collaborator.ToString()).Select(x => x.AuthorizationId).AsEnumerable(),
+            UnexistedCodes = productCodes.Except(authorizations.Select(x => x.ProductCode)).AsEnumerable()
+        };
+
+        return productCodesSubscriptions;
+    }
+
+    public async Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationOnAccountContactsAsync(IEnumerable<ContactAuthorizationEntity> contactAuthorizationEntities)
+    {
+        var notExistedContactAuthorizations = contactAuthorizationEntities
+            .Where(ca => !_authorizationContext.ContactAuthorizationEntity.AsNoTracking()
+        .Any(db => db.ContactId == ca.ContactId && db.AccountId == ca.AccountId && db.AuthorizationId == ca.AuthorizationId))
+            .ToList();
+
+        if (notExistedContactAuthorizations.Any())
+        {
+            await _authorizationContext.ContactAuthorizationEntity.AddRangeAsync(notExistedContactAuthorizations);
+            await _authorizationContext.SaveChangesAsync();
+        }
+
+        return notExistedContactAuthorizations;
     }
 }

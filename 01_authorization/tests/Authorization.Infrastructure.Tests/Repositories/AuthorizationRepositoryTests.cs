@@ -367,6 +367,7 @@ public class AuthorizationRepositoryTests
 
             var expectedAuthorization = authorizations.Select(c => c.Code);
             await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
 
             using (var newContext = new AuthorizationContext(_options))
             {
@@ -1295,160 +1296,201 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
-    public async Task SetPermissionByContactEmailAsync_CreatesPermissions_WhenValid()
+    public void RetrieveExistedProductCodes_Should_SplitIdsByType_And_ReturnUnexistedCodes()
     {
-        // Arrange
+        // – Arrange --------------------------------------------------------------
         using var context = new AuthorizationContext(_options);
 
-        var permissionCode = "COGED0002";
-        var auth3 = new AuthorizationEntity
-        {
-            AuthorizationId = 391,
-            Code = permissionCode,
-            Name = "name",
-            Type = "type",
-            View = "Partial",
-            Label = "Accéder aux rapports BI ",
-            Configurable = true,
-            Description = string.Empty,
-        };
-        context.AuthorizationEntity.Add(auth3);
-        context.ContactEntity.AddRange(new List<ContactEntity>
-        {
-            new() { ContactId = 101, Email = "a@example.com", Type = "Collaborator", FirstName = "fname", LastName = "lname", PersonaName = "personaName" },
-            new() { ContactId = 102, Email = "b@example.com", Type = "Collaborator", FirstName = "fname1", LastName = "lname1", PersonaName = "personaName1" }
-        });
-        context.AccountEntity.Add(new AccountEntity
-        {
-            AccountId = -1,
-            AccountNumber = "AUN029UD",
-            LegalName = "legal",
-            IsActive = true,
-            Status = "ToDeploy"
-        });
+        var customerAuth = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 1)
+            .With(a => a.ProductCode, "P1")
+            .With(a => a.Type, ContactType.Customer.ToString())
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
 
-        await context.SaveChangesAsync();
+        var collaboratorAuth = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 2)
+            .With(a => a.ProductCode, "P2")
+            .With(a => a.Type, ContactType.Collaborator.ToString())
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
 
-        var service = new AuthorizationRepository(context);
+        context.AuthorizationEntity.AddRange(customerAuth, collaboratorAuth);
+        context.SaveChanges();
 
-        var emails = new List<string> { "a@example.com", "b@example.com" };
+        var repo = new AuthorizationRepository(context);
+        var searchedCodes = new[] { "P1", "P2", "P3" };   // P3 does NOT exist
 
-        // Act
-        await service.SetPermissionByContactEmailAsync(permissionCode, emails);
+        // – Act 
+        var result = repo.RetrieveExistedProductCodes(searchedCodes);
 
-        // Assert
-        var inserted = context.ContactAuthorizationEntity.ToList();
-        Assert.Equal(2, inserted.Count);
-        Assert.All(inserted, i => Assert.Equal(391, i.AuthorizationId));
+        // – Assert
+        result.ClientAuthorizationIds.Should().BeEquivalentTo([customerAuth.AuthorizationId]);
+        result.CollabAuthorizationIds.Should().BeEquivalentTo([collaboratorAuth.AuthorizationId]);
+        result.UnexistedCodes.Should().BeEquivalentTo(["P3"]);
     }
 
     [Fact]
-    public async Task SetPermissionByContactEmailAsync_CreatesPermissions_NotDuplicate()
+    public async Task AddSubscriptionAuthorizationOnAccountContactsAsync_Should_AddOnlyNewLinks_And_ReturnThem()
     {
-        // Arrange
+        // – Arrange 
         using var context = new AuthorizationContext(_options);
 
-        var permissionCode = "COGED0002";
-        var auth3 = new AuthorizationEntity
-        {
-            AuthorizationId = 391,
-            Code = permissionCode,
-            Name = "name",
-            Type = "type",
-            View = "Partial",
-            Label = "Accéder aux rapports BI ",
-            Configurable = true,
-            Description = string.Empty,
-        };
-        context.AuthorizationEntity.Add(auth3);
-        context.ContactEntity.AddRange(new List<ContactEntity>
-        {
-            new() { ContactId = 101, Email = "a@example.com", Type = "Collaborator", FirstName = "fname", LastName = "lname", PersonaName = "personaName" }
-        });
-        context.ContactAuthorizationEntity.Add(
-            new ContactAuthorizationEntity
-            {
-                AccountId = -1,
-                AuthorizationId = 391,
-                ContactId = 101
-            });
-        context.AccountEntity.Add(new AccountEntity
-        {
-            AccountId = -1,
-            AccountNumber = "AUN029UD",
-            LegalName = "legal",
-            IsActive = true,
-            Status = "ToDeploy"
-        });
+        // Authorizations referenced by the contact links
+        var auth1 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 10)
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
+        var auth2 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 20)
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
 
+        context.AuthorizationEntity.AddRange(auth1, auth2);
         await context.SaveChangesAsync();
 
-        var service = new AuthorizationRepository(context);
+        const int contactId = 1;
+        const int accountId = 1;
 
-        var emails = new List<string> { "a@example.com", "b@example.com" };
-        var contactAuthorizationBefore = context.ContactAuthorizationEntity.Where(c => c.AuthorizationId == 391);
-        Assert.Equal(1, contactAuthorizationBefore.Count());
+        // This link already exists in DB and must be ignored by the repo method
+        var alreadyLinked = _fixture.Build<ContactAuthorizationEntity>()
+            .Without(c => c.Authorization)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .With(c => c.ContactId, contactId)
+            .With(c => c.AccountId, accountId)
+            .With(c => c.AuthorizationId, auth1.AuthorizationId)
+            .Create();
+        context.ContactAuthorizationEntity.Add(alreadyLinked);
+        await context.SaveChangesAsync();
 
-        // Act
-        await service.SetPermissionByContactEmailAsync(permissionCode, emails);
+        // Two links we ask to insert: one duplicate & one really new
+        var duplicate = _fixture.Build<ContactAuthorizationEntity>()
+            .Without(c => c.Authorization)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .With(c => c.ContactId, contactId)
+            .With(c => c.AccountId, accountId)
+            .With(c => c.AuthorizationId, auth1.AuthorizationId)   // already exists
+            .Create();
 
-        // Assert
-        var contactAuthorizationAfter = context.ContactAuthorizationEntity.Where(c => c.AuthorizationId == 391);
-        Assert.Equal(1, contactAuthorizationAfter.Count());
+        var brandNew = _fixture.Build<ContactAuthorizationEntity>()
+            .Without(c => c.Authorization)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .With(c => c.ContactId, contactId)
+            .With(c => c.AccountId, accountId)
+            .With(c => c.AuthorizationId, auth2.AuthorizationId)   // new link
+            .Create();
+
+        var repo = new AuthorizationRepository(context);
+
+        // – Act
+        var added = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync([duplicate, brandNew]);
+
+        // – Assert
+        added.Should().HaveCount(1);                          // only the new link returned
+        added.Single().AuthorizationId.Should().Be(auth2.AuthorizationId);
+
+        var allLinksInDb = context.ContactAuthorizationEntity
+            .Where(ca => ca.ContactId == contactId && ca.AccountId == accountId)
+            .ToList();
+
+        allLinksInDb.Should().HaveCount(2);                   // original + new
+        allLinksInDb.Should().ContainSingle(ca => ca.AuthorizationId == auth1.AuthorizationId);
+        allLinksInDb.Should().ContainSingle(ca => ca.AuthorizationId == auth2.AuthorizationId);
     }
 
     [Fact]
-    public async Task SetPermissionByContactEmailAsync_ThrowsNotFound_WhenPermissionNotFound()
+    public void RetrieveExistedProductCodes_Should_ReturnEmpty_WhenInputIsEmpty()
     {
-        // Arrange
+        // – Arrange 
         using var context = new AuthorizationContext(_options);
-        var service = new AuthorizationRepository(context);
+        var repo = new AuthorizationRepository(context);
 
-        var emails = new List<string> { "a@example.com" };
+        // – Act
+        var result = repo.RetrieveExistedProductCodes([]);
 
-        // Act & Assert
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() =>
-            service.SetPermissionByContactEmailAsync("INVALID", emails));
-
-        Assert.Equal(Errors.NotFoundPermissionCode, ex.Code);
+        // – Assert
+        result.ClientAuthorizationIds.Should().BeEmpty();
+        result.CollabAuthorizationIds.Should().BeEmpty();
+        result.UnexistedCodes.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task SetPermissionByContactEmailAsync_ThrowsNotFound_WhenNoMatchingContacts()
+    public void RetrieveExistedProductCodes_Should_ReturnAllAsUnexisted_WhenNoneMatch()
     {
-        // Arrange
+        // – Arrange
         using var context = new AuthorizationContext(_options);
-        var service = new AuthorizationRepository(context);
-        context.AuthorizationEntity.Add(new AuthorizationEntity
-        {
-            AuthorizationId = 3911,
-            Code = "COGED0002",
-            Name = "name",
-            Type = "type",
-            View = "Partial",
-            Label = "Accéder aux rapports BI ",
-            Configurable = true,
-            Description = string.Empty,
-        });
+        var repo = new AuthorizationRepository(context);
+        var unknownCodes = new[] { "X1", "Y2" };
 
-        context.ContactEntity.Add(new ContactEntity
-        {
-            ContactId = 201,
-            Email = "a@example.com",
-            Type = "Client",
-            FirstName = "fname",
-            LastName = "lname",
-            PersonaName = "personaName"
-        });
+        // – Act
+        var result = repo.RetrieveExistedProductCodes(unknownCodes);
 
+        // – Assert
+        result.ClientAuthorizationIds.Should().BeEmpty();
+        result.CollabAuthorizationIds.Should().BeEmpty();
+        result.UnexistedCodes.Should().BeEquivalentTo(unknownCodes);
+    }
+
+    [Fact]
+    public async Task AddSubscriptionAuthorizationOnAccountContactsAsync_Should_AddNothing_WhenAllExist()
+    {
+        // – Arrange
+        using var context = new AuthorizationContext(_options);
+
+        var auth = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 100)
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
+
+        context.AuthorizationEntity.Add(auth);
         await context.SaveChangesAsync();
 
-        var emails = new List<string> { "a@example.com" };
+        var link = _fixture.Build<ContactAuthorizationEntity>()
+            .Without(c => c.Authorization)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .With(c => c.AuthorizationId, auth.AuthorizationId)
+            .With(c => c.ContactId, 1)
+            .With(c => c.AccountId, 1)
+            .Create();
 
-        // Act & Assert
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() =>
-            service.SetPermissionByContactEmailAsync("COGED0002", emails));
+        context.ContactAuthorizationEntity.Add(link);
+        await context.SaveChangesAsync();
 
-        Assert.Equal(Errors.NotFoundContactCode, ex.Code);
+        var repo = new AuthorizationRepository(context);
+
+        // – Act
+        var result = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync([link]);
+
+        // – Assert
+        result.Should().BeEmpty();
+
+        var all = context.ContactAuthorizationEntity.ToList();
+        all.Should().HaveCount(1); // only the existing link
     }
+
+    [Fact]
+    public async Task AddSubscriptionAuthorizationOnAccountContactsAsync_Should_HandleEmptyList()
+    {
+        // – Arrange
+        using var context = new AuthorizationContext(_options);
+        var repo = new AuthorizationRepository(context);
+
+        // – Act
+        var result = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync([]);
+
+        // – Assert
+        result.Should().BeEmpty();
+        context.ContactAuthorizationEntity.Should().BeEmpty();
+    }
+
+
 }

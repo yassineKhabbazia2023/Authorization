@@ -1,7 +1,9 @@
 ﻿// <copyright file="MapAuthorizationEntityToModel.cs" company="Pulse">
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
+using Microsoft.Identity.Client;
 using Pulse.Authorization.Core.Models;
+using Pulse.Authorization.Core.Models.Subscriptions;
 using Pulse.Authorization.Infrastructure.Entities;
 using ActionModel = Pulse.Authorization.Core.Models.Action;
 
@@ -30,5 +32,16 @@ public static class MapAuthorizationEntityToModel
             Code = source.Code,
             ActionId = source.AuthorizationId,
         };
+    }
+
+    public static IEnumerable<ContactAuthorizationEntity> MapToContactAuthorizationEntities(this ContactAuthorizationSubscription contactAuthorizationSubscription)
+    {
+        foreach(int contactId in contactAuthorizationSubscription.ContactIds)
+        {
+            foreach(int authorizationId in contactAuthorizationSubscription.AuthorizationIds)
+            {
+                yield return new ContactAuthorizationEntity { AccountId = contactAuthorizationSubscription.AccountId, ContactId = contactId, AuthorizationId = authorizationId, CreationDate = DateTime.UtcNow };
+            }
+        }
     }
 }

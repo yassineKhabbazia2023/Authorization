@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Extensions;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
+using Pulse.Authorization.Core.Models.Subscriptions;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
 
@@ -38,5 +39,17 @@ public class ContactRepository : IContactRepository
             .ToListAsync();
 
         return signatoryRoles;
+    }
+
+    public ContactsSubscription RetrieveExistedContacts(IEnumerable<int> contactIds)
+    {
+        var contactQuery = _authorizationContext.ContactEntity.AsNoTracking().Where(x => contactIds.Contains(x.ContactId));
+        ContactsSubscription contactsSubscription = new ContactsSubscription
+        {
+            ClientContacts = contactQuery.Where(x => x.Type == ContactType.Customer.ToString()).Select(x => x.ContactId).AsEnumerable(),
+            CollabContacts = contactQuery.Where(x => x.Type == ContactType.Collaborator.ToString()).Select(x => x.ContactId).AsEnumerable(),
+            UnexistedContacts = contactIds.Except(contactQuery.Select(x => x.ContactId)).AsEnumerable()
+        };
+        return contactsSubscription;
     }
 }

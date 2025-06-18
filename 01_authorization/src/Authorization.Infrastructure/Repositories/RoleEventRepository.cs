@@ -4,6 +4,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Core.Exceptions;
+using Pulse.Authorization.Core.Models.Subscriptions;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Extensions;
@@ -80,6 +81,19 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                 .FirstOrDefaultAsync(r => r.AccountId == roleEntity.AccountId && r.ContactId == roleEntity.ContactId);
 
             return role != null;
+        }
+
+        public ContactRolesSubscription RetrieveContactsHavingRole(IEnumerable<int> contactIds, int accountId)
+        {
+            var roleQuery = _authorizationContext.RoleEntity.AsNoTracking().Where(role => contactIds.Contains(role.ContactId) && role.AccountId == accountId);
+            var existedContacts = roleQuery.Select(r => r.ContactId).Distinct().AsEnumerable();
+            var unexistedContacts = contactIds.Except(existedContacts).AsEnumerable();
+
+            return new ContactRolesSubscription(accountId)
+            {
+                ExistedContactRoles = existedContacts,
+                UnexistedContactRoles = unexistedContacts
+            };
         }
     }
 }

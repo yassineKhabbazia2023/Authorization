@@ -99,6 +99,7 @@
     <None Include="postDeployment\tablesMigration.sql" />
     <None Include="postDeployment\auth.InitAuthorization.sql" />
     <None Include="Scripts\PROD\0007_Script_update_CLUSER004_view.sql" />
+    <None Include="Scripts\PROD\0010_Update_COPEN001_permission.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

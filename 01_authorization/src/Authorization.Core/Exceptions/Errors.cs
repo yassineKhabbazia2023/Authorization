@@ -27,7 +27,7 @@ namespace Pulse.Authorization.Core.Exceptions
         public static readonly string NotFoundManagedIdentityClientIdMessage = "Le client ID de l'entité managée doit être renseigné";
 
         public static readonly string NotFoundRoleCode = "AUT007";
-        public static readonly string NotFoundRoleMessage = "Le role avec l'identifiant {0} est introuvable";
+        public static readonly string NotFoundRoleMessage = "Le role avec l'accountId {0} et contactId {1} est introuvable";
 
         public static readonly string NotFoundPermissionCode = "AUT008";
         public static readonly string NotFoundPermissionMessage = "Les permission(s) avec l'identifiant(s) {0} est introuvable.";
@@ -43,5 +43,8 @@ namespace Pulse.Authorization.Core.Exceptions
 
         public static readonly string NoContentCode = "AUT012";
         public static readonly string NoContentMessage = "Aucune résult retourne.";
+
+        public static readonly string SubscriptionAuthorizationErrorCode = "AUTH013";
+        public static readonly string SubscriptionAuthorizationErrorMessage = "La souscription des authorization a confronté des problèmes:\n {0}";
     }
 }
