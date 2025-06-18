@@ -168,7 +168,7 @@ public class ConfigurationRepositoryTests
                             .Options;
 
         // Arrange
-        var contactId = 125;
+        var contactId = 1251;
         var accountId = 459;
         using var context = new AuthorizationContext(options);
         var accountEntity = _fixture.Build<AccountEntity>()

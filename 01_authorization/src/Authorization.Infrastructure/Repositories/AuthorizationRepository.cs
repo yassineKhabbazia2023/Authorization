@@ -406,7 +406,7 @@ public class AuthorizationRepository : IAuthorizationRepository
             .Distinct().ToListAsync();
     }
 
-    public async Task<Paging<int>> GetContactIdsByAuthorizationCodesAsync(List<string> codes, Pagination? pagination)
+    public async Task<Paging<int>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination)
     {
         var authorizationIdRequired = _authorizationContext.AuthorizationEntity
                                         .AsNoTracking()
@@ -417,6 +417,11 @@ public class AuthorizationRepository : IAuthorizationRepository
             throw new NotFoundException(Errors.NotFoundPermissionCode, string.Format(Errors.NotFoundPermissionMessage, string.Join(',', codes)));
         }
 
+        var contactsHasRoles = _authorizationContext.RoleEntity
+                            .AsNoTracking()
+                            .Where(ca => ca.AccountId == accountId)
+                            .Select(ca => ca.ContactId);
+
         var query = _authorizationContext.ContactAuthorizationEntity
                         .AsNoTracking()
                         .Where(ca => authorizationIdRequired.Contains(ca.AuthorizationId))
@@ -424,15 +429,17 @@ public class AuthorizationRepository : IAuthorizationRepository
                         .Where(g => g.Select(ca => ca.AuthorizationId).Distinct().Count() == codes.Count)
                         .Select(g => g.Key);
 
-        var totalItems = await query.CountAsync();
+        var results = query.Intersect(contactsHasRoles);
+
+        var totalItems = await results.CountAsync();
         var totalPages = Paginator.GetTotalPages(totalItems, pagination!.PageSize);
 
-        query = query.Skip((pagination!.PageNumber - 1) * pagination!.PageSize);
-        query = query.Take(pagination!.PageSize);
+        results = results.Skip((pagination!.PageNumber - 1) * pagination!.PageSize);
+        results = results.Take(pagination!.PageSize);
 
         return new Paging<int>
         {
-            Items = await query.ToListAsync(),
+            Items = await results.ToListAsync(),
             CurrentPage = pagination!.PageNumber,
             TotalItems = totalItems,
             TotalPage = totalPages

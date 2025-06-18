@@ -75,18 +75,19 @@ public class AuthorizationController : ControllerBase
     }
 
     /// <summary>
-    /// Récupérer des ContactId qui a permission particulier.
+    /// Récupérer des ContactIds qui a permission particulier.
     /// </summary>
     /// <param name="codes">Listes des permissions.</param>
+    /// <param name="accountId">Identifiant account.</param>
     /// <param name="pagination">Pagination params.</param>
     /// <returns>Listes des ContactId.</returns>
     [HttpGet("authorization/contacts")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
     [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(ErrorResponse))]
-    public async Task<ActionResult<IEnumerable<int>>> GetContactIdsByAuthorizationCodes([FromQuery] List<string> codes, [FromQuery] Pagination? pagination)
+    public async Task<ActionResult<IEnumerable<int>>> GetContactIdsByAuthorizationCodesAndAccountId([FromQuery] List<string> codes, [FromQuery] int accountId, [FromQuery] Pagination? pagination)
     {
-        var result = await _authorizationService.GetContactIdsByAuthorizationCodesAsync(codes, pagination);
+        var result = await _authorizationService.GetContactIdsByAuthorizationCodesAndAccountIdAsync(codes, accountId, pagination);
         if(result.TotalItems == 0)
         {
             throw new NoContentException(Errors.NoContentCode, Errors.NoContentMessage);

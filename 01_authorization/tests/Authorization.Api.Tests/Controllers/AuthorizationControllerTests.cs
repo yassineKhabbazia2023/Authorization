@@ -120,12 +120,12 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
         };
 
         var authorizationService = new Mock<IAuthorizationService>();
-        authorizationService.Setup(c => c.GetContactIdsByAuthorizationCodesAsync(It.IsAny<List<string>>(), It.IsAny<Pagination?>()))
+        authorizationService.Setup(c => c.GetContactIdsByAuthorizationCodesAndAccountIdAsync(It.IsAny<List<string>>(), It.IsAny<int>(), It.IsAny<Pagination?>()))
             .ReturnsAsync(expected);
         var authorizationController = new AuthorizationController(authorizationService.Object);
 
         // Act
-        var result = await authorizationController.GetContactIdsByAuthorizationCodes(["CORAPP001"], null);
+        var result = await authorizationController.GetContactIdsByAuthorizationCodesAndAccountId(["CORAPP001"], 1, null);
 
         // Assert
         Assert.Equal(200, (result.Result as OkObjectResult)?.StatusCode);
@@ -136,12 +136,12 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
     {
         // Arrange
         var authorizationService = new Mock<IAuthorizationService>();
-        authorizationService.Setup(c => c.GetContactIdsByAuthorizationCodesAsync(It.IsAny<List<string>>(), It.IsAny<Pagination?>()))
+        authorizationService.Setup(c => c.GetContactIdsByAuthorizationCodesAndAccountIdAsync(It.IsAny<List<string>>(), It.IsAny<int>(), It.IsAny<Pagination?>()))
             .ThrowsAsync(new NotFoundException(" ", " "));
         var authorizationController = new AuthorizationController(authorizationService.Object);
 
         // Act
-        var result = async () => await authorizationController.GetContactIdsByAuthorizationCodes(["CORAPP001"], null);
+        var result = async () => await authorizationController.GetContactIdsByAuthorizationCodesAndAccountId(["CORAPP001"], 1, null);
 
         // Assert
         await Assert.ThrowsAsync<NotFoundException>(result);

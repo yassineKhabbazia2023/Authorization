@@ -94,12 +94,12 @@ public class AuthorizationService : IAuthorizationService
         return accountId == GlobalConstants.DefaultAccountIdCollab;
     }
 
-    public async Task<Paging<int>> GetContactIdsByAuthorizationCodesAsync(List<string> codes, Pagination? pagination)
+    public async Task<Paging<int>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination)
     {
         pagination = pagination ?? new Pagination();
         pagination.PageNumber = Paginator.GetValidPageNumber(pagination.PageNumber);
         pagination.PageSize = Paginator.GetValidPageSize(pagination.PageSize);
-        return await _authorizationRepository.GetContactIdsByAuthorizationCodesAsync(codes, pagination);
+        return await _authorizationRepository.GetContactIdsByAuthorizationCodesAndAccountIdAsync(codes, accountId, pagination);
     }
 
     public async Task SetPermissionForContactEmailAsync(string permission, IFormFile file)

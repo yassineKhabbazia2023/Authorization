@@ -300,7 +300,7 @@ public class AuthorizationRepositoryTests
             {
                 new()
                 {
-                    AuthorizationId = 77,
+                    AuthorizationId = 777,
                     Name = "name7",
                     Description = string.Empty,
                     Code = "code7",
@@ -310,7 +310,7 @@ public class AuthorizationRepositoryTests
                 },
                 new()
                 {
-                    AuthorizationId = 87,
+                    AuthorizationId = 877,
                     Name = "name8",
                     Description = string.Empty,
                     Code = "code8",
@@ -320,7 +320,7 @@ public class AuthorizationRepositoryTests
                 },
                 new()
                 {
-                    AuthorizationId = 97,
+                    AuthorizationId = 977,
                     Name = "name9",
                     Description = string.Empty,
                     Code = "code9",
@@ -338,21 +338,21 @@ public class AuthorizationRepositoryTests
                 {
                     ContactId = 3,
                     AccountId = 3,
-                    AuthorizationId = 97,
+                    AuthorizationId = 977,
                     CreationDate = DateTime.UtcNow,
                 },
                 new()
                 {
                     ContactId = 3,
                     AccountId = 3,
-                    AuthorizationId = 87,
+                    AuthorizationId = 877,
                     CreationDate = DateTime.UtcNow,
                 },
                 new()
                 {
                     ContactId = 3,
                     AccountId = 3,
-                    AuthorizationId = 77,
+                    AuthorizationId = 777,
                     CreationDate = DateTime.UtcNow,
                 }
             };
@@ -560,7 +560,7 @@ public class AuthorizationRepositoryTests
                             .Create();
 
         var account = _fixture.Build<AccountEntity>()
-            .With(a => a.AccountId, 43)
+            .With(a => a.AccountId, 432)
             .Create();
 
         var contacts = _fixture.Build<ContactEntity>()
@@ -1193,7 +1193,7 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
-    public async Task GetContactIdsByAuthorizationCodesAsync_ReturnResult()
+    public async Task GetContactIdsByAuthorizationCodesAndAccountIdAsync_ReturnResult()
     {
         // Arrange
         var pagination = new Pagination
@@ -1227,8 +1227,15 @@ public class AuthorizationRepositoryTests
            .Without(c => c.Account)
            .Without(c => c.Contact)
            .Create();
+        var role = _fixture.Build<RoleEntity>()
+            .With(c => c.ContactId, 1)
+            .With(c => c.AccountId, 1)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .Create();
 
         using var context = new AuthorizationContext(_options);
+        context.RoleEntity.Add(role);
         context.AuthorizationEntity.Add(authorization1);
         context.ContactAuthorizationEntity.Add(contactAuth1);
         context.AuthorizationEntity.Add(authorization2);
@@ -1238,14 +1245,14 @@ public class AuthorizationRepositoryTests
         var repo = new AuthorizationRepository(context);
 
         // Act
-        var result = await repo.GetContactIdsByAuthorizationCodesAsync(["COALP001", "COALP002"], pagination);
+        var result = await repo.GetContactIdsByAuthorizationCodesAndAccountIdAsync(["COALP001", "COALP002"], 1, pagination);
 
         // Assert
         Assert.Contains(1, result.Items!);
     }
 
     [Fact]
-    public async Task GetContactIdsByAuthorizationCodesAsync_ReturnNone()
+    public async Task GetContactIdsByAuthorizationCodesAndAccountIdAsync_ReturnNone()
     {
         // Arrange
         var pagination = new Pagination
@@ -1281,7 +1288,7 @@ public class AuthorizationRepositoryTests
         var repo = new AuthorizationRepository(context);
 
         // Act
-        var result = await repo.GetContactIdsByAuthorizationCodesAsync(["COALP001", "COALP002"], pagination);
+        var result = await repo.GetContactIdsByAuthorizationCodesAndAccountIdAsync(["COALP001", "COALP002"], 1, pagination);
 
         // Assert
         Assert.DoesNotContain(1, result.Items!);

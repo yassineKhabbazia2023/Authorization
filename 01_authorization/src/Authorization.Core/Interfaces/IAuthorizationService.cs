@@ -17,7 +17,7 @@ public interface IAuthorizationService
 
     Task<List<string>> GetAllContactAuthorizationsAsync(int contactId);
 
-    Task<Paging<int>> GetContactIdsByAuthorizationCodesAsync(List<string> codes, Pagination? pagination);
+    Task<Paging<int>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination);
 
     Task SetPermissionForContactEmailAsync(string permission, IFormFile file);
 }

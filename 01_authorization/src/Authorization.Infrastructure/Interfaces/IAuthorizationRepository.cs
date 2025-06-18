@@ -35,7 +35,7 @@ public interface IAuthorizationRepository
 
     Task<List<string>> GetAllContactAuthorizationsAsync(int contactId);
 
-    Task<Paging<int>> GetContactIdsByAuthorizationCodesAsync(List<string> codes, Pagination? pagination);
+    Task<Paging<int>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination);
 
     Task SetPermissionByContactEmailAsync(string permission, List<string> emails);
 }
