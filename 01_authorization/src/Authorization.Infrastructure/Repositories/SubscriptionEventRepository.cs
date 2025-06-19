@@ -43,7 +43,7 @@ public class SubscriptionEventRepository : ISubscriptionEventRepository
 
         ProductCodesSubscriptions productCodesSubscriptions = _authorizationRepository.RetrieveExistedProductCodes(productCodes);
 
-        var collabAuthorizationSubscriptions = new ContactAuthorizationSubscription { AccountId = accountId, AuthorizationIds = productCodesSubscriptions.CollabAuthorizationIds, ContactIds = contactSubscription.CollabContacts };
+        var collabAuthorizationSubscriptions = new ContactAuthorizationSubscription { AccountId = -1, AuthorizationIds = productCodesSubscriptions.CollabAuthorizationIds, ContactIds = contactSubscription.CollabContacts };
         var clientAuthorizationSubscriptions = new ContactAuthorizationSubscription { AccountId = accountId, AuthorizationIds = productCodesSubscriptions.ClientAuthorizationIds, ContactIds = contactSubscription.ClientContacts };
 
         IEnumerable<ContactAuthorizationEntity> contactAuthorizationEntities = [];

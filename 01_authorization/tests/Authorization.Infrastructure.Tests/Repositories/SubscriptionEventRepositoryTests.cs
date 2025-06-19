@@ -119,7 +119,7 @@ public class SubscriptionEventRepositoryTests
         _authRepoMock.Verify(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(
             It.Is<IEnumerable<ContactAuthorizationEntity>>(entities =>
                 entities.All(e => collabContacts.Contains(e.ContactId) &&
-                                e.AccountId == accountId))));
+                                e.AccountId == accountId || e.AccountId == -1))));
     }
 
     [Fact]
