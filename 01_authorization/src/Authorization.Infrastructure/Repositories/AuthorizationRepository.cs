@@ -2,15 +2,12 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Linq;
-using System.Linq.Expressions;
-using Azure.Core.Pipeline;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Crypto.Prng;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Extensions;
+using Pulse.Authorization.Core.Mappers;
+using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Models.Subscriptions;
 using Pulse.Authorization.Core.Models.Utils;
 using Pulse.Authorization.Core.Request;
@@ -20,7 +17,6 @@ using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Extensions;
 using Pulse.Authorization.Infrastructure.Interfaces;
-using Pulse.Authorization.Infrastructure.Mappers;
 using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Repositories;
@@ -407,7 +403,7 @@ public class AuthorizationRepository : IAuthorizationRepository
             .Distinct().ToListAsync();
     }
 
-    public async Task<Paging<int>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination)
+    public async Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination)
     {
         var authorizationIdRequired = _authorizationContext.AuthorizationEntity
                                         .AsNoTracking()
@@ -420,8 +416,8 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         var contactsHasRoles = _authorizationContext.RoleEntity
                             .AsNoTracking()
-                            .Where(ca => ca.AccountId == accountId)
-                            .Select(ca => ca.ContactId);
+                            .Where(r => r.AccountId == accountId)
+                            .Select(r => r.ContactId);
 
         var query = _authorizationContext.ContactAuthorizationEntity
                         .AsNoTracking()
@@ -430,7 +426,11 @@ public class AuthorizationRepository : IAuthorizationRepository
                         .Where(g => g.Select(ca => ca.AuthorizationId).Distinct().Count() == codes.Count)
                         .Select(g => g.Key);
 
-        var results = query.Intersect(contactsHasRoles);
+        var authorizedContactIds = query.Intersect(contactsHasRoles);
+
+        var results = _authorizationContext.ContactEntity
+                        .AsNoTracking()
+                        .Where(c => authorizedContactIds.Contains(c.ContactId));
 
         var totalItems = await results.CountAsync();
         var totalPages = Paginator.GetTotalPages(totalItems, pagination!.PageSize);
@@ -438,9 +438,9 @@ public class AuthorizationRepository : IAuthorizationRepository
         results = results.Skip((pagination!.PageNumber - 1) * pagination!.PageSize);
         results = results.Take(pagination!.PageSize);
 
-        return new Paging<int>
+        return new Paging<Contact>
         {
-            Items = await results.ToListAsync(),
+            Items = await results.Select(c => c.MapToContact()).ToListAsync(),
             CurrentPage = pagination!.PageNumber,
             TotalItems = totalItems,
             TotalPage = totalPages

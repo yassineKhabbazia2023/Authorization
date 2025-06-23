@@ -15,6 +15,7 @@ using Pulse.Authorization.API;
 using Pulse.Authorization.API.Controllers;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Models.Utils;
 using Pulse.Authorization.Core.Request;
 using Pulse.ExceptionMiddleware.Exceptions;
@@ -111,10 +112,21 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
     public async Task GetContactIdsByAuthorizationCodes_ShouldReturnOk()
     {
         // Arrange
-        var expected = new Paging<int>
+        List<Contact> contacts = new List<Contact>()
+        {
+            new Contact()
+            {
+                ContactId = 1,
+                FirstName = "test",
+                LastName = "test",
+                Email = "test@email.com",
+            }
+        };
+
+        var expected = new Paging<Contact>
         {
             CurrentPage = 1,
-            Items =[1],
+            Items = contacts,
             TotalItems = 1,
             TotalPage = 1
         };
@@ -128,7 +140,9 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
         var result = await authorizationController.GetContactIdsByAuthorizationCodesAndAccountId(["CORAPP001"], 1, null);
 
         // Assert
-        Assert.Equal(200, (result.Result as OkObjectResult)?.StatusCode);
+        var resultValue = result.Result as OkObjectResult;
+        Assert.Equal(200, resultValue?.StatusCode);
+        Assert.Equivalent(expected, resultValue.Value);
     }
 
     [Fact]

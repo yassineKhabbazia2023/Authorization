@@ -3,7 +3,7 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Models.Utils;
 using Pulse.Authorization.Core.Request;
 
@@ -17,7 +17,7 @@ public interface IAuthorizationService
 
     Task<List<string>> GetAllContactAuthorizationsAsync(int contactId);
 
-    Task<Paging<int>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination);
+    Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination);
 
     Task SetPermissionForContactEmailAsync(string permission, IFormFile file);
 }

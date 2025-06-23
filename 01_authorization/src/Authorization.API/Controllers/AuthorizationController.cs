@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Request;
 using Pulse.ExceptionMiddleware.Exceptions;
 using Pulse.ExceptionMiddleware.Model;
@@ -75,17 +76,17 @@ public class AuthorizationController : ControllerBase
     }
 
     /// <summary>
-    /// Récupérer des ContactIds qui a permission particulier.
+    /// Récupérer les utilisateurs qui ont ces codes de permissions.
     /// </summary>
     /// <param name="codes">Listes des permissions.</param>
     /// <param name="accountId">Identifiant account.</param>
     /// <param name="pagination">Pagination params.</param>
-    /// <returns>Listes des ContactId.</returns>
+    /// <returns>Listes des Contacts.</returns>
     [HttpGet("authorization/contacts")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
     [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(ErrorResponse))]
-    public async Task<ActionResult<IEnumerable<int>>> GetContactIdsByAuthorizationCodesAndAccountId([FromQuery] List<string> codes, [FromQuery] int accountId, [FromQuery] Pagination? pagination)
+    public async Task<ActionResult<IEnumerable<Contact>>> GetContactIdsByAuthorizationCodesAndAccountId([FromQuery] List<string> codes, [FromQuery] int accountId, [FromQuery] Pagination? pagination)
     {
         var result = await _authorizationService.GetContactIdsByAuthorizationCodesAndAccountIdAsync(codes, accountId, pagination);
         if(result.TotalItems == 0)

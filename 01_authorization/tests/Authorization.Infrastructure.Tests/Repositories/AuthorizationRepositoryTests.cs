@@ -1212,21 +1212,25 @@ public class AuthorizationRepositoryTests
             .With(a => a.Code, "COALP002")
             .Create();
 
+        var contact = _fixture.Build<ContactEntity>()
+            .With(a => a.ContactId, 1)
+            .Create();
+
         var contactAuth1 = _fixture.Build<ContactAuthorizationEntity>()
             .With(c => c.ContactId, 1)
+            .With(c => c.Contact, contact)
             .With(c => c.AccountId, 1)
             .With(c => c.AuthorizationId, 11)
              .Without(c => c.Authorization)
             .Without(c => c.Account)
-            .Without(c => c.Contact)
             .Create();
         var contactAuth2 = _fixture.Build<ContactAuthorizationEntity>()
            .With(c => c.ContactId, 1)
+            .With(c => c.Contact, contact)
            .With(c => c.AccountId, 1)
            .With(c => c.AuthorizationId, 22)
             .Without(c => c.Authorization)
            .Without(c => c.Account)
-           .Without(c => c.Contact)
            .Create();
         var role = _fixture.Build<RoleEntity>()
             .With(c => c.ContactId, 1)
@@ -1249,7 +1253,7 @@ public class AuthorizationRepositoryTests
         var result = await repo.GetContactIdsByAuthorizationCodesAndAccountIdAsync(["COALP001", "COALP002"], 1, pagination);
 
         // Assert
-        Assert.Contains(1, result.Items!);
+        Assert.Contains(1, result.Items!.Select(c => c.ContactId)!);
     }
 
     [Fact]
@@ -1292,7 +1296,7 @@ public class AuthorizationRepositoryTests
         var result = await repo.GetContactIdsByAuthorizationCodesAndAccountIdAsync(["COALP001", "COALP002"], 1, pagination);
 
         // Assert
-        Assert.DoesNotContain(1, result.Items!);
+        Assert.DoesNotContain(1, result.Items!.Select(c => c.ContactId)!);
     }
 
     [Fact]

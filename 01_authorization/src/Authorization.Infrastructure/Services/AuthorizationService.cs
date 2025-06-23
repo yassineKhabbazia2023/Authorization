@@ -2,12 +2,11 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Drawing.Drawing2D;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Extensions;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Models.Utils;
 using Pulse.Authorization.Core.Request;
 using Pulse.Authorization.Infrastructure.Constants;
@@ -94,7 +93,7 @@ public class AuthorizationService : IAuthorizationService
         return accountId == GlobalConstants.DefaultAccountIdCollab;
     }
 
-    public async Task<Paging<int>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination)
+    public async Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination)
     {
         pagination = pagination ?? new Pagination();
         pagination.PageNumber = Paginator.GetValidPageNumber(pagination.PageNumber);

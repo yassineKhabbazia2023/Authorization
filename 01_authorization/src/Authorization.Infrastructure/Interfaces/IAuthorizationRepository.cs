@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Core.Models.Subscriptions;
 using Pulse.Authorization.Core.Models.Utils;
 using Pulse.Authorization.Core.Request;
@@ -39,7 +40,7 @@ public interface IAuthorizationRepository
 
     Task<List<string>> GetAllContactAuthorizationsAsync(int contactId);
 
-    Task<Paging<int>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination);
+    Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination);
 
     ProductCodesSubscriptions RetrieveExistedProductCodes(IEnumerable<string> productCodes);
 
