@@ -2,7 +2,9 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Extensions;
@@ -491,11 +493,25 @@ public class AuthorizationRepository : IAuthorizationRepository
         return productCodesSubscriptions;
     }
 
-    public async Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationOnAccountContactsAsync(IEnumerable<ContactAuthorizationEntity> contactAuthorizationEntities)
+    public async Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationOnAccountContactsAsync(IEnumerable<ContactAuthorizationEntity> contactAuthorizationEntities, int accountId)
     {
+        var list = contactAuthorizationEntities.ToList();
+
+        if (!list.Any())
+        {
+            return Enumerable.Empty<ContactAuthorizationEntity>();
+        }
+
+        var contactIds = list.Select(c => c.ContactId).Distinct().ToList();
+
+        var existingContactAuthorizations = await _authorizationContext.ContactAuthorizationEntity.AsNoTracking()
+            .Include(ca => ca.Authorization)
+            .Where(ca => ca.AccountId == accountId && contactIds.Contains(ca.ContactId))
+            .ToListAsync();
+
         var notExistedContactAuthorizations = contactAuthorizationEntities
             .Where(ca => !_authorizationContext.ContactAuthorizationEntity.AsNoTracking()
-        .Any(db => db.ContactId == ca.ContactId && db.AccountId == ca.AccountId && db.AuthorizationId == ca.AuthorizationId))
+            .Any(db => db.ContactId == ca.ContactId && db.AccountId == ca.AccountId && db.AuthorizationId == ca.AuthorizationId))
             .ToList();
 
         if (notExistedContactAuthorizations.Any())
@@ -504,6 +520,7 @@ public class AuthorizationRepository : IAuthorizationRepository
             await _authorizationContext.SaveChangesAsync();
         }
 
-        return notExistedContactAuthorizations;
+        return existingContactAuthorizations.Concat(notExistedContactAuthorizations);
     }
+
 }

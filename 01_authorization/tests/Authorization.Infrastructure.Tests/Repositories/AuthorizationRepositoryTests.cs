@@ -1354,7 +1354,22 @@ public class AuthorizationRepositoryTests
             .Without(a => a.ContactAuthorizationEntity)
             .Create();
 
+        var acc = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 1)
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Without(a => a.RoleEntity)
+            .Create();
+
+        var cnt = _fixture.Build<ContactEntity>()
+            .With(a => a.ContactId, 1)
+            .Without(a => a.RoleEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
+
         context.AuthorizationEntity.AddRange(auth1, auth2);
+        context.AccountEntity.Add(acc);
+        context.ContactEntity.Add(cnt);
         await context.SaveChangesAsync();
 
         const int contactId = 1;
@@ -1362,9 +1377,9 @@ public class AuthorizationRepositoryTests
 
         // This link already exists in DB and must be ignored by the repo method
         var alreadyLinked = _fixture.Build<ContactAuthorizationEntity>()
-            .Without(c => c.Authorization)
-            .Without(c => c.Account)
-            .Without(c => c.Contact)
+            .With(c => c.Authorization, auth1)
+            .With(c => c.Account, acc)
+            .With(c => c.Contact, cnt)
             .With(c => c.ContactId, contactId)
             .With(c => c.AccountId, accountId)
             .With(c => c.AuthorizationId, auth1.AuthorizationId)
@@ -1374,18 +1389,18 @@ public class AuthorizationRepositoryTests
 
         // Two links we ask to insert: one duplicate & one really new
         var duplicate = _fixture.Build<ContactAuthorizationEntity>()
-            .Without(c => c.Authorization)
-            .Without(c => c.Account)
-            .Without(c => c.Contact)
+            .With(c => c.Authorization, auth1)
+            .With(c => c.Account, acc)
+            .With(c => c.Contact, cnt)
             .With(c => c.ContactId, contactId)
             .With(c => c.AccountId, accountId)
             .With(c => c.AuthorizationId, auth1.AuthorizationId)   // already exists
             .Create();
 
         var brandNew = _fixture.Build<ContactAuthorizationEntity>()
-            .Without(c => c.Authorization)
-            .Without(c => c.Account)
-            .Without(c => c.Contact)
+            .With(c => c.Authorization, auth2)
+            .With(c => c.Account, acc)
+            .With(c => c.Contact, cnt)
             .With(c => c.ContactId, contactId)
             .With(c => c.AccountId, accountId)
             .With(c => c.AuthorizationId, auth2.AuthorizationId)   // new link
@@ -1394,11 +1409,11 @@ public class AuthorizationRepositoryTests
         var repo = new AuthorizationRepository(context);
 
         // – Act
-        var added = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync([duplicate, brandNew]);
+        var added = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync([duplicate, brandNew], accountId);
 
         // – Assert
-        added.Should().HaveCount(1);                          // only the new link returned
-        added.Single().AuthorizationId.Should().Be(auth2.AuthorizationId);
+        added.Should().HaveCount(2);                          // return all link
+        added.Last().AuthorizationId.Should().Be(auth2.AuthorizationId);
 
         var allLinksInDb = context.ContactAuthorizationEntity
             .Where(ca => ca.ContactId == contactId && ca.AccountId == accountId)
@@ -1454,13 +1469,28 @@ public class AuthorizationRepositoryTests
             .Without(a => a.ContactAuthorizationEntity)
             .Create();
 
+        var acc = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 1)
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Without(a => a.RoleEntity)
+            .Create();
+
+        var cnt = _fixture.Build<ContactEntity>()
+            .With(a => a.ContactId, 1)
+            .Without(a => a.RoleEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
+
         context.AuthorizationEntity.Add(auth);
+        context.AccountEntity.Add(acc);
+        context.ContactEntity.Add(cnt);
         await context.SaveChangesAsync();
 
         var link = _fixture.Build<ContactAuthorizationEntity>()
-            .Without(c => c.Authorization)
-            .Without(c => c.Account)
-            .Without(c => c.Contact)
+            .With(c => c.Authorization, auth)
+            .With(c => c.Account, acc)
+            .With(c => c.Contact, cnt)
             .With(c => c.AuthorizationId, auth.AuthorizationId)
             .With(c => c.ContactId, 1)
             .With(c => c.AccountId, 1)
@@ -1472,10 +1502,10 @@ public class AuthorizationRepositoryTests
         var repo = new AuthorizationRepository(context);
 
         // – Act
-        var result = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync([link]);
+        var result = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync([link], 1);
 
         // – Assert
-        result.Should().BeEmpty();
+        result.Should().NotBeEmpty();
 
         var all = context.ContactAuthorizationEntity.ToList();
         all.Should().HaveCount(1); // only the existing link
@@ -1489,7 +1519,7 @@ public class AuthorizationRepositoryTests
         var repo = new AuthorizationRepository(context);
 
         // – Act
-        var result = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync([]);
+        var result = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync([], 1);
 
         // – Assert
         result.Should().BeEmpty();

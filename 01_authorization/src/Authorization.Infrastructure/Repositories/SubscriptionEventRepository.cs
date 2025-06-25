@@ -51,7 +51,7 @@ public class SubscriptionEventRepository : ISubscriptionEventRepository
             .Concat(collabAuthorizationSubscriptions.MapToContactAuthorizationEntities())
             .Concat(clientAuthorizationSubscriptions.MapToContactAuthorizationEntities());
 
-        contactAuthorizationEntities = await _authorizationRepository.AddSubscriptionAuthorizationOnAccountContactsAsync(contactAuthorizationEntities);
+        contactAuthorizationEntities = await _authorizationRepository.AddSubscriptionAuthorizationOnAccountContactsAsync(contactAuthorizationEntities, accountId);
 
         IEnumerable<string> errors = [];
         errors = contactSubscription.BuildErrors().Concat(contactRolesSubscription.BuildErrors()).Concat(productCodesSubscriptions.BuildErrors());

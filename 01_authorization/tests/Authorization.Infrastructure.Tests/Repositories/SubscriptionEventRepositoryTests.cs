@@ -108,7 +108,7 @@ public class SubscriptionEventRepositoryTests
             .Returns(new ProductCodesSubscriptions { CollabAuthorizationIds = collabAuthIds });
 
         var expectedEntities = _fixture.CreateMany<ContactAuthorizationEntity>();
-        _authRepoMock.Setup(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(It.IsAny<IEnumerable<ContactAuthorizationEntity>>()))
+        _authRepoMock.Setup(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(It.IsAny<IEnumerable<ContactAuthorizationEntity>>(), It.IsAny<int>()))
             .ReturnsAsync(expectedEntities);
 
         // Act
@@ -119,7 +119,7 @@ public class SubscriptionEventRepositoryTests
         _authRepoMock.Verify(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(
             It.Is<IEnumerable<ContactAuthorizationEntity>>(entities =>
                 entities.All(e => collabContacts.Contains(e.ContactId) &&
-                                e.AccountId == accountId || e.AccountId == -1))));
+                                e.AccountId == accountId || e.AccountId == -1)), It.IsAny<int>()));
     }
 
     [Fact]
@@ -142,7 +142,7 @@ public class SubscriptionEventRepositoryTests
             .Returns(new ProductCodesSubscriptions { ClientAuthorizationIds = clientAuthIds });
 
         var expectedEntities = _fixture.CreateMany<ContactAuthorizationEntity>();
-        _authRepoMock.Setup(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(It.IsAny<IEnumerable<ContactAuthorizationEntity>>()))
+        _authRepoMock.Setup(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(It.IsAny<IEnumerable<ContactAuthorizationEntity>>(), It.IsAny<int>()))
             .ReturnsAsync(expectedEntities);
 
         // Act
@@ -153,7 +153,7 @@ public class SubscriptionEventRepositoryTests
         _authRepoMock.Verify(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(
             It.Is<IEnumerable<ContactAuthorizationEntity>>(entities =>
                 entities.All(e => clientContacts.Contains(e.ContactId) &&
-                                e.AccountId == accountId))));
+                                e.AccountId == accountId)), It.IsAny<int>()));
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public class SubscriptionEventRepositoryTests
 
         // Assert
         Assert.Empty(result.Item1);
-        _authRepoMock.Verify(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(It.IsAny<IEnumerable<ContactAuthorizationEntity>>()), Times.Once);
+        _authRepoMock.Verify(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(It.IsAny<IEnumerable<ContactAuthorizationEntity>>(), It.IsAny<int>()), Times.Once);
     }
 
     [Fact]
@@ -212,7 +212,7 @@ public class SubscriptionEventRepositoryTests
             });
 
         var expectedEntities = _fixture.CreateMany<ContactAuthorizationEntity>(2); // 1 collab + 1 client
-        _authRepoMock.Setup(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(It.IsAny<IEnumerable<ContactAuthorizationEntity>>()))
+        _authRepoMock.Setup(x => x.AddSubscriptionAuthorizationOnAccountContactsAsync(It.IsAny<IEnumerable<ContactAuthorizationEntity>>(), It.IsAny<int>()))
             .ReturnsAsync(expectedEntities);
 
         // Act
