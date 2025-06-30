@@ -1,0 +1,19 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+  repositories:
+  - repository: Pulse
+    name: 'Pulse.Operations.Pipelines'
+    type: git
+    ref: 'refs/heads/Release/v4.0'
+
+extends:
+  template: pipelines/pull-request/back.yaml@Pulse
+  parameters:
+    name: authorization
+    srcPath: 01_authorization/src/Authorization.API/Authorization.API.csproj
+    testsPath: 01_authorization/tests/**/*Tests.csproj
+    sonarExclusions: '**/Authorization.Database/Mocks.dev/**,**/Authorization.Database/Scripts/**,**/Authorization.Database/postDeployment/**,**/tests/**'
