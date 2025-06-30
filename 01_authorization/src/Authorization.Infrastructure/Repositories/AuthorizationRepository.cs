@@ -423,7 +423,7 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         var query = _authorizationContext.ContactAuthorizationEntity
                         .AsNoTracking()
-                        .Where(ca => authorizationIdRequired.Contains(ca.AuthorizationId))
+                        .Where(ca => authorizationIdRequired.Contains(ca.AuthorizationId) && ca.AccountId == accountId)
                         .GroupBy(ca => ca.ContactId)
                         .Where(g => g.Select(ca => ca.AuthorizationId).Distinct().Count() == codes.Count)
                         .Select(g => g.Key);
