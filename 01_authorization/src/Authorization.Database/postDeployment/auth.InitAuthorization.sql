@@ -27,6 +27,7 @@ INSERT INTO auth.[Authorization] (
 	('Update right collab', '', 'COADMI003', 'Gérer les droits des collaborateurs', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
 	('View account administration', '', 'COADMI004', 'Gérer les dossiers', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
 	('Update right account', '', 'COADMI005', 'Gestion des droits sur dossier', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
+	('Add User', '', 'COADMI006', 'Ajouter un utilisateur', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
 	('Remove client user from an account', '', 'COUSER003', 'Retirer utilisateur client d''un dossier', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
 	('Create JDD', '', 'COADMI007', 'Créer des jeux de données', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
 	('Deploy subscription', '', 'COOFF001', 'Activer une offre', 'COLOFFRE', '1', 'Both', NULL, 'collaborator'),
