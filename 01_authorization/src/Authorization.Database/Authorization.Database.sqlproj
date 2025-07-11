@@ -101,6 +101,7 @@
     <None Include="Scripts\PROD\0007_Script_update_CLUSER004_view.sql" />
     <None Include="Scripts\PROD\0010_Update_COPEN001_permission.sql" />
     <None Include="Scripts\PROD\0011_Update_COPEN001_view.sql" />
+    <None Include="Scripts\PROD\0013_Delete_cross_permissions.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
