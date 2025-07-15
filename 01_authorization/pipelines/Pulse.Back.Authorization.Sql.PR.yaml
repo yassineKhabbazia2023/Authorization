@@ -1,0 +1,18 @@
+trigger: none
+
+pool:
+  vmImage: 'windows-latest'
+
+resources:
+  repositories:
+  - repository: Pulse
+    name: 'Pulse.Operations.Pipelines'
+    type: git
+    ref: 'refs/heads/Release/v4.0'
+
+extends:
+  template: pipelines/pull-request/sql.yaml@Pulse
+  parameters:
+    srcPath: 01_authorization/src/Authorization.Database/Authorization.Database.sqlproj
+    domain: aut
+    id: '01'
