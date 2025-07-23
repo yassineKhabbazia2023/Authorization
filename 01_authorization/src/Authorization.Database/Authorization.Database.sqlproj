@@ -102,6 +102,7 @@
     <None Include="Scripts\PROD\0010_Update_COPEN001_permission.sql" />
     <None Include="Scripts\PROD\0011_Update_COPEN001_view.sql" />
     <None Include="Scripts\PROD\0013_Delete_cross_permissions.sql" />
+    <None Include="Scripts\PROD\0014_Script_Add_Reporting_Permission_On_Account.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
