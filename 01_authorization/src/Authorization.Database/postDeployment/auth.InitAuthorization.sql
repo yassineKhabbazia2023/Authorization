@@ -33,6 +33,7 @@ INSERT INTO auth.[Authorization] (
 	('Deploy subscription', '', 'COOFF001', 'Activer une offre', 'COLOFFRE', '1', 'Both', NULL, 'collaborator'),
 	('Activate subsciption', '', 'COOFF002', 'Onglet des demandes MOD', 'COLOFFRE', '1', 'Global', NULL, 'collaborator'),
 	('Add report', '', 'CORAP001', 'Déposer un rapport BI', 'COLRAPPORT', '1', 'Global', NULL, 'collaborator'),
+	('Delete report', '', 'CORAP003', 'Supprimer un rapport BI', 'COLRAPPORT', '1', 'Global', NULL, 'collaborator'),
 	('View delegation', '', 'COGES001', 'Historique des délégations', 'COLGESTION', '1', 'Both', NULL, 'collaborator'),
 	('View Calendar', '', 'COCAL001', 'Accéder au calendrier', 'COLGESTION', '1', 'Header', NULL, 'collaborator'),
 	('View mandate', '', 'COMAND001', 'Onglet Mandat', 'COLPROD', '1', 'Global', NULL, 'collaborator'),
