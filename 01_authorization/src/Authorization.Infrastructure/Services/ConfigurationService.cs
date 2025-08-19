@@ -20,13 +20,15 @@ public class ConfigurationService : IConfigurationService
     private readonly IContactRepository _contactRepository;
     private readonly IAuthorizationEventPublisher _authorizationEventPublisher;
     private readonly IAccountRepository _accountRepository;
+    private readonly IHistoryEventPublisher _historyEventPublisher;
 
-    public ConfigurationService(IConfigurationRepository configurationRepository, IContactRepository contactRepository, IAuthorizationEventPublisher authorizationEventPublisher, IAccountRepository accountRepository)
+    public ConfigurationService(IConfigurationRepository configurationRepository, IContactRepository contactRepository, IAuthorizationEventPublisher authorizationEventPublisher, IAccountRepository accountRepository, IHistoryEventPublisher historyEventPublisher)
     {
         _configurationRepository = configurationRepository;
         _contactRepository = contactRepository;
         _authorizationEventPublisher = authorizationEventPublisher;
         _accountRepository = accountRepository;
+        _historyEventPublisher = historyEventPublisher;
     }
 
     public async Task<IEnumerable<Configuration>> GetContactAccountConfigurationAsync(int contactId, int? accountId)
@@ -81,7 +83,7 @@ public class ConfigurationService : IConfigurationService
         return tConfigurations;
     }
 
-    public async Task CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IEnumerable<string> codes)
+    public async Task CreateOrUpdateContactAccountAuthorizationAsync(int currentUserId, int contactId, int? accountId, IEnumerable<string> codes)
     {
         var contact = await _contactRepository.GetContactByIdAsync(contactId);
 
@@ -92,6 +94,9 @@ public class ConfigurationService : IConfigurationService
 
         accountId ??= contact.Type!.Equals(ContactType.Collaborator.ToString()) ? -1 :
             throw new BadRequestException(Errors.NotFoundAccountCode, Errors.NotFoundAccountMessage);
+
+        var initialPermissionCodes = (await _configurationRepository.GetContactAuthorizationsAsync(contactId, (int)accountId)).Select(a => a.Code).ToList();
+
         try
         {
             await _configurationRepository.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId.Value, codes);
@@ -102,6 +107,7 @@ public class ConfigurationService : IConfigurationService
         }
 
         await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(contactId, accountId.Value, codes.ToList());
+        await PublishHistoryEvent(currentUserId, contactId, accountId.Value, initialPermissionCodes);
     }
 
     public async Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId, string? type, bool configurable = true)
@@ -143,6 +149,14 @@ public class ConfigurationService : IConfigurationService
     {
         await _configurationRepository.CreateOrUpdateAccountAuthorizationAsync(accountId, codes, type, configurable);
         await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(null, accountId, codes.ToList());
+    }
 
+    private async Task PublishHistoryEvent(int currentUserId, int contactId, int accountId, IEnumerable<string> initialPermissionCodes)
+    {
+        var currentPermissionIds = (await _configurationRepository.GetContactAuthorizationsAsync(contactId, accountId)).Select(a => a.Code).ToList();
+        var addedPermissions = currentPermissionIds.Except(initialPermissionCodes).ToList();
+        var deletedPermissions = initialPermissionCodes.Except(currentPermissionIds).ToList();
+
+        await _historyEventPublisher.PublishHistoryCreatedEvent(currentUserId, contactId, accountId, addedPermissions, deletedPermissions);
     }
 }

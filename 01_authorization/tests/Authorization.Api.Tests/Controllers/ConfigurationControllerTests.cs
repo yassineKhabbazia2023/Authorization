@@ -2,15 +2,14 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
-using AutoFixture;
 using Pulse.Authorization.API;
-using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.API.Controllers;
+using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Core.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace Pulse.Authorization.Api.Tests.Controllers;
 
@@ -52,15 +51,16 @@ public class ConfigurationControllerTests : IClassFixture<WebApplicationFactory<
         // Arrange
         var accountId = 6000;
         var contactId = 3;
+        var currentUserId = 5;
         var listCode = _fixture.Create<List<string>>();
 
-        var configurationService = new Mock<IConfigurationService>(MockBehavior.Strict);
-        configurationService.Setup(service => service.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, listCode))
+        var configurationService = new Mock<IConfigurationService>();
+        configurationService.Setup(service => service.CreateOrUpdateContactAccountAuthorizationAsync(currentUserId, contactId, accountId, listCode))
             .Returns(Task.CompletedTask);
         var configurationController = new ConfigurationController(configurationService.Object);
 
         // Act
-        var result = await configurationController.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, listCode);
+        var result = await configurationController.CreateOrUpdateContactAccountAuthorizationAsync(currentUserId, contactId, accountId, listCode);
 
         // Assert
         Assert.Equal(200, (result as OkResult)?.StatusCode);

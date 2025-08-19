@@ -57,6 +57,7 @@ public class ConfigurationController : ControllerBase
     /// <summary>
     /// Créer ou modifier une authorization pour un contact sur une entité morale.
     /// </summary>
+    /// <param name="currentUserId">Identifiant du contact à l'origine de l'action.</param>
     /// <param name="contactId">Identifiant du contact.</param>
     /// <param name="accountId">Identifiant de l'entité.</param>
     /// <param name="codes">La liste des codes d'authorization du contact sur l'entité.</param>
@@ -65,9 +66,9 @@ public class ConfigurationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
-    public async Task<ActionResult> CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IList<string> codes)
+    public async Task<ActionResult> CreateOrUpdateContactAccountAuthorizationAsync([FromHeader(Name = "CurrentUser")] int currentUserId, int contactId, int? accountId, IList<string> codes)
     {
-        await _configurationService.CreateOrUpdateContactAccountAuthorizationAsync(contactId, accountId, codes);
+        await _configurationService.CreateOrUpdateContactAccountAuthorizationAsync(currentUserId, contactId, accountId, codes);
         return Ok();
     }
 

@@ -2,12 +2,9 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using System.Runtime.InteropServices;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
-using Microsoft.Identity.Client;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
@@ -596,5 +593,39 @@ public class ConfigurationRepositoryTests
             list.Count().Should().Be(12);
             list.All(x => x.Type.Equals(authorizationType) && x.Configurable == true).Should().BeTrue();
         }
+    }
+
+    [Fact]
+    public async Task GetAuthorizationEntitiesByCodeAsync_Nominal()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
+        var codes = new List<string>() { "FFF" };
+
+        using var context = new AuthorizationContext(options);
+        var auth1 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.Code, "DDD")
+            .With(a => a.Configurable, true)
+            .Create();
+        var auth2 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.Code, "EEE")
+            .With(a => a.Configurable, true)
+            .Create();
+        var auth3 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.Code, "FFF")
+            .With(a => a.Configurable, true)
+            .Create();
+        context.AuthorizationEntity.AddRange(new List<AuthorizationEntity>() { auth1, auth2, auth3 });
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        var result = await repository.GetAuthorizationEntitiesByCodeAsync(codes);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal("FFF", result.First().Code);
     }
 }

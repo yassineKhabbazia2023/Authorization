@@ -12,7 +12,7 @@ public interface IConfigurationService
 
     Task<IEnumerable<Configuration>> GetAccountConfigurationAsync(int accountId, string? type, bool configurable = true);
 
-    Task CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int? accountId, IEnumerable<string> codes);
+    Task CreateOrUpdateContactAccountAuthorizationAsync(int currentUserId, int contactId, int? accountId, IEnumerable<string> codes);
 
     Task CreateOrUpdateAccountAuthorizationAsync(int accountId, IEnumerable<string> codes, string? type, bool configurable = true);
 }

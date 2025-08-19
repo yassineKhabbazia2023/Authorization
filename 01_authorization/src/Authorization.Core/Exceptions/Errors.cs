@@ -44,7 +44,10 @@ namespace Pulse.Authorization.Core.Exceptions
         public static readonly string NoContentCode = "AUT012";
         public static readonly string NoContentMessage = "Aucune résult retourne.";
 
-        public static readonly string SubscriptionAuthorizationErrorCode = "AUTH013";
+        public static readonly string SubscriptionAuthorizationErrorCode = "AUT013";
         public static readonly string SubscriptionAuthorizationErrorMessage = "La souscription des authorization a confronté des problèmes:\n {0}";
+
+        public static readonly string NoPermissionsFoundCode = "AUT014";
+        public static readonly string NoPermissionsFoundMessage = "Aucune permission n'a été trouvée.";
     }
 }

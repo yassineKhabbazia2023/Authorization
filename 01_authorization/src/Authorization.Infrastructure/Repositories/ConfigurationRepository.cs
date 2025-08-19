@@ -8,7 +8,6 @@ using System.Data;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Extensions;
 using Pulse.Authorization.Infrastructure.Interfaces;
-using System.Configuration;
 using Pulse.ExceptionMiddleware.Exceptions;
 using Pulse.Authorization.Core.Exceptions;
 
@@ -48,7 +47,7 @@ public class ConfigurationRepository : IConfigurationRepository
         return authorization;
     }
 
-    private async Task<IEnumerable<AuthorizationEntity>> GetAuthorizationEntitiesByCodeAsync(IEnumerable<string> codes)
+    public async Task<IEnumerable<AuthorizationEntity>> GetAuthorizationEntitiesByCodeAsync(IEnumerable<string> codes)
     {
         return await _authorizationContext
                      .AuthorizationEntity

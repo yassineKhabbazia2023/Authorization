@@ -80,6 +80,7 @@ namespace Pulse.Authorization.API.Configuration
             services.AddKeyedScoped<IEventHandler, ReportCreatedEventHandler>(nameof(ReportCreatedEvent));
 
             services.AddScoped<IAuthorizationEventPublisher, AuthorizationEventPublisher>();
+            services.AddScoped<IHistoryEventPublisher, HistoryEventPublisher>();
 
             services.AddEventPullServices(options);
             services.AddEventPushServices(options);

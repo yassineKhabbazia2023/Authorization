@@ -9,7 +9,6 @@ using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.ExceptionMiddleware.Exceptions;
-using Xunit;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Providers;
 
@@ -109,7 +108,8 @@ public class SubscriptionValidatedEventHandlerTests
 
         // Assert
         var exception = await action.Should().ThrowAsync<BadRequestException>();
-        exception.Which.Code.Should().BeEquivalentTo("AUTH013");
+        exception.Which.Code.Should().BeEquivalentTo("AUT013");
+        exception.Which.Message.Should().BeEquivalentTo($"La souscription des authorization a confronté des problèmes:\n {string.Join("\n", errors.ToArray())}");
     }
 
     [Fact]
