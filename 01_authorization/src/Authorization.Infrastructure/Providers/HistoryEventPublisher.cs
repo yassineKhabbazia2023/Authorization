@@ -32,6 +32,14 @@ public class HistoryEventPublisher : IHistoryEventPublisher
 
     public async Task PublishHistoryCreatedEvent(int currentUserId, int contactId, int accountId, IEnumerable<string> addedPermissionCodes, IEnumerable<string> deletedPermissionCodes)
     {
+        var addedPermissions = await _configurationRepository.GetAuthorizationEntitiesByCodeAsync(addedPermissionCodes);
+        var deletedPermissions = await _configurationRepository.GetAuthorizationEntitiesByCodeAsync(deletedPermissionCodes);
+
+        if (!addedPermissions.Any() && !deletedPermissions.Any())
+        {
+            return;
+        }
+
         var currentUser = await _contactRepository.GetContactByIdAsync(currentUserId)
             ?? throw new NotFoundException(Errors.NotFoundContactCode, string.Format(Errors.NotFoundContactMessage, currentUserId));
         var currentUserName = currentUser.FirstName + " " + currentUser.LastName;
@@ -42,14 +50,6 @@ public class HistoryEventPublisher : IHistoryEventPublisher
 
         var account = await _accountRepository.GetAccountByIdAsync(accountId)
             ?? throw new NotFoundException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId));
-
-        var addedPermissions = await _configurationRepository.GetAuthorizationEntitiesByCodeAsync(addedPermissionCodes);
-        var deletedPermissions = await _configurationRepository.GetAuthorizationEntitiesByCodeAsync(deletedPermissionCodes);
-
-        if (!addedPermissions.Any() && !deletedPermissions.Any())
-        {
-            throw new NotFoundException(Errors.NoPermissionsFoundCode, Errors.NoPermissionsFoundMessage);
-        }
 
         var details = new StringBuilder();
 

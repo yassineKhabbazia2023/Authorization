@@ -54,79 +54,115 @@ public class HistoryEventPublisherTests
     [Fact]
     public async Task PublishHistoryCreatedEvent_WithNoCurrentUserFound_ShouldThrowNotFoundException()
     {
-        ContactEntity invalidContact = null!;
-        _contactRepository.Setup(x => x.GetContactByIdAsync(1)).ReturnsAsync(invalidContact);
+        var addedPermissionCodes = new[] { "COUSER001" };
+        var deletedPermissionCodes = new[] { "CORAPP01" };
 
-        var publisher = new HistoryEventPublisher(_contactRepository.Object, _accountRepository.Object, _configurationRepository.Object, _eventPublisher.Object);
+        _contactRepository.Setup(x => x.GetContactByIdAsync(1)).ReturnsAsync((ContactEntity?)null);
 
-        var result = await Assert.ThrowsAsync<NotFoundException>(async () => await publisher.PublishHistoryCreatedEvent(1, 2, 1, null!, null!));
+        _configurationRepository.Setup(x => x.GetAuthorizationEntitiesByCodeAsync(addedPermissionCodes))
+            .ReturnsAsync(new[] { new AuthorizationEntity { Code = "COUSER001", Label = "Added" } });
+        _configurationRepository.Setup(x => x.GetAuthorizationEntitiesByCodeAsync(deletedPermissionCodes))
+            .ReturnsAsync(new[] { new AuthorizationEntity { Code = "CORAPP01", Label = "Deleted" } });
 
-        Assert.Equal("AUT002", result.Code);
-        Assert.Equal("Le contact avec l'identifiant 1 est introuvable", result.Message);
+        var publisher = new HistoryEventPublisher(
+            _contactRepository.Object,
+            _accountRepository.Object,
+            _configurationRepository.Object,
+            _eventPublisher.Object);
+
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() =>
+            publisher.PublishHistoryCreatedEvent(1, 2, 1, addedPermissionCodes, deletedPermissionCodes));
+
+        Assert.Equal("AUT002", ex.Code);
+        Assert.Equal("Le contact avec l'identifiant 1 est introuvable", ex.Message);
 
         _contactRepository.Verify(x => x.GetContactByIdAsync(It.IsAny<int>()), Times.Once);
         _accountRepository.Verify(x => x.GetAccountByIdAsync(It.IsAny<int>()), Times.Never);
-        _configurationRepository.Verify(x => x.GetAuthorizationEntitiesByCodeAsync(It.IsAny<IEnumerable<string>>()), Times.Never);
+        _configurationRepository.Verify(x => x.GetAuthorizationEntitiesByCodeAsync(It.IsAny<IEnumerable<string>>()), Times.Exactly(2));
         _eventPublisher.Verify(x => x.PublishAsync(It.IsAny<BaseEvent<HistoryCreatedEventData>>(), null!, null), Times.Never);
     }
 
     [Fact]
     public async Task PublishHistoryCreatedEvent_WithNoTargetUserFound_ShouldThrowNotFoundException()
     {
-        ContactEntity invalidContact = null!;
+        var addedPermissionCodes = new[] { "COUSER001" };
+        var deletedPermissionCodes = new[] { "CORAPP01" };
+
         _contactRepository.Setup(x => x.GetContactByIdAsync(1)).ReturnsAsync(_fixture.Create<ContactEntity>());
-        _contactRepository.Setup(x => x.GetContactByIdAsync(2)).ReturnsAsync(invalidContact);
+        _contactRepository.Setup(x => x.GetContactByIdAsync(2)).ReturnsAsync((ContactEntity?)null);
 
-        var publisher = new HistoryEventPublisher(_contactRepository.Object, _accountRepository.Object, _configurationRepository.Object, _eventPublisher.Object);
+        _configurationRepository.Setup(x => x.GetAuthorizationEntitiesByCodeAsync(addedPermissionCodes))
+            .ReturnsAsync(new[] { new AuthorizationEntity { Code = "COUSER001", Label = "Added" } });
+        _configurationRepository.Setup(x => x.GetAuthorizationEntitiesByCodeAsync(deletedPermissionCodes))
+            .ReturnsAsync(new[] { new AuthorizationEntity { Code = "CORAPP01", Label = "Deleted" } });
 
-        var result = await Assert.ThrowsAsync<NotFoundException>(async () => await publisher.PublishHistoryCreatedEvent(1, 2, 1, null!, null!));
+        var publisher = new HistoryEventPublisher(
+            _contactRepository.Object,
+            _accountRepository.Object,
+            _configurationRepository.Object,
+            _eventPublisher.Object);
 
-        Assert.Equal("AUT002", result.Code);
-        Assert.Equal("Le contact avec l'identifiant 2 est introuvable", result.Message);
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() =>
+            publisher.PublishHistoryCreatedEvent(1, 2, 1, addedPermissionCodes, deletedPermissionCodes));
+
+        Assert.Equal("AUT002", ex.Code);
+        Assert.Equal("Le contact avec l'identifiant 2 est introuvable", ex.Message);
 
         _contactRepository.Verify(x => x.GetContactByIdAsync(It.IsAny<int>()), Times.Exactly(2));
         _accountRepository.Verify(x => x.GetAccountByIdAsync(It.IsAny<int>()), Times.Never);
-        _configurationRepository.Verify(x => x.GetAuthorizationEntitiesByCodeAsync(It.IsAny<IEnumerable<string>>()), Times.Never);
+        _configurationRepository.Verify(x => x.GetAuthorizationEntitiesByCodeAsync(It.IsAny<IEnumerable<string>>()), Times.Exactly(2));
         _eventPublisher.Verify(x => x.PublishAsync(It.IsAny<BaseEvent<HistoryCreatedEventData>>(), null!, null), Times.Never);
     }
 
     [Fact]
     public async Task PublishHistoryCreatedEvent_WithNoAccountFound_ShouldThrowNotFoundException()
     {
-        AccountEntity invalidAccount = null!;
+        var addedPermissionCodes = new[] { "CORAPP01" };
+        var deletedPermissionCodes = new[] { "COUSER001" };
+
         _contactRepository.Setup(x => x.GetContactByIdAsync(It.IsAny<int>())).ReturnsAsync(_fixture.Create<ContactEntity>());
-        _accountRepository.Setup(x => x.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync(invalidAccount);
+        _accountRepository.Setup(x => x.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync((AccountEntity?)null);
+
+        _configurationRepository.Setup(x => x.GetAuthorizationEntitiesByCodeAsync(addedPermissionCodes))
+            .ReturnsAsync(new[] { new AuthorizationEntity { Code = "CORAPP01", Label = "Added" } });
+        _configurationRepository.Setup(x => x.GetAuthorizationEntitiesByCodeAsync(deletedPermissionCodes))
+            .ReturnsAsync(new[] { new AuthorizationEntity { Code = "COUSER001", Label = "Deleted" } });
 
         var publisher = new HistoryEventPublisher(_contactRepository.Object, _accountRepository.Object, _configurationRepository.Object, _eventPublisher.Object);
 
-        var result = await Assert.ThrowsAsync<NotFoundException>(async () => await publisher.PublishHistoryCreatedEvent(1, 2, 1, null!, null!));
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() =>
+            publisher.PublishHistoryCreatedEvent(1, 2, 1, addedPermissionCodes, deletedPermissionCodes));
 
-        Assert.Equal("AUT001", result.Code);
-        Assert.Equal("L'identifiant de l'entité saisi 1 est introuvable", result.Message);
-
-        _contactRepository.Verify(x => x.GetContactByIdAsync(It.IsAny<int>()), Times.Exactly(2));
-        _accountRepository.Verify(x => x.GetAccountByIdAsync(It.IsAny<int>()), Times.Once);
-        _configurationRepository.Verify(x => x.GetAuthorizationEntitiesByCodeAsync(It.IsAny<IEnumerable<string>>()), Times.Never);
-        _eventPublisher.Verify(x => x.PublishAsync(It.IsAny<BaseEvent<HistoryCreatedEventData>>(), null!, null), Times.Never);
-    }
-
-    [Fact]
-    public async Task PublishHistoryCreatedEvent_WithNoPermissionFound_ShouldThrowNotFoundException()
-    {
-        _contactRepository.Setup(x => x.GetContactByIdAsync(It.IsAny<int>())).ReturnsAsync(_fixture.Create<ContactEntity>());
-        _accountRepository.Setup(x => x.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync(_fixture.Create<AccountEntity>());
-        _configurationRepository.Setup(x => x.GetAuthorizationEntitiesByCodeAsync(It.IsAny<IEnumerable<string>>())).ReturnsAsync(Enumerable.Empty<AuthorizationEntity>());
-
-        var publisher = new HistoryEventPublisher(_contactRepository.Object, _accountRepository.Object, _configurationRepository.Object, _eventPublisher.Object);
-
-        var result = await Assert.ThrowsAsync<NotFoundException>(async () => await publisher.PublishHistoryCreatedEvent(1, 2, 1, null!, null!));
-
-        Assert.Equal("AUT014", result.Code);
-        Assert.Equal("Aucune permission n'a été trouvée.", result.Message);
+        Assert.Equal("AUT001", ex.Code);
+        Assert.Equal("L'identifiant de l'entité saisi 1 est introuvable", ex.Message);
 
         _contactRepository.Verify(x => x.GetContactByIdAsync(It.IsAny<int>()), Times.Exactly(2));
         _accountRepository.Verify(x => x.GetAccountByIdAsync(It.IsAny<int>()), Times.Once);
         _configurationRepository.Verify(x => x.GetAuthorizationEntitiesByCodeAsync(It.IsAny<IEnumerable<string>>()), Times.Exactly(2));
+        _eventPublisher.Verify(x => x.PublishAsync(It.IsAny<BaseEvent<HistoryCreatedEventData>>(), null!, null), Times.Never);
+    }
+
+    [Fact]
+    public async Task PublishHistoryCreatedEvent_WithNoPermissionFound_ShouldReturnWithoutCallingOtherDependencies()
+    {
+        // Arrange
+        _configurationRepository
+            .Setup(x => x.GetAuthorizationEntitiesByCodeAsync(It.IsAny<IEnumerable<string>>()))
+            .ReturnsAsync(Enumerable.Empty<AuthorizationEntity>());
+
+        var publisher = new HistoryEventPublisher(
+            _contactRepository.Object,
+            _accountRepository.Object,
+            _configurationRepository.Object,
+            _eventPublisher.Object);
+
+        // Act
+        await publisher.PublishHistoryCreatedEvent(1, 2, 1, null!, null!);
+
+        // Assert
+        _configurationRepository.Verify(x => x.GetAuthorizationEntitiesByCodeAsync(It.IsAny<IEnumerable<string>>()), Times.Exactly(2));
+        _contactRepository.Verify(x => x.GetContactByIdAsync(It.IsAny<int>()), Times.Never);
+        _accountRepository.Verify(x => x.GetAccountByIdAsync(It.IsAny<int>()), Times.Never);
         _eventPublisher.Verify(x => x.PublishAsync(It.IsAny<BaseEvent<HistoryCreatedEventData>>(), null!, null), Times.Never);
     }
 }
