@@ -52,5 +52,6 @@ INSERT INTO auth.[Authorization] (
 	('Mirror kpi', '', 'COKPI0001', 'Accéder aux indicateurs', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
 	('Mirror bank', '', 'COBANK001', 'Accéder aux données bancaires', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
 	('Access Silae collab', '', 'COSILA001', 'Accéder au lanceur silae', 'COLGESTION', '1', 'Global', NULL, 'collaborator'),
-	('Access Pennylane collab', '', 'COPEN001', 'Accéder au lanceur pennylane', 'COLGESTION', '1', 'Both', 'pennylaneaccess', 'collaborator')
+	('Access Pennylane collab', '', 'COPEN001', 'Accéder au lanceur pennylane', 'COLGESTION', '1', 'Both', 'pennylaneaccess', 'collaborator'),
+	('Access Rydge Conseil', '', 'CLGEDPEN01', 'Accéder à l’espace documentaire Rydge Conseil', 'CLTGEDESC', '1', 'Partial', 'pennylaneaccess', 'customer')
 END
