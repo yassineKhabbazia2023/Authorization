@@ -3,8 +3,10 @@
 // </copyright>
 
 using System.Text;
+using Pulse.Account.Core.Enum;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Back.Events.Abstractions;
@@ -20,7 +22,6 @@ public class HistoryEventPublisher : IHistoryEventPublisher
     private readonly IAccountRepository _accountRepository;
     private readonly IConfigurationRepository _configurationRepository;
     private readonly IEventPublisher _eventPublisher;
-    private const string MajPermissionCode = "MAJPERMC";
 
     public HistoryEventPublisher(IContactRepository contactRepository, IAccountRepository accountRepository, IConfigurationRepository configurationRepository, IEventPublisher eventPublisher)
     {
@@ -63,6 +64,10 @@ public class HistoryEventPublisher : IHistoryEventPublisher
             details.AppendLine("- Le droit " + permission.Code + "-" + permission.Label + " a été retiré");
         }
 
+        var actionCode = ContactType.Collaborator.ToString().Equals(contact.Type)
+            ? ActionCode.MAJPERMK.ToString()
+            : ActionCode.MAJPERMC.ToString();
+
         var data = new HistoryCreatedEventData
         {
             CreationDate = DateTime.UtcNow,
@@ -74,7 +79,7 @@ public class HistoryEventPublisher : IHistoryEventPublisher
             },
             Action = new ActionHistoryEventData
             {
-                Code = MajPermissionCode
+                Code = actionCode,
             },
             User = new UserHistoryEventData
             {
