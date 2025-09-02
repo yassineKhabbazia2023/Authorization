@@ -405,12 +405,13 @@ public class AuthorizationRepository : IAuthorizationRepository
             .Distinct().ToListAsync();
     }
 
-    public async Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination)
+    private async Task<IQueryable<ContactEntity>> GetAuthorizedContactsQueryAsync(List<string> codes, int accountId, bool signatoryOnly)
     {
         var authorizationIdRequired = _authorizationContext.AuthorizationEntity
                                         .AsNoTracking()
                                         .Where(a => codes.Contains(a.Code))
                                         .Select(a => a.AuthorizationId);
+
         if (await authorizationIdRequired.CountAsync() != codes.Count)
         {
             throw new NotFoundException(Errors.NotFoundPermissionCode, string.Format(Errors.NotFoundPermissionMessage, string.Join(',', codes)));
@@ -418,35 +419,56 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         var contactsHasRoles = _authorizationContext.RoleEntity
                             .AsNoTracking()
-                            .Where(r => r.AccountId == accountId)
-                            .Select(r => r.ContactId);
+                            .Where(r => r.AccountId == accountId);
+
+        if (signatoryOnly)
+        {
+            contactsHasRoles = contactsHasRoles.Where(r => r.IsSignatory == true);
+        }
+
+        var contactIdsWithRoles = contactsHasRoles.Select(r => r.ContactId);
 
         var query = _authorizationContext.ContactAuthorizationEntity
                         .AsNoTracking()
-                        .Where(ca => authorizationIdRequired.Contains(ca.AuthorizationId) && (ca.AccountId == accountId || ca.AccountId == GlobalConstants.DefaultAccountIdCollab))
+                        .Where(ca => authorizationIdRequired.Contains(ca.AuthorizationId) &&
+                                     (ca.AccountId == accountId || ca.AccountId == GlobalConstants.DefaultAccountIdCollab))
                         .GroupBy(ca => ca.ContactId)
                         .Where(g => g.Select(ca => ca.AuthorizationId).Distinct().Count() == codes.Count)
                         .Select(g => g.Key);
 
-        var authorizedContactIds = query.Intersect(contactsHasRoles);
+        var authorizedContactIds = query.Intersect(contactIdsWithRoles);
 
-        var results = _authorizationContext.ContactEntity
+        return _authorizationContext.ContactEntity
                         .AsNoTracking()
                         .Where(c => authorizedContactIds.Contains(c.ContactId));
+    }
+
+    public async Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination)
+    {
+        var results = await GetAuthorizedContactsQueryAsync(codes, accountId, false);
 
         var totalItems = await results.CountAsync();
         var totalPages = Paginator.GetTotalPages(totalItems, pagination!.PageSize);
 
-        results = results.Skip((pagination!.PageNumber - 1) * pagination!.PageSize);
-        results = results.Take(pagination!.PageSize);
+        var items = await results
+            .Skip((pagination!.PageNumber - 1) * pagination!.PageSize)
+            .Take(pagination!.PageSize)
+            .Select(c => c.MapToContact())
+            .ToListAsync();
 
         return new Paging<Contact>
         {
-            Items = await results.Select(c => c.MapToContact()).ToListAsync(),
-            CurrentPage = pagination!.PageNumber,
+            Items = items,
+            CurrentPage = pagination.PageNumber,
             TotalItems = totalItems,
             TotalPage = totalPages
         };
+    }
+
+    public async Task<List<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(List<string> codes, int accountId)
+    {
+        var results = await GetAuthorizedContactsQueryAsync(codes, accountId, true);
+        return await results.Select(c => c.MapToContact()).ToListAsync();
     }
 
     public async Task SetPermissionByContactEmailAsync(string permission, List<string> emails)

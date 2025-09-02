@@ -1300,6 +1300,145 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
+    public async Task GetContactIdsByAuthorizationCodesAndAccountIdAsync_ThrowNotFound_WhenMissingAuthorizationCode()
+    {
+        // Arrange
+        var pagination = new Pagination
+        {
+            PageNumber = 1,
+            PageSize = 5,
+        };
+
+        var authorization1 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 111)
+            .With(a => a.Code, "COALP001")
+            .Create();
+
+        using var context = new AuthorizationContext(_options);
+        context.AuthorizationEntity.Add(authorization1);
+        await context.SaveChangesAsync();
+
+        var repo = new AuthorizationRepository(context);
+
+        // Act + Assert
+        var ex = await Assert.ThrowsAsync<NotFoundException>(async () =>
+            await repo.GetContactIdsByAuthorizationCodesAndAccountIdAsync(new List<string> { "COALP001", "COALP002" }, 1, pagination)
+        );
+
+        Assert.Equal("AUT008", ex.Code);
+        Assert.Contains("COALP001,COALP002", ex.Message);
+    }
+
+    [Fact]
+    public async Task GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync_ReturnResult()
+    {
+        // Arrange
+        var authorization1 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 11)
+            .With(a => a.Code, "COALP001")
+            .Create();
+        var authorization2 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 22)
+            .With(a => a.Code, "COALP002")
+            .Create();
+
+        var contact = _fixture.Build<ContactEntity>()
+            .With(a => a.ContactId, 1)
+            .Create();
+
+        var contactAuth1 = _fixture.Build<ContactAuthorizationEntity>()
+            .With(c => c.ContactId, 1)
+            .With(c => c.Contact, contact)
+            .With(c => c.AccountId, 1)
+            .With(c => c.AuthorizationId, 11)
+             .Without(c => c.Authorization)
+            .Without(c => c.Account)
+            .Create();
+        var contactAuth2 = _fixture.Build<ContactAuthorizationEntity>()
+           .With(c => c.ContactId, 1)
+            .With(c => c.Contact, contact)
+           .With(c => c.AccountId, 1)
+           .With(c => c.AuthorizationId, 22)
+            .Without(c => c.Authorization)
+           .Without(c => c.Account)
+           .Create();
+        var role = _fixture.Build<RoleEntity>()
+            .With(c => c.ContactId, 1)
+            .With(c => c.AccountId, 1)
+            .With(c => c.IsSignatory, true)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .Create();
+
+        using var context = new AuthorizationContext(_options);
+        context.RoleEntity.Add(role);
+        context.AuthorizationEntity.Add(authorization1);
+        context.ContactAuthorizationEntity.Add(contactAuth1);
+        context.AuthorizationEntity.Add(authorization2);
+        context.ContactAuthorizationEntity.Add(contactAuth2);
+        await context.SaveChangesAsync();
+
+        var repo = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repo.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(["COALP001", "COALP002"], 1);
+
+        // Assert
+        Assert.Contains(1, result.Select(c => c.ContactId));
+    }
+
+    [Fact]
+    public async Task GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync_ReturnNone()
+    {
+        // Arrange
+        var pagination = new Pagination
+        {
+            PageNumber = 1,
+            PageSize = 5,
+        };
+
+        var authorization1 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 111)
+            .With(a => a.Code, "COALP001")
+            .Create();
+        var authorization2 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 222)
+            .With(a => a.Code, "COALP002")
+            .Create();
+
+        var contactAuth1 = _fixture.Build<ContactAuthorizationEntity>()
+            .With(c => c.ContactId, 1)
+            .With(c => c.AccountId, 1)
+            .With(c => c.AuthorizationId, 111)
+             .Without(c => c.Authorization)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .Create();
+        var role = _fixture.Build<RoleEntity>()
+            .With(c => c.ContactId, 1)
+            .With(c => c.AccountId, 1)
+            .With(c => c.IsSignatory, false)
+            .Without(c => c.Account)
+            .Without(c => c.Contact)
+            .Create();
+
+        using var context = new AuthorizationContext(_options);
+        context.RoleEntity.Add(role);
+        context.AuthorizationEntity.Add(authorization1);
+        context.ContactAuthorizationEntity.Add(contactAuth1);
+        context.AuthorizationEntity.Add(authorization2);
+        await context.SaveChangesAsync();
+
+        var repo = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repo.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(["COALP001", "COALP002"], 1);
+
+        // Assert
+        Assert.DoesNotContain(1, result.Select(c => c.ContactId)!);
+    }
+
+    [Fact]
     public void RetrieveExistedProductCodes_Should_SplitIdsByType_And_ReturnUnexistedCodes()
     {
         // – Arrange --------------------------------------------------------------

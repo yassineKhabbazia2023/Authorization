@@ -162,6 +162,51 @@ public class AuthorizationControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
+    public async Task GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync_ShouldReturnOk()
+    {
+        // Arrange
+        List<Contact> expected = new List<Contact>()
+        {
+            new Contact()
+            {
+                ContactId = 1,
+                FirstName = "test",
+                LastName = "test",
+                Email = "test@email.com",
+            }
+        };
+
+        var authorizationService = new Mock<IAuthorizationService>();
+        authorizationService.Setup(c => c.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(It.IsAny<List<string>>(), It.IsAny<int>()))
+            .ReturnsAsync(expected);
+        var authorizationController = new AuthorizationController(authorizationService.Object);
+
+        // Act
+        var result = await authorizationController.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(["CORAPP001"], 1);
+
+        // Assert
+        var resultValue = result.Result as OkObjectResult;
+        Assert.Equal(200, resultValue?.StatusCode);
+        Assert.Equivalent(expected, resultValue.Value);
+    }
+
+    [Fact]
+    public async Task GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync_ShouldReturnNotFoundException()
+    {
+        // Arrange
+        var authorizationService = new Mock<IAuthorizationService>();
+        authorizationService.Setup(c => c.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(It.IsAny<List<string>>(), It.IsAny<int>()))
+            .ThrowsAsync(new NotFoundException(" ", " "));
+        var authorizationController = new AuthorizationController(authorizationService.Object);
+
+        // Act
+        var result = async () => await authorizationController.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(["CORAPP001"], 1);
+
+        // Assert
+        await Assert.ThrowsAsync<NotFoundException>(result);
+    }
+
+    [Fact]
     public async Task SetPermissionForContactEmailAsync_ReturnsOk_WhenFileIsValid()
     {
         // Arrange

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using Pulse.Authorization.Core.Exceptions;
 using Pulse.Authorization.Core.Interfaces;
+using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
@@ -46,6 +47,28 @@ public class AuthorizationServiceTests
 
         // Act
         var result = await authorizationService.GetAllContactAuthorizationsAsync(contactId);
+
+        // Assert
+        result.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Fact]
+    public async Task GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync_Should_ReturnsContactList()
+    {
+        // Arrange
+        var accountId = 123;
+        var codes = new List<string> { "CODE1", "CODE2" };
+        var expectedResult = _fixture.Create<List<Contact>>();
+
+        _authorizationRepository
+            .Setup(repository => repository.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(codes, accountId))
+            .ReturnsAsync(expectedResult);
+
+        var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
+        var authorizationService = new AuthorizationService(_authorizationRepository.Object, contactRepository.Object);
+
+        // Act
+        var result = await authorizationService.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(codes, accountId);
 
         // Assert
         result.Should().BeEquivalentTo(expectedResult);

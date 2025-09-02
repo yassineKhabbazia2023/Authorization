@@ -98,6 +98,27 @@ public class AuthorizationController : ControllerBase
     }
 
     /// <summary>
+    /// Récupérer les utilisateurs signataires qui ont ces codes de permissions.
+    /// </summary>
+    /// <param name="codes">Listes des permissions.</param>
+    /// <param name="accountId">Identifiant account.</param>
+    /// <returns>Listes des contacts signataires sur un account.</returns>
+    [HttpGet("authorization/contacts/signatory")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponse))]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(ErrorResponse))]
+    public async Task<ActionResult<IEnumerable<Contact>>> GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync([FromQuery] List<string> codes, [FromQuery] int accountId)
+    {
+        var result = await _authorizationService.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(codes, accountId);
+        if (result.Count == 0)
+        {
+            throw new NoContentException(Errors.NoContentCode, Errors.NoContentMessage);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Attribuer une permission à une liste d'user.
     /// </summary>
     /// <param name="permission">Permission code.</param>

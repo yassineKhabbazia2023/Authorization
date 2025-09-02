@@ -45,4 +45,6 @@ public interface IAuthorizationRepository
     ProductCodesSubscriptions RetrieveExistedProductCodes(IEnumerable<string> productCodes);
 
     Task SetPermissionByContactEmailAsync(string permission, List<string> emails);
+
+    Task<List<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(List<string> codes, int accountId);
 }
