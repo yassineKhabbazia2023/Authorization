@@ -104,6 +104,7 @@
     <None Include="Scripts\PROD\0013_Delete_cross_permissions.sql" />
     <None Include="Scripts\PROD\0014_Script_Add_Reporting_Permission_On_Account.sql" />
     <None Include="Scripts\PROD\0014_Add-CLGEDPEN01-permission.sql" />
+    <None Include="Scripts\PROD\0015_Script_Migrate_CLGEDPEN01.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
