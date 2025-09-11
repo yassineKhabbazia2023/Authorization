@@ -50,7 +50,7 @@ public class ReportCreatedEventHandler : IEventHandler
 
         var createdAuthorizations = await _authorizationRepository.CreateReportingAuthorizationsOnAccountAsync(reportEventData.AccountId, GlobalConstants.PowerBIDefaultPermissions);
 
-        if (createdAuthorizations.IsNullOrEmpty())
+        if (!createdAuthorizations.Any())
         {
             _logger.LogWarning("Les codes d'authorization reporting existent déjà pour l'account: {AccountId}", reportEventData.AccountId);
         }
@@ -60,11 +60,11 @@ public class ReportCreatedEventHandler : IEventHandler
         }
 
         var signatories = (await _contactRepository.GetSignatoriesAsync(reportEventData.AccountId)).ToList();
-        if (!signatories.IsNullOrEmpty())
+        if (signatories.Any())
         {
             var createdSignatoryAuthorizations = (await _authorizationRepository.CreateReportingAuthorizationsForSignatoriesAsync(signatories, reportEventData.AccountId)).ToList();
 
-            if (createdSignatoryAuthorizations.IsNullOrEmpty())
+            if (!createdSignatoryAuthorizations.Any())
             {
                 _logger.LogWarning("Les codes d'authorization reporting existent déjà pour le(s) signataire(s): {ContactIds}", signatories);
             }
