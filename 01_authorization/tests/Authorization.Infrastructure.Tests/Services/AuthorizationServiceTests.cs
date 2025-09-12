@@ -57,18 +57,17 @@ public class AuthorizationServiceTests
     {
         // Arrange
         var accountId = 123;
-        var codes = new List<string> { "CODE1", "CODE2" };
         var expectedResult = _fixture.Create<List<Contact>>();
 
         _authorizationRepository
-            .Setup(repository => repository.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(codes, accountId))
+            .Setup(repository => repository.GetContactIdsByAccountIdSignatoryAsync(accountId))
             .ReturnsAsync(expectedResult);
 
         var contactRepository = new Mock<IContactRepository>(MockBehavior.Strict);
         var authorizationService = new AuthorizationService(_authorizationRepository.Object, contactRepository.Object);
 
         // Act
-        var result = await authorizationService.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(codes, accountId);
+        var result = await authorizationService.GetContactIdsByAccountIdSignatoryAsync(accountId);
 
         // Assert
         result.Should().BeEquivalentTo(expectedResult);

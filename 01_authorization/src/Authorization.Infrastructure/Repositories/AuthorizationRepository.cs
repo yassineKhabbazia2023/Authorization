@@ -405,21 +405,26 @@ public class AuthorizationRepository : IAuthorizationRepository
             .Distinct().ToListAsync();
     }
 
-    private async Task<IQueryable<ContactEntity>> GetAuthorizedContactsQueryAsync(List<string> codes, int accountId, bool signatoryOnly)
+    private async Task<IQueryable<ContactEntity>> GetAuthorizedContactsQueryAsync(int accountId, List<string>? codes, bool signatoryOnly)
     {
-        var authorizationIdRequired = _authorizationContext.AuthorizationEntity
-                                        .AsNoTracking()
-                                        .Where(a => codes.Contains(a.Code))
-                                        .Select(a => a.AuthorizationId);
+        IQueryable<int> authorizationIdRequired = Enumerable.Empty<int>().AsQueryable();
 
-        if (await authorizationIdRequired.CountAsync() != codes.Count)
+        if (!signatoryOnly)
         {
-            throw new NotFoundException(Errors.NotFoundPermissionCode, string.Format(Errors.NotFoundPermissionMessage, string.Join(',', codes)));
+            authorizationIdRequired = _authorizationContext.AuthorizationEntity
+                .AsNoTracking()
+                .Where(a => codes!.Contains(a.Code))
+                .Select(a => a.AuthorizationId);
+
+            if (await authorizationIdRequired.CountAsync() != codes!.Count)
+            {
+                throw new NotFoundException(Errors.NotFoundPermissionCode, string.Format(Errors.NotFoundPermissionMessage, string.Join(',', codes)));
+            }
         }
 
         var contactsHasRoles = _authorizationContext.RoleEntity
-                            .AsNoTracking()
-                            .Where(r => r.AccountId == accountId);
+            .AsNoTracking()
+            .Where(r => r.AccountId == accountId);
 
         if (signatoryOnly)
         {
@@ -428,31 +433,40 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         var contactIdsWithRoles = contactsHasRoles.Select(r => r.ContactId);
 
-        var query = _authorizationContext.ContactAuthorizationEntity
-                        .AsNoTracking()
-                        .Where(ca => authorizationIdRequired.Contains(ca.AuthorizationId) &&
-                                     (ca.AccountId == accountId || ca.AccountId == GlobalConstants.DefaultAccountIdCollab))
-                        .GroupBy(ca => ca.ContactId)
-                        .Where(g => g.Select(ca => ca.AuthorizationId).Distinct().Count() == codes.Count)
-                        .Select(g => g.Key);
+        IQueryable<int> authorizedContactIds;
 
-        var authorizedContactIds = query.Intersect(contactIdsWithRoles);
+        if (!signatoryOnly)
+        {
+            var query = _authorizationContext.ContactAuthorizationEntity
+                .AsNoTracking()
+                .Where(ca => authorizationIdRequired.Contains(ca.AuthorizationId) &&
+                             (ca.AccountId == accountId || ca.AccountId == GlobalConstants.DefaultAccountIdCollab))
+                .GroupBy(ca => ca.ContactId)
+                .Where(g => g.Select(ca => ca.AuthorizationId).Distinct().Count() == codes!.Count)
+                .Select(g => g.Key);
+
+            authorizedContactIds = query.Intersect(contactIdsWithRoles);
+        }
+        else
+        {
+            authorizedContactIds = contactIdsWithRoles;
+        }
 
         return _authorizationContext.ContactEntity
-                        .AsNoTracking()
-                        .Where(c => authorizedContactIds.Contains(c.ContactId));
+            .AsNoTracking()
+            .Where(c => authorizedContactIds.Contains(c.ContactId));
     }
 
-    public async Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination)
+    public async Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination pagination)
     {
-        var results = await GetAuthorizedContactsQueryAsync(codes, accountId, false);
+        var results = await GetAuthorizedContactsQueryAsync(accountId, codes, signatoryOnly: false);
 
         var totalItems = await results.CountAsync();
-        var totalPages = Paginator.GetTotalPages(totalItems, pagination!.PageSize);
+        var totalPages = Paginator.GetTotalPages(totalItems, pagination.PageSize);
 
         var items = await results
-            .Skip((pagination!.PageNumber - 1) * pagination!.PageSize)
-            .Take(pagination!.PageSize)
+            .Skip((pagination.PageNumber - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
             .Select(c => c.MapToContact())
             .ToListAsync();
 
@@ -465,9 +479,9 @@ public class AuthorizationRepository : IAuthorizationRepository
         };
     }
 
-    public async Task<List<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(List<string> codes, int accountId)
+    public async Task<List<Contact>> GetContactIdsByAccountIdSignatoryAsync(int accountId)
     {
-        var results = await GetAuthorizedContactsQueryAsync(codes, accountId, true);
+        var results = await GetAuthorizedContactsQueryAsync(accountId, codes: null, signatoryOnly: true);
         return await results.Select(c => c.MapToContact()).ToListAsync();
     }
 

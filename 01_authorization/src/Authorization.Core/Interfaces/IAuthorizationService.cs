@@ -21,5 +21,5 @@ public interface IAuthorizationService
 
     Task SetPermissionForContactEmailAsync(string permission, IFormFile file);
 
-    Task<List<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(List<string> codes, int accountId);
+    Task<List<Contact>> GetContactIdsByAccountIdSignatoryAsync(int accountId);
 }

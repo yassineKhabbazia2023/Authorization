@@ -40,11 +40,11 @@ public interface IAuthorizationRepository
 
     Task<List<string>> GetAllContactAuthorizationsAsync(int contactId);
 
-    Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination? pagination);
+    Task<Paging<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdAsync(List<string> codes, int accountId, Pagination pagination);
 
     ProductCodesSubscriptions RetrieveExistedProductCodes(IEnumerable<string> productCodes);
 
     Task SetPermissionByContactEmailAsync(string permission, List<string> emails);
 
-    Task<List<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(List<string> codes, int accountId);
+    Task<List<Contact>> GetContactIdsByAccountIdSignatoryAsync(int accountId);
 }

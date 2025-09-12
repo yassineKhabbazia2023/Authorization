@@ -101,9 +101,9 @@ public class AuthorizationService : IAuthorizationService
         return await _authorizationRepository.GetContactIdsByAuthorizationCodesAndAccountIdAsync(codes, accountId, pagination);
     }
 
-    public async Task<List<Contact>> GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(List<string> codes, int accountId)
+    public async Task<List<Contact>> GetContactIdsByAccountIdSignatoryAsync(int accountId)
     {
-        return await _authorizationRepository.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(codes, accountId);
+        return await _authorizationRepository.GetContactIdsByAccountIdSignatoryAsync(accountId);
     }
 
     public async Task SetPermissionForContactEmailAsync(string permission, IFormFile file)

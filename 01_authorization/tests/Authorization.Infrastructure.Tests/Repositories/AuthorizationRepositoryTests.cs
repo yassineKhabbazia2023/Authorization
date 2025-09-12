@@ -1381,7 +1381,7 @@ public class AuthorizationRepositoryTests
         var repo = new AuthorizationRepository(context);
 
         // Act
-        var result = await repo.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(["COALP001", "COALP002"], 1);
+        var result = await repo.GetContactIdsByAccountIdSignatoryAsync(1);
 
         // Assert
         Assert.Contains(1, result.Select(c => c.ContactId));
@@ -1432,7 +1432,7 @@ public class AuthorizationRepositoryTests
         var repo = new AuthorizationRepository(context);
 
         // Act
-        var result = await repo.GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync(["COALP001", "COALP002"], 1);
+        var result = await repo.GetContactIdsByAccountIdSignatoryAsync(1);
 
         // Assert
         Assert.DoesNotContain(1, result.Select(c => c.ContactId)!);
