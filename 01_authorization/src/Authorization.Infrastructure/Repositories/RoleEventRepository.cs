@@ -95,5 +95,11 @@ namespace Pulse.Authorization.Infrastructure.Repositories
                 UnexistedContactRoles = unexistedContacts
             };
         }
+
+        public async Task<RoleEntity> GetRole(RoleEntity roleEntity)
+        {
+            return await _authorizationContext.RoleEntity.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.ContactId == roleEntity.ContactId && x.AccountId == roleEntity.AccountId);
+        }
     }
 }

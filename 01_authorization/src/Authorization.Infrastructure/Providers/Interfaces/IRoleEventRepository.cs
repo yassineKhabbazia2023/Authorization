@@ -20,5 +20,7 @@ namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
         Task<bool> DoesRoleExistAsync(RoleEntity roleEntity);
 
         ContactRolesSubscription RetrieveContactsHavingRole(IEnumerable<int> contactIds, int accountId);
+
+        Task<RoleEntity> GetRole(RoleEntity roleEntity);
     }
 }

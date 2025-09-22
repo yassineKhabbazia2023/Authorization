@@ -503,6 +503,71 @@ public class RoleEventRepositoryTests
     }
 
 
+    [Fact]
+    public async Task GetRole_WithExistingRole_ShouldReturnRole()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var repository = new RoleEventRepository(context);
+
+        var existingRole = new RoleEntity
+        {
+            ContactId = 1,
+            AccountId = 2,
+            IsDelegation = true,
+            IsFavorite = false,
+            IsSignatory = true
+        };
+
+        await context.RoleEntity.AddAsync(existingRole);
+        await context.SaveChangesAsync();
+
+        var inputRole = new RoleEntity
+        {
+            ContactId = 1,
+            AccountId = 2
+        };
+
+        // Act
+        var result = await repository.GetRole(inputRole);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(existingRole.ContactId, result.ContactId);
+        Assert.Equal(existingRole.AccountId, result.AccountId);
+        Assert.Equal(existingRole.IsSignatory, result.IsSignatory);
+        Assert.Equal(existingRole.IsDelegation, result.IsDelegation);
+        Assert.Equal(existingRole.IsFavorite, result.IsFavorite);
+    }
+
+    [Fact]
+    public async Task GetRole_WithNonExistingRole_ShouldReturnNull()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var repository = new RoleEventRepository(context);
+
+        var inputRole = new RoleEntity
+        {
+            ContactId = 1,
+            AccountId = 2
+        };
+
+        // Act
+        var result = await repository.GetRole(inputRole);
+
+        // Assert
+        Assert.Null(result);
+    }
+
     public static IEnumerable<object[]> AccountAndContact()
     {
         yield return new object[] { 1, 2 };

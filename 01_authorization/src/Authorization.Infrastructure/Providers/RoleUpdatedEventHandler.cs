@@ -49,14 +49,16 @@ namespace Pulse.Authorization.Infrastructure.Providers
             }
 
             var roleEntity = roleEvent!.Data.ToRoleEntity();
-
             await _roleEventRepository.UpdateRoleAsync(roleEntity!);
+            var existingRole = await _roleEventRepository.GetRole(roleEntity);
 
             if (roleEntity.IsSignatory == true)
             {
                 await _authorizationRepository.SetContactAuthorizationFromAccountAuthorization(roleEntity.AccountId, roleEntity.ContactId);
             }
-            else
+
+            // If the role is no longer a signatory, remove signatory-specific permissions
+            else if ((!roleEntity.IsSignatory.HasValue || roleEntity.IsSignatory == false) && existingRole?.IsSignatory == true)
             {
                 await _authorizationRepository.DeleteContactAuthorizationsAsync(roleEntity.ContactId, roleEntity.AccountId, GlobalConstants.OnSignatoryRemovedPermissions);
             }
