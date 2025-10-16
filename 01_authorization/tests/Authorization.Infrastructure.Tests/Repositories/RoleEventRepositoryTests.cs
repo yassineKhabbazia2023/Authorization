@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Core.Exceptions;
@@ -15,6 +16,15 @@ namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
 
 public class RoleEventRepositoryTests
 {
+    private Fixture _fixture;
+
+    public RoleEventRepositoryTests()
+    {
+        _fixture = new Fixture();
+        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
+        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+    }
+
     [Fact]
     public async Task CreateRoleAsync_WithData_ShouldCreateRole()
     {
@@ -573,5 +583,30 @@ public class RoleEventRepositoryTests
         yield return new object[] { 1, 2 };
         yield return new object[] { 2, 1 };
         yield return new object[] { 2, 2 };
+    }
+
+    [Fact]
+    public async Task DeleteAuthorizations_Nominal()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        using var context = new AuthorizationContext(options);
+
+        var contactAuths = _fixture.Build<ContactAuthorizationEntity>()
+            .With(c => c.ContactId, 1)
+            .With(c => c.AccountId, 1)
+            .CreateMany(5);
+        context.ContactAuthorizationEntity.AddRange(contactAuths);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var repository = new RoleEventRepository(context);
+        await repository.DeleteContactAuthorizations(1, 1);
+
+        var result = context.ContactAuthorizationEntity.Where(c => c.ContactId == 1 && c.AccountId == 1).ToList();
+
+        Assert.Empty(result);
     }
 }

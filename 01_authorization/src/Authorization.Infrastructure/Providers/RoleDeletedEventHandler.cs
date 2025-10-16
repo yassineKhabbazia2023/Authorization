@@ -40,8 +40,11 @@ public class RoleDeletedEventHandler : IEventHandler
             return;
         }
 
-        await _roleEventRepository.DeleteRoleAsync(roleEvent!.Data.ContactId, roleEvent!.Data.AccountId);
+        var contactId = roleEvent!.Data.ContactId;
+        var accountId = roleEvent!.Data.AccountId;
+        await _roleEventRepository.DeleteRoleAsync(contactId, accountId);
+        await _roleEventRepository.DeleteContactAuthorizations(contactId, accountId);
 
-        _logger.LogInformation("Le role de contact l'identifiant: {ContactId}, accountId: {AccountId} vient d'être supprimé.", roleEvent!.Data.ContactId, roleEvent!.Data.AccountId);
+        _logger.LogInformation("Le role de contact l'identifiant: {ContactId}, accountId: {AccountId} vient d'être supprimé.", contactId, accountId);
     }
 }

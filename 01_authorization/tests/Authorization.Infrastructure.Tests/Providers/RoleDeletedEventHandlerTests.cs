@@ -12,7 +12,7 @@ namespace Pulse.Authorization.Infrastructure.Tests.Providers;
 public class RoleDeletedEventHandlerTests
 {
     [Fact]
-    public async Task HandleAsync_WithValidMessage_ShouldRemoveRole()
+    public async Task HandleAsync_WithValidMessage_ShouldRemoveRoleAndAuthorizations()
     {
         // Arrange
         var loggerMock = new Mock<ILogger<RoleDeletedEventHandler>>();
@@ -33,6 +33,7 @@ public class RoleDeletedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.DeleteRoleAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+        repositoryMock.Verify(repo => repo.DeleteContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
     }
 
     [Fact]
@@ -48,6 +49,7 @@ public class RoleDeletedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.DeleteRoleAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        repositoryMock.Verify(repo => repo.DeleteContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
@@ -64,6 +66,7 @@ public class RoleDeletedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.DeleteRoleAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        repositoryMock.Verify(repo => repo.DeleteContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
@@ -80,6 +83,7 @@ public class RoleDeletedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.DeleteRoleAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        repositoryMock.Verify(repo => repo.DeleteContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
@@ -96,5 +100,6 @@ public class RoleDeletedEventHandlerTests
 
         // Assert
         repositoryMock.Verify(repo => repo.DeleteRoleAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        repositoryMock.Verify(repo => repo.DeleteContactAuthorizations(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 }

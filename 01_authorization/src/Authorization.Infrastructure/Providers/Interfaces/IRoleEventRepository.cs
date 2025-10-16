@@ -5,22 +5,23 @@
 using Pulse.Authorization.Core.Models.Subscriptions;
 using Pulse.Authorization.Infrastructure.Entities;
 
-namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
+namespace Pulse.Authorization.Infrastructure.Providers.Interfaces;
+
+public interface IRoleEventRepository
 {
-    public interface IRoleEventRepository
-    {
-        Task CreateRoleAsync(RoleEntity roleEntity);
+    Task CreateRoleAsync(RoleEntity roleEntity);
 
-        Task UpdateRoleAsync(RoleEntity roleEntity);
+    Task UpdateRoleAsync(RoleEntity roleEntity);
 
-        Task DeleteRoleAsync(int contactId, int accountId);
+    Task DeleteRoleAsync(int contactId, int accountId);
 
-        Task DeleteContactRolesAsync(int contactId);
+    Task DeleteContactRolesAsync(int contactId);
 
-        Task<bool> DoesRoleExistAsync(RoleEntity roleEntity);
+    Task<bool> DoesRoleExistAsync(RoleEntity roleEntity);
 
-        ContactRolesSubscription RetrieveContactsHavingRole(IEnumerable<int> contactIds, int accountId);
+    ContactRolesSubscription RetrieveContactsHavingRole(IEnumerable<int> contactIds, int accountId);
 
-        Task<RoleEntity> GetRole(RoleEntity roleEntity);
-    }
+    Task<RoleEntity> GetRole(RoleEntity roleEntity);
+
+    Task DeleteContactAuthorizations(int contactId, int accountId);
 }
