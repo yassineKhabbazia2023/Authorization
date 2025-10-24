@@ -15,6 +15,7 @@ using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Repositories;
 using Pulse.Authorization.Infrastructure.Services;
+using Pulse.Authorization.Tests.Helpers;
 using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
@@ -1333,49 +1334,44 @@ public class AuthorizationRepositoryTests
     public async Task GetContactIdsByAuthorizationCodesAndAccountIdSignatoryAsync_ReturnResult()
     {
         // Arrange
-        var authorization1 = _fixture.Build<AuthorizationEntity>()
-            .With(a => a.AuthorizationId, 11)
-            .With(a => a.Code, "COALP001")
-            .Create();
-        var authorization2 = _fixture.Build<AuthorizationEntity>()
-            .With(a => a.AuthorizationId, 22)
-            .With(a => a.Code, "COALP002")
-            .Create();
+        using var context = new AuthorizationContext(_options);
+        var auth1 = _fixture.CreateAuthorization(11, "signatory", "COALP001", "Auth 1");
+        var auth2 = _fixture.CreateAuthorization(22, "signatory", "COALP002", "Auth 2");
+        var account = _fixture.CreateAccount(1);
+        var contact = _fixture.CreateContact(1, "customer");
+        context.AuthorizationEntity.AddRange(auth1, auth2);
+        context.AccountEntity.Add(account);
+        context.ContactEntity.Add(contact);
+        await context.SaveChangesAsync();
 
-        var contact = _fixture.Build<ContactEntity>()
-            .With(a => a.ContactId, 1)
+        var role = _fixture.Build<RoleEntity>()
+            .With(r => r.ContactId, 1)
+            .With(r => r.AccountId, 1)
+            .With(r => r.IsSignatory, true)
+            .Without(r => r.Contact)
+            .Without(r => r.Account)
             .Create();
 
         var contactAuth1 = _fixture.Build<ContactAuthorizationEntity>()
-            .With(c => c.ContactId, 1)
-            .With(c => c.Contact, contact)
-            .With(c => c.AccountId, 1)
-            .With(c => c.AuthorizationId, 11)
-             .Without(c => c.Authorization)
-            .Without(c => c.Account)
-            .Create();
-        var contactAuth2 = _fixture.Build<ContactAuthorizationEntity>()
-           .With(c => c.ContactId, 1)
-            .With(c => c.Contact, contact)
-           .With(c => c.AccountId, 1)
-           .With(c => c.AuthorizationId, 22)
-            .Without(c => c.Authorization)
-           .Without(c => c.Account)
-           .Create();
-        var role = _fixture.Build<RoleEntity>()
-            .With(c => c.ContactId, 1)
-            .With(c => c.AccountId, 1)
-            .With(c => c.IsSignatory, true)
-            .Without(c => c.Account)
-            .Without(c => c.Contact)
+            .With(ca => ca.ContactId, 1)
+            .With(ca => ca.AccountId, 1)
+            .With(ca => ca.AuthorizationId, 11)
+            .Without(ca => ca.Contact)
+            .Without(ca => ca.Account)
+            .Without(ca => ca.Authorization)
             .Create();
 
-        using var context = new AuthorizationContext(_options);
+        var contactAuth2 = _fixture.Build<ContactAuthorizationEntity>()
+            .With(ca => ca.ContactId, 1)
+            .With(ca => ca.AccountId, 1)
+            .With(ca => ca.AuthorizationId, 22)
+            .Without(ca => ca.Contact)
+            .Without(ca => ca.Account)
+            .Without(ca => ca.Authorization)
+            .Create();
+
         context.RoleEntity.Add(role);
-        context.AuthorizationEntity.Add(authorization1);
-        context.ContactAuthorizationEntity.Add(contactAuth1);
-        context.AuthorizationEntity.Add(authorization2);
-        context.ContactAuthorizationEntity.Add(contactAuth2);
+        context.ContactAuthorizationEntity.AddRange(contactAuth1, contactAuth2);
         await context.SaveChangesAsync();
 
         var repo = new AuthorizationRepository(context);
@@ -1384,7 +1380,8 @@ public class AuthorizationRepositoryTests
         var result = await repo.GetContactIdsByAccountIdSignatoryAsync(1);
 
         // Assert
-        Assert.Contains(1, result.Select(c => c.ContactId));
+        result.Should().NotBeEmpty("should return contacts with signatory role");
+        result.Should().Contain(c => c.ContactId == 1, "contact 1 is a signatory");
     }
 
     [Fact]
@@ -1526,7 +1523,7 @@ public class AuthorizationRepositoryTests
         context.ContactAuthorizationEntity.Add(alreadyLinked);
         await context.SaveChangesAsync();
 
-        // Two links we ask to insert: one duplicate & one really new
+        // Two links we ask to insert: one existingCustomerAuth & one really new
         var duplicate = _fixture.Build<ContactAuthorizationEntity>()
             .With(c => c.Authorization, auth1)
             .With(c => c.Account, acc)
@@ -1665,5 +1662,78 @@ public class AuthorizationRepositoryTests
         context.ContactAuthorizationEntity.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task AddSubscriptionAuthorizationOnAccountContactsAsync_GivenCustomerAndCollabAuthorization_ShouldReturnAllExistingAndNewAuthorization()
+    {
+        // Arrange
+        using var context = new AuthorizationContext(_options);
+
+        var auth1 = _fixture.CreateAuthorization(10, "customer", "CUST001", "Customer Auth 1");
+        var auth2 = _fixture.CreateAuthorization(20, "customer", "CUST002", "Customer Auth 2");
+        var authCollab = _fixture.CreateAuthorization(30, "collaborator", "COGED0002", "view gedesc");
+        var authCollab2 = _fixture.CreateAuthorization(36, "collaborator", "COEVPO01", "Collab Auth 2");
+
+        var customerAccount = _fixture.CreateAccount(1);
+        var collabAccount = _fixture.CreateAccount(-1);
+
+        var customer = _fixture.CreateContact(1, "customer");
+        var collaborator = _fixture.CreateContact(2, "collaborator");
+
+        context.AuthorizationEntity.AddRange(auth1, auth2, authCollab, authCollab2);
+        context.AccountEntity.AddRange(customerAccount, collabAccount);
+        context.ContactEntity.AddRange(customer, collaborator);
+        await context.SaveChangesAsync();
+
+        var existingCustomerAuth1 = _fixture.CreateContactAuthorization(
+            customer, customerAccount, auth1, 1, 1, 10);
+
+        var existingCollabAuth = _fixture.CreateContactAuthorization(
+            collaborator, collabAccount, authCollab, 2, -1, 30);
+
+        context.ContactAuthorizationEntity.AddRange(existingCustomerAuth1, existingCollabAuth);
+        await context.SaveChangesAsync();
+
+        var authToAdd = new List<ContactAuthorizationEntity>
+        {
+            // Already exists
+            _fixture.CreateContactAuthorization(customer, customerAccount, auth1, 1, 1, 10),
+
+            // New customer authorization
+            _fixture.CreateContactAuthorization(customer, customerAccount, auth2, 1, 1, 20),
+
+            // New collab authorization
+            _fixture.CreateContactAuthorization(collaborator, collabAccount, authCollab2, 2, -1, 36)
+        };
+
+        var repo = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repo.AddSubscriptionAuthorizationOnAccountContactsAsync(authToAdd, 1);
+
+        // Assert
+        var resultList = result.ToList();
+
+        resultList.Should().HaveCount(4, "should return all existing + newly created authorizations");
+
+        // Verify customer authorizations
+        var customerAuths = resultList.Where(ca => ca.ContactId == 1).ToList();
+        customerAuths.Should().HaveCount(2);
+        customerAuths.Should().Contain(ca => ca.AuthorizationId == 10, "auth1 already existed");
+        customerAuths.Should().Contain(ca => ca.AuthorizationId == 20, "auth2 is new");
+
+        // Verify collaborator authorizations
+        var collabAuths = resultList.Where(ca => ca.ContactId == 2).ToList();
+        collabAuths.Should().HaveCount(2);
+        collabAuths.Should().Contain(ca => ca.AuthorizationId == 30, "authCollab already existed");
+        collabAuths.Should().Contain(ca => ca.AuthorizationId == 36, "authCollab2 is new");
+
+        // Verify only 2 new records were inserted in DB
+        var allAuthsInDb = await context.ContactAuthorizationEntity.CountAsync();
+        allAuthsInDb.Should().Be(4, "2 existed before + 2 newly inserted");
+
+        // Verify by authorization codes
+        var authCodes = resultList.Select(ca => ca.Authorization.Code).ToList();
+        authCodes.Should().Contain(new[] { "CUST001", "CUST002", "COGED0002", "COEVPO01" });
+    }
 
 }

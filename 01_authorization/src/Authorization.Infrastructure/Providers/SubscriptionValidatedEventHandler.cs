@@ -39,7 +39,6 @@ namespace Pulse.Authorization.Infrastructure.Providers
             _logger.LogInformation("Consommation de l'event type: {EventType}, accountId: {AccountId}",
             subEvent?.EventType,
             subEvent?.Data?.AccountId);
-
             if (subEvent?.Data == null || subEvent?.Data?.AccountId <= 0 || subEvent?.Data?.Products.Count() == 0 || subEvent?.Data?.ContactIds.Count() == 0)
             {
                 return;

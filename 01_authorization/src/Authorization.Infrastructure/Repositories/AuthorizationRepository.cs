@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Data;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
@@ -532,7 +533,6 @@ public class AuthorizationRepository : IAuthorizationRepository
     public async Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationOnAccountContactsAsync(IEnumerable<ContactAuthorizationEntity> contactAuthorizationEntities, int accountId)
     {
         var list = contactAuthorizationEntities.ToList();
-
         if (!list.Any())
         {
             return Enumerable.Empty<ContactAuthorizationEntity>();
@@ -540,14 +540,18 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         var contactIds = list.Select(c => c.ContactId).Distinct().ToList();
 
-        var existingContactAuthorizations = await _authorizationContext.ContactAuthorizationEntity.AsNoTracking()
+        var existingContactAuthorizations = await _authorizationContext.ContactAuthorizationEntity
+            .AsNoTracking()
             .Include(ca => ca.Authorization)
-            .Where(ca => ca.AccountId == accountId && contactIds.Contains(ca.ContactId))
+            .Where(ca => contactIds.Contains(ca.ContactId))
             .ToListAsync();
 
-        var notExistedContactAuthorizations = contactAuthorizationEntities
-            .Where(ca => !_authorizationContext.ContactAuthorizationEntity.AsNoTracking()
-            .Any(db => db.ContactId == ca.ContactId && db.AccountId == ca.AccountId && db.AuthorizationId == ca.AuthorizationId))
+        var existingKeys = existingContactAuthorizations
+            .Select(ca => (ca.ContactId, ca.AccountId, ca.AuthorizationId))
+            .ToHashSet();
+
+        var notExistedContactAuthorizations = list
+            .Where(ca => !existingKeys.Contains((ca.ContactId, ca.AccountId, ca.AuthorizationId)))
             .ToList();
 
         if (notExistedContactAuthorizations.Any())
@@ -556,7 +560,7 @@ public class AuthorizationRepository : IAuthorizationRepository
             await _authorizationContext.SaveChangesAsync();
         }
 
-        return existingContactAuthorizations.Concat(notExistedContactAuthorizations);
+        return existingContactAuthorizations.Concat(notExistedContactAuthorizations).ToList();
     }
 
 }
