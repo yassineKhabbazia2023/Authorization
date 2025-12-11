@@ -5,43 +5,43 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Pulse.Authorization.Infrastructure.Constants
+namespace Pulse.Authorization.Infrastructure.Constants;
+
+[ExcludeFromCodeCoverage]
+public static class GlobalConstants
 {
-    [ExcludeFromCodeCoverage]
-    public static class GlobalConstants
-    {
-        public static readonly int RetryTimespan = 3000;
-        public static readonly string DisabledDelegationStatus = "disabled";
+    public static readonly int RetryTimespan = 3000;
+    public static readonly string DisabledDelegationStatus = "disabled";
 
-        public static readonly int DefaultAccountIdCollab = -1;
-        public static readonly string CustomerCategory = "customer";
-        public static readonly string CollabCategory = "collaborator";
+    public static readonly int DefaultAccountIdCollab = -1;
+    public static readonly string CustomerCategory = "customer";
+    public static readonly string CollabCategory = "collaborator";
 
-        public static readonly string[] PowerBIDefaultPermissions = ["CORAPP001", "CLRAPP001", "CLRAPP002"];
-        public static readonly string[] PowerBIDefaultSignatoryPermissions = ["CLRAPP001", "CLRAPP002"];
+    public static readonly string[] PowerBIDefaultPermissions = ["CORAPP001", "CLRAPP001", "CLRAPP002"];
+    public static readonly string[] PowerBIDefaultSignatoryPermissions = ["CLRAPP001", "CLRAPP002"];
 
-        public static readonly string[] DefaultAccountPermissions =
-        [
-            "CLADMI001", "CLUSER001", "CLUSER002", "CLUSER003",
-            "CLUSER004", "CLOFF001", "CLINFO001", "COUSER001",
-            "COUSER002", "COOFF003", "COINFO001"
-        ];
+    public static readonly string[] DefaultAccountPermissions =
+    [
+        "CLADMI001", "CLUSER001", "CLUSER002", "CLUSER003",
+        "CLUSER004", "CLOFF001", "CLINFO001", "COUSER001",
+        "COUSER002", "COOFF003", "COINFO001"
+    ];
 
-        public static readonly string[] DefaultSignatoryPermissions =
-        [
-            "CLADMI001", "CLUSER001", "CLUSER002", "CLUSER003",
-            "CLUSER004", "CLOFF001", "CLINFO001",
-        ];
+    public static readonly string[] DefaultSignatoryPermissions =
+    [
+        "CLADMI001", "CLUSER001", "CLUSER002", "CLUSER003",
+        "CLUSER004", "CLOFF001", "CLINFO001",
+    ];
 
-        public static readonly string[] OnSignatoryRemovedPermissions =
-        [
-            "CLUSER001", "CLUSER002", "CLUSER003", "CLUSER004", "CLOFF001",
+    public static readonly string[] OnSignatoryRemovedPermissions =
+    [
+        "CLUSER001", "CLUSER002", "CLUSER003", "CLUSER004", "CLOFF001",
             "CLINFO001", "CLGED0001", "CLSPGDS01", "CLSPGDS02", "CLGED0002",
             "CLSPGDC01", "CLSPGDC02", "CLSILA001", "CLMEG001", "CLPEN001",
             "CLRAPP001"
-        ];
+    ];
 
-        public static readonly ReadOnlyDictionary<string, string> CustomerToMirrorCodes = new(new Dictionary<string, string>{
+    public static readonly ReadOnlyDictionary<string, string> CustomerToMirrorCodes = new(new Dictionary<string, string>{
             { "CLGED0001", "COGED0001" },
             { "CLGED0002", "COGED0002" },
             { "CLSILA001", "COLANC001" },
@@ -51,5 +51,11 @@ namespace Pulse.Authorization.Infrastructure.Constants
             { "CLKPI0001", "COKPI0001" },
             { "CLBANK001", "COBANK001" },
         });
-    }
+
+    public static readonly string[] PennylaneCodes =
+    [
+        "CLPEN001",
+        "COPEN001",
+        "CLGEDPEN01"
+    ];
 }

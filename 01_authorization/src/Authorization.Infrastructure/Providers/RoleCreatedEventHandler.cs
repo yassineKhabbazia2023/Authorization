@@ -4,6 +4,7 @@
 
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Pulse.Authorization.Core.Interfaces;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Mappers.EventMappers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
@@ -12,24 +13,24 @@ using Pulse.Back.Events.IntegrationEvents;
 
 namespace Pulse.Authorization.Infrastructure.Providers;
 
-public class RoleCreatedEventHandler : IEventHandler
+public class RoleCreatedEventHandler(
+    ILogger<RoleCreatedEventHandler> logger,
+    IRoleEventRepository roleEventRepository,
+    IAuthorizationEventPublisher authorizationEventPublisher,
+    IAuthorizationRepository authorizationRepository,
+    IAuthorizationEventRepository authorizationEventRepository,
+    IOnboardingEventPublisher onboardingEventPublisher,
+    IContactEventRepository contactEventRepository,
+    IAccountRepository accountRepository) : IEventHandler
 {
-    private readonly ILogger<RoleCreatedEventHandler> _logger;
-    private readonly IRoleEventRepository _roleEventRepository;
-    private readonly IAuthorizationRepository _authorizationRepository;
-    private readonly IAuthorizationEventPublisher _authorizationEventPublisher;
-
-    public RoleCreatedEventHandler(
-        ILogger<RoleCreatedEventHandler> logger,
-        IRoleEventRepository roleEventRepository,
-        IAuthorizationEventPublisher authorizationEventPublisher,
-        IAuthorizationRepository authorizationRepository)
-    {
-        _logger = logger;
-        _roleEventRepository = roleEventRepository;
-        _authorizationEventPublisher = authorizationEventPublisher;
-        _authorizationRepository = authorizationRepository;
-    }
+    private readonly ILogger<RoleCreatedEventHandler> _logger = logger;
+    private readonly IRoleEventRepository _roleEventRepository = roleEventRepository;
+    private readonly IAuthorizationRepository _authorizationRepository = authorizationRepository;
+    private readonly IAuthorizationEventRepository _authorizationEventRepository = authorizationEventRepository;
+    private readonly IAuthorizationEventPublisher _authorizationEventPublisher = authorizationEventPublisher;
+    private readonly IOnboardingEventPublisher _onboardingEventPublisher = onboardingEventPublisher;
+    private readonly IContactEventRepository _contactEventRepository = contactEventRepository;
+    private readonly IAccountRepository _accountRepository = accountRepository;
 
     public async Task HandleAsync(string message)
     {
@@ -62,6 +63,12 @@ public class RoleCreatedEventHandler : IEventHandler
                 var createdAuthorizations = await _authorizationRepository.CreateDefaultAuthorizationsOnSignatoryAsync(roleEntity.ContactId, roleEntity.AccountId);
 
                 await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(roleEntity.ContactId, roleEntity.AccountId, createdAuthorizations);
+            }
+
+            if (await _contactEventRepository.IsContactClientAsync(roleEntity.ContactId) && await _authorizationEventRepository.IsPennylaneActivatedAsync(roleEntity.AccountId))
+            {
+                var account = await _accountRepository.GetAccountByIdAsync(roleEntity.AccountId);
+                await _onboardingEventPublisher.PublishOnBoardingEventAsync(roleEntity.ContactId, account.AccountNumber);
             }
         }
         else

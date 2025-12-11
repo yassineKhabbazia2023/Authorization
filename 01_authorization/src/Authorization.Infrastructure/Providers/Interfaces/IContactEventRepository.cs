@@ -17,5 +17,7 @@ namespace Pulse.Authorization.Infrastructure.Providers.Interfaces
         Task RemoveContactAuthorizationsAsync(int contactId);
 
         Task<bool> DoesContactExistAsync(int contactId);
+
+        Task<bool> IsContactClientAsync(int contactId);
     }
 }

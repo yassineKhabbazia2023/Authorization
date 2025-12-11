@@ -70,5 +70,10 @@ namespace Pulse.Authorization.Infrastructure.Repositories
 
             return contact != null;
         }
+
+        public async Task<bool> IsContactClientAsync(int contactId)
+        {
+            return await _authorizationContext.ContactEntity.AnyAsync(c => c.ContactId == contactId && c.Type == ContactType.Customer.ToString());
+        }
     }
 }

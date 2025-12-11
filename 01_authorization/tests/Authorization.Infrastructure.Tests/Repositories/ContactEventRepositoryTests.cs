@@ -207,4 +207,113 @@ public class ContactEventRepositoryTests
 
         Assert.Null(result);
     }
+
+    [Fact]
+    public async Task IsContactClientAsync_WithClientContact_ShouldReturnTrue()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        using var context = new AuthorizationContext(options);
+
+        var contact = new ContactEntity
+        {
+            ContactId = 8,
+            ContactGlobalUniqueId = Guid.NewGuid(),
+            FirstName = "Client",
+            LastName = "User",
+            Email = "cuser@email.fr",
+            IsActive = true,
+            Type = "Customer",
+            PersonaName = "Client",
+        };
+        context.ContactEntity.Add(contact);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var repository = new ContactEventRepository(context);
+
+        var result = await repository.IsContactClientAsync(8);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task IsContactClientAsync_WithCollabContact_ShouldReturnFalse()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        using var context = new AuthorizationContext(options);
+
+        var contact = new ContactEntity
+        {
+            ContactId = 9,
+            ContactGlobalUniqueId = Guid.NewGuid(),
+            FirstName = "Collab",
+            LastName = "User",
+            Email = "colluser@email.fr",
+            IsActive = true,
+            Type = "Collaborator",
+            PersonaName = "Partner",
+        };
+        context.ContactEntity.Add(contact);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var repository = new ContactEventRepository(context);
+
+        var result = await repository.IsContactClientAsync(9);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task IsContactClientAsync_WhenContactNotExist_ShouldReturnFalse()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        using var context = new AuthorizationContext(options);
+
+        var repository = new ContactEventRepository(context);
+
+        var result = await repository.IsContactClientAsync(1);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task IsContactClientAsync_WhenContactNotActive_ShouldReturnFalse()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+        using var context = new AuthorizationContext(options);
+
+        var contact = new ContactEntity
+        {
+            ContactId = 10,
+            ContactGlobalUniqueId = Guid.NewGuid(),
+            FirstName = "Client",
+            LastName = "User",
+            Email = "cuser@email.fr",
+            IsActive = false,
+            Type = "Customer",
+            PersonaName = "Client",
+        };
+        context.ContactEntity.Add(contact);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var repository = new ContactEventRepository(context);
+
+        var result = await repository.IsContactClientAsync(10);
+
+        Assert.False(result);
+    }
 }
