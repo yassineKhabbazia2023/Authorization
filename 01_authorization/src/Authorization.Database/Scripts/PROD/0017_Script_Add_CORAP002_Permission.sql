@@ -10,6 +10,8 @@ BEGIN
 	[Label] = 'Administrer les rapports BI'
 	WHERE Code = 'CORAP001'
 
+	DECLARE @newAutId INT;
+	SET @newAutId = (SELECT [AuthorizationId] FROM [auth].[Authorization] WHERE Code = 'CORAP002');
 	INSERT INTO [auth].[AccountAuthorization] ([AccountId] ,[AuthorizationId] ,[Enabled])
-     VALUES (-1 ,57 ,1)
+     VALUES (-1 ,@newAutId ,1)
 END
