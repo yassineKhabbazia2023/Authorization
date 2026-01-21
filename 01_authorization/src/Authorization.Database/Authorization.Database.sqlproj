@@ -67,7 +67,6 @@
     <Folder Include="Security\" />
     <Folder Include="postDeployment" />
     <Folder Include="Scripts" />
-    <Folder Include="Scripts\REC" />
     <Folder Include="Scripts\PROD" />
   </ItemGroup>
   <ItemGroup>
@@ -89,7 +88,6 @@
     <None Include="Scripts\PROD\0004_Add_ged_permissions_depending_on_persona.sql" />
     <None Include="Scripts\PROD\0005_Add_base_permissions_for_accounts.sql" />
     <None Include="Scripts\PROD\0006_Script_Init_Auth_PowerBi_Account.sql" />
-    <None Include="Scripts\REC\actor.Contact.ExpertDigitaux.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Authorization.Database.refactorlog" />
@@ -106,6 +104,7 @@
     <None Include="Scripts\PROD\0014_Add-CLGEDPEN01-permission.sql" />
     <None Include="Scripts\PROD\0015_Script_Migrate_CLGEDPEN01.sql" />
     <None Include="Scripts\PROD\0016_Script_Update_Permission_CLUSER004.sql" />
+    <None Include="Scripts\PROD\0017_Script_Add_CORAP002_Permission.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

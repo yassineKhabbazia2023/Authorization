@@ -1,7 +1,7 @@
 ﻿IF (SELECT count(*) FROM [auth].[Authorization]) = 0
 BEGIN
-INSERT INTO auth.[Authorization] (
-	Name, Description, Code, Label, Category, Configurable, [View], [ProductCode], [Type])
+INSERT INTO [auth].[Authorization] (
+	[Name], [Description], [Code], [Label], [Category], [Configurable], [View], [ProductCode], [Type])
 	VALUES
 	('Super Admin', '', 'CLADMI001', 'Droit Super Admin client', 'CLTGESTION', '0', 'Global', NULL, 'customer'),
 	('View User', '', 'CLUSER001', 'Consulter les utilisateurs', 'CLTGESTION', '1', 'Both', NULL, 'customer'),
@@ -32,7 +32,8 @@ INSERT INTO auth.[Authorization] (
 	('Create JDD', '', 'COADMI007', 'Créer des jeux de données', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
 	('Deploy subscription', '', 'COOFF001', 'Activer une offre', 'COLOFFRE', '1', 'Both', NULL, 'collaborator'),
 	('Activate subsciption', '', 'COOFF002', 'Onglet des demandes MOD', 'COLOFFRE', '1', 'Global', NULL, 'collaborator'),
-	('Add report', '', 'CORAP001', 'Déposer un rapport BI', 'COLRAPPORT', '1', 'Global', NULL, 'collaborator'),
+	('Report administration', '', 'CORAP001', 'Administrer les rapports BI', 'COLRAPPORT', '1', 'Global', NULL, 'collaborator'),
+	('Add report', '', 'CORAP002', 'Déposer un rapport BI', 'COLRAPPORT', '1', 'Global', NULL, 'collaborator'),
 	('Delete report', '', 'CORAP003', 'Supprimer un rapport BI', 'COLRAPPORT', '1', 'Global', NULL, 'collaborator'),
 	('View delegation', '', 'COGES001', 'Historique des délégations', 'COLGESTION', '1', 'Both', NULL, 'collaborator'),
 	('View Calendar', '', 'COCAL001', 'Accéder au calendrier', 'COLGESTION', '1', 'Header', NULL, 'collaborator'),
