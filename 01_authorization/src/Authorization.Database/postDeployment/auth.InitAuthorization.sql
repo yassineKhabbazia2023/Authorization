@@ -32,6 +32,7 @@ INSERT INTO [auth].[Authorization] (
 	('Create JDD', '', 'COADMI007', 'Créer des jeux de données', 'COLADMIN', '1', 'Global', NULL, 'collaborator'),
 	('Deploy subscription', '', 'COOFF001', 'Activer une offre', 'COLOFFRE', '1', 'Both', NULL, 'collaborator'),
 	('Activate subsciption', '', 'COOFF002', 'Onglet des demandes MOD', 'COLOFFRE', '1', 'Global', NULL, 'collaborator'),
+	('Access AI Mode', '', 'COAIOFFER', 'Accéder au mode IA du catalogue des offres', 'COLOFFRE', '1', 'Global', NULL, 'collaborator'),
 	('Report administration', '', 'CORAP001', 'Administrer les rapports BI', 'COLRAPPORT', '1', 'Global', NULL, 'collaborator'),
 	('Add report', '', 'CORAP002', 'Déposer un rapport BI', 'COLRAPPORT', '1', 'Global', NULL, 'collaborator'),
 	('Delete report', '', 'CORAP003', 'Supprimer un rapport BI', 'COLRAPPORT', '1', 'Global', NULL, 'collaborator'),
