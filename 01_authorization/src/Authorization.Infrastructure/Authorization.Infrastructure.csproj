@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.8" />
     <PackageReference Include="Polly" Version="8.4.1" />
     <PackageReference Include="Pulse.Back.Events" Version="2.74.163" />
-    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+    <PackageReference Include="System.Formats.Asn1" Version="10.0.7" />
   </ItemGroup>
 
   <ItemGroup>

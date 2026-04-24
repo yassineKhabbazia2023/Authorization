@@ -55,5 +55,6 @@ INSERT INTO [auth].[Authorization] (
 	('Mirror bank', '', 'COBANK001', 'Accéder aux données bancaires', 'COLMIRROIR', '0', 'Partial', NULL, 'collaborator'),
 	('Access Silae collab', '', 'COSILA001', 'Accéder au lanceur silae', 'COLGESTION', '1', 'Global', NULL, 'collaborator'),
 	('Access Pennylane collab', '', 'COPEN001', 'Accéder au lanceur pennylane', 'COLGESTION', '1', 'Both', 'pennylaneaccess', 'collaborator'),
-	('Access Rydge Conseil', '', 'CLGEDPEN01', 'Accéder à l’espace documentaire Rydge Conseil', 'CLTGEDESC', '1', 'Partial', 'pennylaneaccess', 'customer')
+	('Access Rydge Conseil', '', 'CLGEDPEN01', 'Accéder à l’espace documentaire Rydge Conseil', 'CLTGEDESC', '1', 'Partial', 'pennylaneaccess', 'customer'),
+	('Manage booking page', '', 'CORDV001', 'Gérer ma page de rendez-vous avec booking', 'COLGESTION', '1', 'Global', NULL, 'collaborator')
 END
