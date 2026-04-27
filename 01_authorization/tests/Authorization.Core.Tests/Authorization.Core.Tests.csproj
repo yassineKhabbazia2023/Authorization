@@ -15,7 +15,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.8" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
 		<PackageReference Include="Moq" Version="4.20.70" />
-		<PackageReference Include="Pulse.ExceptionMiddleware" Version="2.73.47" />
+		<PackageReference Include="Pulse.ExceptionMiddleware" Version="2.73.53" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 		<PackageReference Include="xunit" Version="2.9.0" />

@@ -2,6 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Pulse.Authorization.API;
@@ -17,9 +18,13 @@ public static class Program
     private static IHostBuilder CreateHostBuilder(string[] args) =>
 
         Host.CreateDefaultBuilder(args)
-            .ConfigureLogging((context, loggerConfiguration) =>
+            .ConfigureLogging(logging =>
             {
-                loggerConfiguration.AddApplicationInsights();
+                logging.Configure(options =>
+                {
+                    options.ActivityTrackingOptions =
+                        ActivityTrackingOptions.TraceId | ActivityTrackingOptions.SpanId;
+                });
             })
             .ConfigureWebHostDefaults(webBuilder =>
             {

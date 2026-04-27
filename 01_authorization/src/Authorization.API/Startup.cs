@@ -44,7 +44,6 @@ namespace Pulse.Authorization.API
             }
 
             services.AddMemoryCache();
-            services.AddApplicationInsightsTelemetry(_configuration);
             services.AddHsts(options =>
             {
                 options.IncludeSubDomains = true;
@@ -61,7 +60,7 @@ namespace Pulse.Authorization.API
 
             services.Register(_configuration);
             services.ConfigureSwaggerService(_swaggerConfiguration);
-            services.RegisterApplicationInsights(_configuration);
+            services.RegisterOpenTelemetry(_configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

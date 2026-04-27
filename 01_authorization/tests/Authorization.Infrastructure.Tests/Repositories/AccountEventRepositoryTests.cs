@@ -2,10 +2,7 @@
 // Copyright (c) Pulse. All rights reserved.
 // </copyright>
 
-using Fare;
 using Microsoft.EntityFrameworkCore;
-using Moq;
-using Org.BouncyCastle.Utilities;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;

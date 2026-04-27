@@ -18,6 +18,7 @@ using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Constants;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Pulse.ExceptionMiddleware.Exceptions;
 using Pulse.Authorization.Infrastructure.Services;
 
@@ -125,14 +126,23 @@ namespace Pulse.Authorization.API.Configuration
                 .AddSqlServer(connectionString, healthQuery: "SELECT 1;");
         }
 
-        public static void RegisterApplicationInsights(this IServiceCollection services, IConfiguration configuration)
+        public static void RegisterOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
         {
-            var applicationInsightsConexionString = configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
-
-            services.AddApplicationInsightsTelemetry(options =>
+            var connectionString = configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+            if (string.IsNullOrEmpty(connectionString))
             {
-                options.ConnectionString = applicationInsightsConexionString;
-            });
+                return;
+            }
+
+            services.AddOpenTelemetry()
+                .UseAzureMonitor(options =>
+                {
+                    options.ConnectionString = connectionString;
+                })
+                .WithTracing(tracing =>
+                {
+                    tracing.AddSource("Pulse.Back.Events");
+                });
         }
 
         public static void RegisterCors(this IServiceCollection services)

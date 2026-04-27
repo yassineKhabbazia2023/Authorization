@@ -12,23 +12,26 @@ namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
 
 public class AuthorizationEventRepositoryTests
 {
-    private readonly DbContextOptions<AuthorizationContext> _options;
     private readonly Fixture _fixture;
 
     public AuthorizationEventRepositoryTests()
     {
-        _options = new DbContextOptionsBuilder<AuthorizationContext>()
-                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                            .Options;
         _fixture = new Fixture();
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
     }
 
+    private DbContextOptions<AuthorizationContext> CreateNewContextOptions()
+    {
+        return new DbContextOptionsBuilder<AuthorizationContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+    }
+
     [Fact]
     public async Task IsPennylaneActivatedAsync_Nominal_ShouldReturnTrue()
     {
-        using var context = new AuthorizationContext(_options);
+        using var context = new AuthorizationContext(CreateNewContextOptions());
 
         var authorizations = new List<AuthorizationEntity>
         {
@@ -87,7 +90,7 @@ public class AuthorizationEventRepositoryTests
     [Fact]
     public async Task IsPennylaneActivatedAsync_WhenAccountNotExist_ShouldReturnFalse()
     {
-        using var context = new AuthorizationContext(_options);
+        using var context = new AuthorizationContext(CreateNewContextOptions());
 
         var authorizations = new List<AuthorizationEntity>
         {
@@ -138,7 +141,7 @@ public class AuthorizationEventRepositoryTests
     [Fact]
     public async Task IsPennylaneActivatedAsync_WhenAccountDontHavePennylaneAuthorization_ShouldReturnFalse()
     {
-        using var context = new AuthorizationContext(_options);
+        using var context = new AuthorizationContext(CreateNewContextOptions());
 
         var authorizations = new List<AuthorizationEntity>
         {
@@ -197,7 +200,7 @@ public class AuthorizationEventRepositoryTests
     [Fact]
     public async Task IsPennylaneActivatedAsync_WhenAccountNotActive_ShouldReturnFalse()
     {
-        using var context = new AuthorizationContext(_options);
+        using var context = new AuthorizationContext(CreateNewContextOptions());
 
         var authorizations = new List<AuthorizationEntity>
         {
