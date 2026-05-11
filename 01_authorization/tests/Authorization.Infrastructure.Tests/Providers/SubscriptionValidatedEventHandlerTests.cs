@@ -296,17 +296,63 @@ public async Task HandleAsync_WithValidMessage_ShouldUpdatePermissionsAndLogWarn
             It.IsAny<Exception?>(),
             (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
 
+        repositoryMock
+            .Setup(r => r.AddSubscriptionAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<IEnumerable<string>>()))
+            .ReturnsAsync(Enumerable.Empty<AccountAuthorizationEntity>());
+
         // Act
         await handler.HandleAsync(message);
 
         // Assert
-        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<IEnumerable<string>>()), Times.Never);
+        repositoryMock.Verify(
+            repo => repo.AddSubscriptionAuthorizationsForContacts(
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>()),
+            Times.Never);
 
         loggerMock.Verify(
             x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("ContactIds is null or empty")),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithAllInvalidContactIds_ShouldLogErrorAndNotUpdatePermissions()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<SubscriptionValidatedEventHandler>>();
+        var repositoryMock = new Mock<ISubscriptionEventRepository>();
+        var handler = new SubscriptionValidatedEventHandler(loggerMock.Object, repositoryMock.Object, _authorizationEventPublisherMock.Object);
+        var message = "{\"EventType\":\"SubscriptionValidatedEvent\",\"Data\":{\"AccountId\":123,\"ContactIds\":[0, -1, -5], \"Products\": [{\"ProductCode\": \"MOCK\"}]}}";
+
+        loggerMock.Setup(x => x.Log(
+            It.IsAny<LogLevel>(),
+            It.IsAny<EventId>(),
+            It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception?>(),
+            (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
+
+        repositoryMock
+            .Setup(r => r.AddSubscriptionAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<IEnumerable<string>>()))
+            .ReturnsAsync(Enumerable.Empty<AccountAuthorizationEntity>());
+
+        // Act
+        await handler.HandleAsync(message);
+
+        // Assert
+        repositoryMock.Verify(
+            repo => repo.AddSubscriptionAuthorizationsForContacts(
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<IEnumerable<string>>()),
+            Times.Never);
+
+        loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Aucun ContactId valide trouvé")),
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
@@ -339,38 +385,6 @@ public async Task HandleAsync_WithValidMessage_ShouldUpdatePermissionsAndLogWarn
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Tous les ProductCodes sont vides ou nuls")),
-                It.IsAny<Exception?>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task HandleAsync_WithAllInvalidContactIds_ShouldLogErrorAndNotUpdatePermissions()
-    {
-        // Arrange
-        var loggerMock = new Mock<ILogger<SubscriptionValidatedEventHandler>>();
-        var repositoryMock = new Mock<ISubscriptionEventRepository>();
-        var handler = new SubscriptionValidatedEventHandler(loggerMock.Object, repositoryMock.Object, _authorizationEventPublisherMock.Object);
-        var message = "{\"EventType\":\"SubscriptionValidatedEvent\",\"Data\":{\"AccountId\":123,\"ContactIds\":[0, -1, -5], \"Products\": [{\"ProductCode\": \"MOCK\"}]}}";
-
-        loggerMock.Setup(x => x.Log(
-            It.IsAny<LogLevel>(),
-            It.IsAny<EventId>(),
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception?>(),
-            (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
-
-        // Act
-        await handler.HandleAsync(message);
-
-        // Assert
-        repositoryMock.Verify(repo => repo.AddSubscriptionAuthorizationsOnAccountAsync(It.IsAny<int>(), It.IsAny<IEnumerable<string>>()), Times.Never);
-
-        loggerMock.Verify(
-            x => x.Log(
-                LogLevel.Error,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Aucun ContactId valide trouvé")),
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);

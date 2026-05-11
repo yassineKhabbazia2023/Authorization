@@ -60,22 +60,6 @@ namespace Pulse.Authorization.Infrastructure.Providers
                 return;
             }
 
-            // Matérialiser ContactIds d'origine
-            var contactIdsSource = subEvent.Data.ContactIds?.ToArray() ?? Array.Empty<int>();
-            if (contactIdsSource.Length == 0)
-            {
-                this.logger.LogError("ContactIds is null or empty: {Message}", message);
-                return;
-            }
-
-            // Vérifier s'il existe au moins un ContactId valide (> 0)
-            var validContactIds = contactIdsSource.Where(id => id > 0).ToArray();
-            if (validContactIds.Length == 0)
-            {
-                this.logger.LogError("Aucun ContactId valide trouvé: {Message}", message);
-                return;
-            }
-
             // Normalisation ProductCodes (tableau non-nullable)
             var productCodes = products
                 .Select(p => p?.ProductCode?.Trim())
@@ -93,6 +77,23 @@ namespace Pulse.Authorization.Infrastructure.Providers
             // Dépot : operation sur account
             await this.subscriptionEventRepository.AddSubscriptionAuthorizationsOnAccountAsync(
                 subEvent.Data.AccountId, productCodes);
+
+            // Matérialiser ContactIds d'origine
+            var contactIdsSource = subEvent.Data.ContactIds?.ToArray() ?? Array.Empty<int>();
+            if (contactIdsSource.Length == 0)
+            {
+                this.logger.LogError("ContactIds is null or empty: {Message}", message);
+                return;
+            }
+
+            // Vérifier s'il existe au moins un ContactId valide (> 0)
+            var validContactIds = contactIdsSource.Where(id => id > 0).ToArray();
+            if (validContactIds.Length == 0)
+            {
+                this.logger.LogError("Aucun ContactId valide trouvé: {Message}", message);
+                return;
+            }
+
 
             // Dépot : operation sur contacts (on passe les IDs d'origine pour couvrir le test)
             var result = await this.subscriptionEventRepository.AddSubscriptionAuthorizationsForContacts(
