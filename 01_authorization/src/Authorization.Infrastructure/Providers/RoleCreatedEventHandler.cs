@@ -58,14 +58,22 @@ public class RoleCreatedEventHandler(
 
             _logger.LogInformation("Le role de contact: {ContactId}, account: {AccountId} vient d'être crée.", roleEntity.ContactId, roleEntity.AccountId);
 
+            var isCustomer = await _contactEventRepository.IsContactClientAsync(roleEntity.ContactId);
+
             if (roleEntity.IsSignatory.HasValue && roleEntity.IsSignatory.Value)
             {
                 var createdAuthorizations = await _authorizationRepository.CreateDefaultAuthorizationsOnSignatoryAsync(roleEntity.ContactId, roleEntity.AccountId);
 
                 await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(roleEntity.ContactId, roleEntity.AccountId, createdAuthorizations);
             }
+            else if (isCustomer)
+            {
+                var createdAuthorizations = await _authorizationRepository.CreateDefaultAuthorizationsOnNonSignatoryAsync(roleEntity.ContactId, roleEntity.AccountId);
 
-            if (await _contactEventRepository.IsContactClientAsync(roleEntity.ContactId) && await _authorizationEventRepository.IsPennylaneActivatedAsync(roleEntity.AccountId))
+                await _authorizationEventPublisher.PublishAuthorizationUpdatedEventAsync(roleEntity.ContactId, roleEntity.AccountId, createdAuthorizations);
+            }
+
+            if (isCustomer && await _authorizationEventRepository.IsPennylaneActivatedAsync(roleEntity.AccountId))
             {
                 var account = await _accountRepository.GetAccountByIdAsync(roleEntity.AccountId);
                 await _onboardingEventPublisher.PublishOnBoardingEventAsync(roleEntity.ContactId, account.AccountNumber);
