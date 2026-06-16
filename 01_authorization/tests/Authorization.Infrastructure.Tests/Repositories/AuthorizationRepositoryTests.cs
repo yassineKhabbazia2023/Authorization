@@ -700,30 +700,6 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
-    public async Task CreateDefaultAuthorizationsOnNonSignatoryAsync_Should_AddDefaultNonSignatoryAuthorizations_And_ReturnSaidAuthorizations()
-    {
-        // Arrange
-        var authorizationEntities = GlobalConstants.DefaultNonSignatoryPermissions.Select(p =>
-        {
-            var a = _fixture.Create<AuthorizationEntity>();
-            a.Code = p;
-            return a;
-        });
-
-        using var context = new AuthorizationContext(_options);
-        context.AuthorizationEntity.AddRange(authorizationEntities);
-        context.SaveChanges();
-        var repository = new AuthorizationRepository(context);
-
-        // Act
-        var result = await repository.CreateDefaultAuthorizationsOnNonSignatoryAsync(It.IsAny<int>(), It.IsAny<int>());
-
-        // Assert
-        Assert.NotNull(result);
-        result.Should().BeEquivalentTo(GlobalConstants.DefaultNonSignatoryPermissions);
-    }
-
-    [Fact]
     public async Task CreateDefaultAuthorizationsOnAccountAsync_ShouldCreateOnlyTheDefaultAuthorizations_ThatDoesNotAlreadyExistsForThisAccount()
     {
         var defaultPermissions = GlobalConstants.DefaultSignatoryPermissions;

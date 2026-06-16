@@ -242,14 +242,8 @@ public class AuthorizationRepository : IAuthorizationRepository
     }
 
     public async Task<IEnumerable<string>> CreateDefaultAuthorizationsOnSignatoryAsync(int contactId, int accountId)
-        => await CreateDefaultContactAuthorizationsAsync(contactId, accountId, GlobalConstants.DefaultSignatoryPermissions);
-
-    public async Task<IEnumerable<string>> CreateDefaultAuthorizationsOnNonSignatoryAsync(int contactId, int accountId)
-        => await CreateDefaultContactAuthorizationsAsync(contactId, accountId, GlobalConstants.DefaultNonSignatoryPermissions);
-
-    private async Task<IEnumerable<string>> CreateDefaultContactAuthorizationsAsync(int contactId, int accountId, string[] permissionCodes)
     {
-        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => permissionCodes.Contains(a.Code)).Distinct().ToListAsync();
+        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => GlobalConstants.DefaultSignatoryPermissions.Contains(a.Code)).Distinct().ToListAsync();
         var filtered = authorizations.Where(a => !_authorizationContext.ContactAuthorizationEntity.Any(c => c.AuthorizationId == a.AuthorizationId
         && c.ContactId == contactId
         && c.AccountId == accountId));
@@ -267,7 +261,7 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         await _authorizationContext.SaveChangesAsync();
 
-        return permissionCodes;
+        return GlobalConstants.DefaultSignatoryPermissions;
     }
 
     public async Task SetContactAuthorizationFromAccountAuthorization(int accountId, int contactId)
