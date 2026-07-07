@@ -105,6 +105,7 @@
     <None Include="Scripts\PROD\0015_Script_Migrate_CLGEDPEN01.sql" />
     <None Include="Scripts\PROD\0016_Script_Update_Permission_CLUSER004.sql" />
     <None Include="Scripts\PROD\0017_Script_Add_CORAP002_Permission.sql" />
+    <None Include="Scripts\PROD\0020_Add_TargetAccountType_Column.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

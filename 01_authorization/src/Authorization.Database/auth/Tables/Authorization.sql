@@ -8,10 +8,12 @@
     [Category]    VARCHAR (50) NULL,
     [ProductCode] VARCHAR (20) NULL,
     [Configurable] BIT, 
-    [Type] VARCHAR(15) NOT NULL
-    CONSTRAINT [PK_Authorization] PRIMARY KEY CLUSTERED ([AuthorizationId] ASC)
-    CONSTRAINT [CHK_Status] CHECK ([View] = 'Global' OR [View] = 'Partial' OR [View] = 'Both' OR [View] = 'Header')
-    CONSTRAINT [CHK_Type] CHECK ([Type] = 'customer' OR [Type] = 'collaborator')
+    [Type] VARCHAR(15) NOT NULL,
+    [TargetAccountType] VARCHAR(20) NOT NULL CONSTRAINT [DF_Authorization_TargetAccountType] DEFAULT ('Client'),
+    CONSTRAINT [PK_Authorization] PRIMARY KEY CLUSTERED ([AuthorizationId] ASC),
+    CONSTRAINT [CHK_Status] CHECK ([View] = 'Global' OR [View] = 'Partial' OR [View] = 'Both' OR [View] = 'Header'),
+    CONSTRAINT [CHK_Type] CHECK ([Type] = 'customer' OR [Type] = 'collaborator'),
+    CONSTRAINT [CHK_Authorization_TargetAccountType] CHECK ([TargetAccountType] = 'Client' OR [TargetAccountType] = 'Prospect' OR [TargetAccountType] = 'All')
 );
 
 GO
@@ -25,6 +27,11 @@ CREATE NONCLUSTERED INDEX [IX_Authorization_Type]
 GO
 CREATE NONCLUSTERED INDEX [IX_Authorization_Code]
     ON [auth].[Authorization]([Code] ASC);
+
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Authorization_Type_Configurable_TargetAccountType]
+    ON [auth].[Authorization]([Type] ASC, [Configurable] ASC, [TargetAccountType] ASC);
 
 GO
 

@@ -16,6 +16,9 @@ public static class GlobalConstants
     public static readonly int DefaultAccountIdCollab = -1;
     public static readonly string CustomerCategory = "customer";
     public static readonly string CollabCategory = "collaborator";
+    public static readonly string TargetAccountTypeClient = "Client";
+    public static readonly string TargetAccountTypeProspect = "Prospect";
+    public static readonly string TargetAccountTypeAll = "All";
 
     public static readonly string[] PowerBIDefaultPermissions = ["CORAPP001", "CLRAPP001", "CLRAPP002"];
     public static readonly string[] PowerBIDefaultSignatoryPermissions = ["CLRAPP001", "CLRAPP002"];

@@ -93,6 +93,10 @@ public class ConfigurationServiceTests
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
+        var accountMocked = _fixture.Build<AccountEntity>()
+                                    .With(a => a.AccountId, accountId)
+                                    .With(a => a.AccountType, GlobalConstants.TargetAccountTypeClient)
+                                    .Create();
 
         var accountAuthorizations = new List<AuthorizationEntity>
         {
@@ -114,10 +118,13 @@ public class ConfigurationServiceTests
         _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
+        _accountRepositoryMock.Setup(repository => repository.GetAccountByIdAsync(accountId))
+            .ReturnsAsync(accountMocked);
+
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(accountAuthorizations);
 
-        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(contactAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
@@ -204,6 +211,10 @@ public class ConfigurationServiceTests
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
+        var accountMocked = _fixture.Build<AccountEntity>()
+                                    .With(a => a.AccountId, accountId)
+                                    .With(a => a.AccountType, GlobalConstants.TargetAccountTypeClient)
+                                    .Create();
 
         var accountAuthorizations = new List<AuthorizationEntity>
         {
@@ -224,6 +235,9 @@ public class ConfigurationServiceTests
 
         _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
+
+        _accountRepositoryMock.Setup(repository => repository.GetAccountByIdAsync(accountId))
+            .ReturnsAsync(accountMocked);
 
         _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CollabCategory, true))
             .ReturnsAsync(accountAuthorizations);
@@ -344,6 +358,10 @@ public class ConfigurationServiceTests
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
+        var accountMocked = _fixture.Build<AccountEntity>()
+                                    .With(a => a.AccountId, accountId)
+                                    .With(a => a.AccountType, GlobalConstants.TargetAccountTypeClient)
+                                    .Create();
 
         var accountAuthorizations = new List<AuthorizationEntity>
         {
@@ -361,10 +379,13 @@ public class ConfigurationServiceTests
         _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
+        _accountRepositoryMock.Setup(repository => repository.GetAccountByIdAsync(accountId))
+            .ReturnsAsync(accountMocked);
+
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(accountAuthorizations);
 
-        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(contactAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
@@ -395,6 +416,10 @@ public class ConfigurationServiceTests
                                     .With(c => c.ContactId, contactId)
                                     .With(c => c.Type, ContactType.Customer.ToString())
                                     .Create();
+        var accountMocked = _fixture.Build<AccountEntity>()
+                                    .With(a => a.AccountId, accountId)
+                                    .With(a => a.AccountType, GlobalConstants.TargetAccountTypeClient)
+                                    .Create();
 
         var accountAuthorizations = new List<AuthorizationEntity>
         {
@@ -416,10 +441,13 @@ public class ConfigurationServiceTests
         _contactRepository.Setup(repository => repository.GetContactByIdAsync(contactId))
             .ReturnsAsync(contactMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
+        _accountRepositoryMock.Setup(repository => repository.GetAccountByIdAsync(accountId))
+            .ReturnsAsync(accountMocked);
+
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(accountAuthorizations);
 
-        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId))
+        _configurationRepository.Setup(repository => repository.GetContactAuthorizationsAsync(contactId, accountId, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(contactAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
@@ -582,6 +610,7 @@ public class ConfigurationServiceTests
 
         var accountMocked = _fixture.Build<AccountEntity>()
                                     .With(c => c.AccountId, accountId)
+                                    .With(c => c.AccountType, GlobalConstants.TargetAccountTypeClient)
                                     .Create();
 
         var authorizations = new List<AuthorizationEntity>
@@ -603,10 +632,10 @@ public class ConfigurationServiceTests
 
         _accountRepositoryMock.Setup(a => a.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync(accountMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(accountAuthorizations);
 
-        _configurationRepository.Setup(r => r.GetAvailableAuthorizationsAsync(It.IsAny<string>(), true)).ReturnsAsync(authorizations);
+        _configurationRepository.Setup(r => r.GetAvailableAuthorizationsAsync(GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient)).ReturnsAsync(authorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
         authorizationEventPublisherMock.Setup(a => a.PublishAuthorizationUpdatedEventAsync(null, It.IsAny<int>(), It.IsAny<List<string>>(), false)).Verifiable();
@@ -640,6 +669,7 @@ public class ConfigurationServiceTests
 
         var accountMocked = _fixture.Build<AccountEntity>()
                                     .With(c => c.AccountId, accountId)
+                                    .With(c => c.AccountType, GlobalConstants.TargetAccountTypeClient)
                                     .Create();
 
         var authorizations = new List<AuthorizationEntity>
@@ -655,10 +685,10 @@ public class ConfigurationServiceTests
 
         _accountRepositoryMock.Setup(a => a.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync(accountMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, null, true, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync([]);
 
-        _configurationRepository.Setup(repository => repository.GetAvailableAuthorizationsAsync(null, true))
+        _configurationRepository.Setup(repository => repository.GetAvailableAuthorizationsAsync(null, true, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(authorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);
@@ -685,6 +715,7 @@ public class ConfigurationServiceTests
         var accountId = 123;
         var accountMocked = _fixture.Build<AccountEntity>()
                                     .With(c => c.AccountId, accountId)
+                                    .With(c => c.AccountType, GlobalConstants.TargetAccountTypeClient)
                                     .Create();
         var authorizations = new List<AuthorizationEntity>
         {
@@ -705,10 +736,10 @@ public class ConfigurationServiceTests
 
         _accountRepositoryMock.Setup(a => a.GetAccountByIdAsync(It.IsAny<int>())).ReturnsAsync(accountMocked);
 
-        _configurationRepository.Setup(repository => repository.GetAvailableAuthorizationsAsync(GlobalConstants.CustomerCategory, true))
+        _configurationRepository.Setup(repository => repository.GetAvailableAuthorizationsAsync(GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(authorizations);
 
-        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true))
+        _configurationRepository.Setup(repository => repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient))
             .ReturnsAsync(accountAuthorizations);
 
         var authorizationEventPublisherMock = new Mock<IAuthorizationEventPublisher>(MockBehavior.Strict);

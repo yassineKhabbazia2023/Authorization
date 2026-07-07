@@ -10,9 +10,15 @@ public interface IConfigurationRepository
 {
     Task<IEnumerable<AuthorizationEntity>> GetAvailableAuthorizationsAsync(string? type, bool configurable = true);
 
+    Task<IEnumerable<AuthorizationEntity>> GetAvailableAuthorizationsAsync(string? type, bool configurable, string targetAccountType);
+
     Task<IEnumerable<AuthorizationEntity>> GetAccountAuthorizationsAsync(int accountId, string? type, bool configurable = true);
 
+    Task<IEnumerable<AuthorizationEntity>> GetAccountAuthorizationsAsync(int accountId, string? type, bool configurable, string targetAccountType);
+
     Task<IEnumerable<AuthorizationEntity>> GetContactAuthorizationsAsync(int contactId, int accountId);
+
+    Task<IEnumerable<AuthorizationEntity>> GetContactAuthorizationsAsync(int contactId, int accountId, string targetAccountType);
 
     Task CreateOrUpdateContactAccountAuthorizationAsync(int contactId, int accountId, IEnumerable<string> codes);
 

@@ -34,6 +34,7 @@ public class AuthorizationRepositoryTests
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         _fixture.Customize<AccountEntity>(c => c.With(a => a.AccountType, (string?)null));
+        _fixture.Customize<AuthorizationEntity>(c => c.With(a => a.TargetAccountType, GlobalConstants.TargetAccountTypeClient));
     }
 
     [Fact]

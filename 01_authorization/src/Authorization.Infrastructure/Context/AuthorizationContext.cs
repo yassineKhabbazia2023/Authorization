@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Entities;
 
 namespace Pulse.Authorization.Infrastructure.Context;
@@ -81,6 +82,8 @@ public partial class AuthorizationContext : DbContext
 
             entity.HasIndex(e => e.Code, "IX_Authorization_Code");
 
+            entity.HasIndex(e => new { e.Type, e.Configurable, e.TargetAccountType }, "IX_Authorization_Type_Configurable_TargetAccountType");
+
             entity.HasIndex(e => e.Type, "IX_Authorization_Type");
 
             entity.HasIndex(e => e.View, "IX_Authorization_View");
@@ -107,6 +110,11 @@ public partial class AuthorizationContext : DbContext
             entity.Property(e => e.ProductCode)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+            entity.Property(e => e.TargetAccountType)
+                .IsRequired()
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue(GlobalConstants.TargetAccountTypeClient);
             entity.Property(e => e.Type)
                 .IsRequired()
                 .HasMaxLength(15)

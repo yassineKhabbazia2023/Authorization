@@ -45,8 +45,14 @@ public class ConfigurationService : IConfigurationService
 
         if (contact!.Type == ContactType.Customer.ToString())
         {
-            configurations = (await _configurationRepository.GetAccountAuthorizationsAsync(accountId!.Value, GlobalConstants.CustomerCategory)).MapAuthorizationToConfiguration();
-            contactAuthorization = (await _configurationRepository.GetContactAuthorizationsAsync(contactId, accountId!.Value)).MapAuthorizationToConfiguration();
+            var account = await _accountRepository.GetAccountByIdAsync(accountId!.Value);
+            if (account == null)
+            {
+                throw new NotFoundException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId));
+            }
+
+            configurations = (await _configurationRepository.GetAccountAuthorizationsAsync(accountId!.Value, GlobalConstants.CustomerCategory, true, account.AccountType)).MapAuthorizationToConfiguration();
+            contactAuthorization = (await _configurationRepository.GetContactAuthorizationsAsync(contactId, accountId!.Value, account.AccountType)).MapAuthorizationToConfiguration();
         }
         else if (contact!.Type == ContactType.Collaborator.ToString())
         {
@@ -118,8 +124,8 @@ public class ConfigurationService : IConfigurationService
             throw new NotFoundException(Errors.NotFoundAccountCode, string.Format(Errors.NotFoundAccountMessage, accountId));
         }
 
-        var accAuths = (await _configurationRepository.GetAccountAuthorizationsAsync(accountId, type, configurable)).MapAuthorizationToConfiguration();
-        var availableAuths = (await _configurationRepository.GetAvailableAuthorizationsAsync(type, configurable)).MapAuthorizationToConfiguration();
+        var accAuths = (await _configurationRepository.GetAccountAuthorizationsAsync(accountId, type, configurable, account.AccountType)).MapAuthorizationToConfiguration();
+        var availableAuths = (await _configurationRepository.GetAvailableAuthorizationsAsync(type, configurable, account.AccountType)).MapAuthorizationToConfiguration();
         return EnableAccountConfiguration(availableAuths, accAuths);
     }
 

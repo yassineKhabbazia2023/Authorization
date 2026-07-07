@@ -49,5 +49,8 @@ namespace Pulse.Authorization.Core.Exceptions
 
         public static readonly string NoPermissionsFoundCode = "AUT014";
         public static readonly string NoPermissionsFoundMessage = "Aucune permission n'a été trouvée.";
+
+        public static readonly string InvalidTargetAccountTypePermissionCode = "AUT015";
+        public static readonly string InvalidTargetAccountTypePermissionMessage = "La permission avec le code suivant: {0} n'est pas valide pour le type d'entité {1}.";
     }
 }

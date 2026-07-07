@@ -24,7 +24,147 @@ public class ConfigurationRepositoryTests
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         _fixture.Customize<AccountEntity>(c => c.With(a => a.AccountType, (string?)null));
+        _fixture.Customize<AuthorizationEntity>(c => c.With(a => a.TargetAccountType, GlobalConstants.TargetAccountTypeClient));
     }
+
+    #region TargetAccountType
+
+    [Fact]
+    public async Task GetAccountAuthorizationsAsync_WhenTargetAccountTypeIsClient_ShouldReturnClientAndAllAuthorizationsOnly()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var accountId = 456;
+        var clientAuthorization = CreateAuthorization(1, "CLIENT001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient);
+        var allAuthorization = CreateAuthorization(2, "ALL001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeAll);
+        var prospectAuthorization = CreateAuthorization(3, "PROSP001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeProspect);
+        var collaboratorAuthorization = CreateAuthorization(4, "COL001", GlobalConstants.CollabCategory, true, GlobalConstants.TargetAccountTypeClient);
+        var notConfigurableAuthorization = CreateAuthorization(5, "NCONF001", GlobalConstants.CustomerCategory, false, GlobalConstants.TargetAccountTypeClient);
+        var otherAccountAuthorization = CreateAuthorization(6, "OTHER001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient);
+
+        context.AccountAuthorizationEntity.AddRange(
+            CreateAccountAuthorization(accountId, clientAuthorization),
+            CreateAccountAuthorization(accountId, allAuthorization),
+            CreateAccountAuthorization(accountId, prospectAuthorization),
+            CreateAccountAuthorization(accountId, collaboratorAuthorization),
+            CreateAccountAuthorization(accountId, notConfigurableAuthorization),
+            CreateAccountAuthorization(999, otherAccountAuthorization));
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        var result = await repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient);
+
+        result.Select(a => a.Code).Should().BeEquivalentTo(["CLIENT001", "ALL001"]);
+    }
+
+    [Fact]
+    public async Task GetAccountAuthorizationsAsync_WhenTargetAccountTypeIsProspect_ShouldReturnProspectAndAllAuthorizationsOnly()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var accountId = 456;
+        var clientAuthorization = CreateAuthorization(1, "CLIENT001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient);
+        var prospectAuthorization = CreateAuthorization(2, "PROSP001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeProspect);
+        var allAuthorization = CreateAuthorization(3, "ALL001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeAll);
+
+        context.AccountAuthorizationEntity.AddRange(
+            CreateAccountAuthorization(accountId, clientAuthorization),
+            CreateAccountAuthorization(accountId, prospectAuthorization),
+            CreateAccountAuthorization(accountId, allAuthorization));
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        var result = await repository.GetAccountAuthorizationsAsync(accountId, GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeProspect);
+
+        result.Select(a => a.Code).Should().BeEquivalentTo(["PROSP001", "ALL001"]);
+    }
+
+    [Fact]
+    public async Task GetContactAuthorizationsAsync_WhenTargetAccountTypeMatches_ShouldPreserveContactAccountAndConfigurableFilters()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
+        using var context = new AuthorizationContext(options);
+        var contactId = 123;
+        var accountId = 456;
+        var clientAuthorization = CreateAuthorization(1, "CLIENT001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient);
+        var allAuthorization = CreateAuthorization(2, "ALL001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeAll);
+        var prospectAuthorization = CreateAuthorization(3, "PROSP001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeProspect);
+        var otherContactAuthorization = CreateAuthorization(4, "OTHER001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient);
+        var notConfigurableAuthorization = CreateAuthorization(5, "NCONF001", GlobalConstants.CustomerCategory, false, GlobalConstants.TargetAccountTypeClient);
+
+        context.ContactAuthorizationEntity.AddRange(
+            CreateContactAuthorization(contactId, accountId, clientAuthorization),
+            CreateContactAuthorization(contactId, accountId, allAuthorization),
+            CreateContactAuthorization(contactId, accountId, prospectAuthorization),
+            CreateContactAuthorization(999, accountId, otherContactAuthorization),
+            CreateContactAuthorization(contactId, accountId, notConfigurableAuthorization));
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        var result = await repository.GetContactAuthorizationsAsync(contactId, accountId, GlobalConstants.TargetAccountTypeClient);
+
+        result.Select(a => a.Code).Should().BeEquivalentTo(["CLIENT001", "ALL001"]);
+    }
+
+    [Fact]
+    public async Task GetAvailableAuthorizationsAsync_WhenTargetAccountTypeIsProspect_ShouldReturnProspectAndAllAuthorizationsOnly()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
+        using var context = new AuthorizationContext(options);
+        context.AuthorizationEntity.AddRange(
+            CreateAuthorization(1, "CLIENT001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient),
+            CreateAuthorization(2, "PROSP001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeProspect),
+            CreateAuthorization(3, "ALL001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeAll),
+            CreateAuthorization(4, "COL001", GlobalConstants.CollabCategory, true, GlobalConstants.TargetAccountTypeProspect),
+            CreateAuthorization(5, "NCONF001", GlobalConstants.CustomerCategory, false, GlobalConstants.TargetAccountTypeProspect));
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        var result = await repository.GetAvailableAuthorizationsAsync(GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeProspect);
+
+        result.Select(a => a.Code).Should().BeEquivalentTo(["PROSP001", "ALL001"]);
+    }
+
+    [Fact]
+    public async Task GetAvailableAuthorizationsAsync_WhenTargetAccountTypeIsNullOrUnknown_ShouldReturnClientAndAllAuthorizationsOnly()
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
+        using var context = new AuthorizationContext(options);
+        context.AuthorizationEntity.AddRange(
+            CreateAuthorization(1, "CLIENT001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeClient),
+            CreateAuthorization(2, "PROSP001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeProspect),
+            CreateAuthorization(3, "ALL001", GlobalConstants.CustomerCategory, true, GlobalConstants.TargetAccountTypeAll));
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        var unknownResult = await repository.GetAvailableAuthorizationsAsync(GlobalConstants.CustomerCategory, true, "Unknown");
+        var nullResult = await repository.GetAvailableAuthorizationsAsync(GlobalConstants.CustomerCategory, true, null!);
+
+        unknownResult.Select(a => a.Code).Should().BeEquivalentTo(["CLIENT001", "ALL001"]);
+        nullResult.Select(a => a.Code).Should().BeEquivalentTo(["CLIENT001", "ALL001"]);
+    }
+
+    #endregion
 
     [Fact]
     public async Task GetAccountConfigurationAsync_WhenClientHasAuthorization_ShouldReturnsConfigurations()
@@ -323,6 +463,7 @@ public class ConfigurationRepositoryTests
             .With(x => x.Code, code)
             .With(x => x.Configurable, true)
             .With(x => x.Type, type)
+            .With(x => x.TargetAccountType, GlobalConstants.TargetAccountTypeClient)
             .Without(x => x.Persona)
             .Without(x => x.AccountAuthorizationEntity)
             .Without(x => x.ContactAuthorizationEntity)
@@ -331,6 +472,7 @@ public class ConfigurationRepositoryTests
         List<AuthorizationEntity> newAuthorizationEntities = _fixture.Build<AuthorizationEntity>()
             .With(x => x.Configurable, true)
             .With(x => x.Type, type)
+            .With(x => x.TargetAccountType, GlobalConstants.TargetAccountTypeClient)
             .Without(x => x.Persona)
             .Without(x => x.AccountAuthorizationEntity)
             .Without(x => x.ContactAuthorizationEntity)
@@ -382,9 +524,11 @@ public class ConfigurationRepositoryTests
                             .With(a => a.AccountId, accountId)
                             .Without(a => a.AccountAuthorizationEntity)
                             .Without(a => a.ContactAuthorizationEntity)
+                            .Without(a => a.RoleEntity)
                             .Create();
         var authorizationMock = _fixture.Build<AuthorizationEntity>()
             .With(a => a.Configurable, true)
+            .With(a => a.TargetAccountType, GlobalConstants.TargetAccountTypeClient)
             .CreateMany(3)
             .ToList();
         var oldAccountAuthorizations = _fixture.Build<AccountAuthorizationEntity>()
@@ -399,6 +543,7 @@ public class ConfigurationRepositoryTests
                         .Without(a => a.ContactAuthorizationEntity)
                         .Without(a => a.AccountAuthorizationEntity)
                         .With(a => a.Configurable, true)
+                        .With(a => a.TargetAccountType, GlobalConstants.TargetAccountTypeClient)
                         .CreateMany(3)
                         .ToList();
         var newAccountAuthorizations = _fixture.Build<AccountAuthorizationEntity>()
@@ -443,14 +588,17 @@ public class ConfigurationRepositoryTests
                             .With(a => a.AccountId, accountId)
                             .Without(a => a.AccountAuthorizationEntity)
                             .Without(a => a.ContactAuthorizationEntity)
+                            .Without(a => a.RoleEntity)
                             .Create();
         var auth1 = _fixture.Build<AuthorizationEntity>()
             .With(a => a.Code, "DDD")
             .With(a => a.Configurable, true)
+            .With(a => a.TargetAccountType, GlobalConstants.TargetAccountTypeClient)
             .Create();
         var auth2 = _fixture.Build<AuthorizationEntity>()
             .With(a => a.Code, "EEE")
             .With(a => a.Configurable, true)
+            .With(a => a.TargetAccountType, GlobalConstants.TargetAccountTypeClient)
             .Create();
 
         context.AccountEntity.Add(accountEntity);
@@ -466,6 +614,41 @@ public class ConfigurationRepositoryTests
         // Assert
         newAuthorization.Should().NotBeNullOrEmpty();
         newAuthorization.Select(x => x.Authorization.Code).Should().BeEquivalentTo(codes);
+    }
+
+    [Theory]
+    [InlineData("Client", "Prospect")]
+    [InlineData("Prospect", "Client")]
+    public async Task CreateOrUpdateAccountAuthorizationAsync_WhenAuthorizationTargetDoesNotMatchAccountType_ShouldThrowBadRequestException(string accountType, string authorizationTargetAccountType)
+    {
+        var options = new DbContextOptionsBuilder<AuthorizationContext>()
+                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                            .Options;
+
+        var accountId = 460;
+        var code = "DDD";
+        using var context = new AuthorizationContext(options);
+        var accountEntity = _fixture.Build<AccountEntity>()
+                            .With(a => a.AccountId, accountId)
+                            .With(a => a.AccountType, accountType)
+                            .Without(a => a.AccountAuthorizationEntity)
+                            .Without(a => a.ContactAuthorizationEntity)
+                            .Without(a => a.RoleEntity)
+                            .Create();
+        var authorization = CreateAuthorization(1, code, GlobalConstants.CustomerCategory, true, authorizationTargetAccountType);
+
+        context.AccountEntity.Add(accountEntity);
+        context.AuthorizationEntity.Add(authorization);
+        await context.SaveChangesAsync();
+
+        var repository = new ConfigurationRepository(context);
+
+        var action = async () => await repository.CreateOrUpdateAccountAuthorizationAsync(accountId, new List<string> { code }, GlobalConstants.CustomerCategory, true);
+
+        var exception = await action.Should().ThrowAsync<BadRequestException>();
+        exception.Which.Code.Should().Be(Errors.InvalidTargetAccountTypePermissionCode);
+        exception.Which.Message.Should().Be(string.Format(Errors.InvalidTargetAccountTypePermissionMessage, code, accountType));
+        context.AccountAuthorizationEntity.Should().BeEmpty();
     }
 
     [Fact]
@@ -628,5 +811,67 @@ public class ConfigurationRepositoryTests
         Assert.NotNull(result);
         Assert.Single(result);
         Assert.Equal("FFF", result.First().Code);
+    }
+
+    /// <summary>
+    /// Creates an authorization entity for configuration repository tests.
+    /// </summary>
+    /// <param name="authorizationId">The authorization identifier.</param>
+    /// <param name="code">The authorization code.</param>
+    /// <param name="type">The authorization type.</param>
+    /// <param name="configurable">The configurable flag.</param>
+    /// <param name="targetAccountType">The target account type.</param>
+    /// <returns>The authorization entity.</returns>
+    private static AuthorizationEntity CreateAuthorization(int authorizationId, string code, string type, bool configurable, string targetAccountType)
+    {
+        return new AuthorizationEntity
+        {
+            AuthorizationId = authorizationId,
+            Code = code,
+            Type = type,
+            Configurable = configurable,
+            TargetAccountType = targetAccountType,
+            Category = "Category",
+            Description = string.Empty,
+            Label = code,
+            Name = code,
+            View = "Global",
+        };
+    }
+
+    /// <summary>
+    /// Creates an account authorization entity for configuration repository tests.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <param name="authorization">The authorization entity.</param>
+    /// <returns>The account authorization entity.</returns>
+    private static AccountAuthorizationEntity CreateAccountAuthorization(int accountId, AuthorizationEntity authorization)
+    {
+        return new AccountAuthorizationEntity
+        {
+            AccountId = accountId,
+            AuthorizationId = authorization.AuthorizationId,
+            Authorization = authorization,
+            Enabled = true,
+        };
+    }
+
+    /// <summary>
+    /// Creates a contact authorization entity for configuration repository tests.
+    /// </summary>
+    /// <param name="contactId">The contact identifier.</param>
+    /// <param name="accountId">The account identifier.</param>
+    /// <param name="authorization">The authorization entity.</param>
+    /// <returns>The contact authorization entity.</returns>
+    private static ContactAuthorizationEntity CreateContactAuthorization(int contactId, int accountId, AuthorizationEntity authorization)
+    {
+        return new ContactAuthorizationEntity
+        {
+            ContactId = contactId,
+            AccountId = accountId,
+            AuthorizationId = authorization.AuthorizationId,
+            Authorization = authorization,
+            CreationDate = DateTime.UtcNow,
+        };
     }
 }

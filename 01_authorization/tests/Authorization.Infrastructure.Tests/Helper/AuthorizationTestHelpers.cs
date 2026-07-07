@@ -17,6 +17,7 @@ public static class AuthorizationTestHelpers
             .With(a => a.Type, type)
             .With(a => a.Code, code)
             .With(a => a.Label, label)
+            .With(a => a.TargetAccountType, Pulse.Authorization.Infrastructure.Constants.GlobalConstants.TargetAccountTypeClient)
             .Without(a => a.AccountAuthorizationEntity)
             .Without(a => a.ContactAuthorizationEntity)
             .Create();

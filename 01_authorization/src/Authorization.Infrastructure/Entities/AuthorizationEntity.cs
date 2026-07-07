@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using Pulse.Authorization.Infrastructure.Constants;
 
 namespace Pulse.Authorization.Infrastructure.Entities;
 
@@ -26,6 +27,8 @@ public partial class AuthorizationEntity
     public bool? Configurable { get; set; }
 
     public string Type { get; set; }
+
+    public string TargetAccountType { get; set; } = GlobalConstants.TargetAccountTypeClient;
 
     public virtual ICollection<AccountAuthorizationEntity> AccountAuthorizationEntity { get; set; } = new List<AccountAuthorizationEntity>();
 
