@@ -28,7 +28,8 @@ namespace Pulse.Authorization.Infrastructure.Tests.Extensions
                 Email = "john.doe@test.com",
                 Status = ContactStatus.Declared.ToString(),
                 Type = "Collaborator",
-                PersonaName = "None"
+                PersonaName = "None",
+                IsActive = true
             };
 
             // Act

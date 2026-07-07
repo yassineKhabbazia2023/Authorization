@@ -27,7 +27,7 @@ public partial class ContactEntity
 
     public DateTime? LastUpdateDate { get; set; }
 
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; set; }
 
     public virtual ICollection<ContactAuthorizationEntity> ContactAuthorizationEntity { get; set; } = new List<ContactAuthorizationEntity>();
 

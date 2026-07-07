@@ -29,7 +29,8 @@ public class ContactEventRepositoryTests
             Email = "john.doe@test.com",
             Status = ContactStatus.Declared.ToString(),
             Type = "Collaborator",
-            PersonaName = "None"
+            PersonaName = "None",
+            IsActive = true
         };
 
         // Act
@@ -64,7 +65,8 @@ public class ContactEventRepositoryTests
             Email = "john.doe@test.com",
             Status = ContactStatus.Declared.ToString(),
             Type = "Collaborator",
-            PersonaName = "None"
+            PersonaName = "None",
+            IsActive = true
         };
 
         await context.ContactEntity.AddAsync(contactEntity);
@@ -78,7 +80,8 @@ public class ContactEventRepositoryTests
             Email = "jane.smith@test.com",
             Status = ContactStatus.Connected.ToString(),
             Type = "Collaborator",
-            PersonaName = "None"
+            PersonaName = "None",
+            IsActive = true
         };
 
         // Act
@@ -114,7 +117,8 @@ public class ContactEventRepositoryTests
             Email = "john.doe@test.com",
             Status = ContactStatus.Connected.ToString(),
             Type = "Collaborator",
-            PersonaName = "None"
+            PersonaName = "None",
+            IsActive = true
         };
 
         await context.ContactEntity.AddAsync(contactEntity);
@@ -153,6 +157,7 @@ public class ContactEventRepositoryTests
             Type = "Customer",
             PersonaName = "Client",
             CreationDate = DateTime.UtcNow,
+            IsActive = true
         };
         context.ContactEntity.Add(contact);
         await context.SaveChangesAsync();

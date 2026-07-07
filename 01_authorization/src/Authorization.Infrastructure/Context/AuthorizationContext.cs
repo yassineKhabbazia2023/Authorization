@@ -2,7 +2,6 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using Microsoft.Azure.Amqp.Transaction;
 using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Entities;
 
@@ -54,10 +53,15 @@ public partial class AuthorizationContext : DbContext
 
             entity.ToTable("Account", "account");
 
+            entity.HasIndex(e => e.IsActive, "IX_Account_IsActive");
+
             entity.Property(e => e.AccountId).ValueGeneratedNever();
             entity.Property(e => e.AccountNumber)
                 .IsRequired()
-                .HasMaxLength(20)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.AccountType)
+                .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.CreationDate).HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -74,6 +78,12 @@ public partial class AuthorizationContext : DbContext
             entity.HasKey(e => e.AuthorizationId);
 
             entity.ToTable("Authorization", "auth");
+
+            entity.HasIndex(e => e.Code, "IX_Authorization_Code");
+
+            entity.HasIndex(e => e.Type, "IX_Authorization_Type");
+
+            entity.HasIndex(e => e.View, "IX_Authorization_View");
 
             entity.Property(e => e.Category)
                 .HasMaxLength(50)
@@ -137,7 +147,7 @@ public partial class AuthorizationContext : DbContext
 
             entity.ToTable("Contact", "actor");
 
-            entity.HasIndex(e => new { e.IsActive, e.Type }, "IX_Contact_Type_IsActive");
+            entity.HasIndex(e => new { e.Type, e.IsActive }, "IX_Contact_Type_IsActive");
 
             entity.Property(e => e.ContactId).ValueGeneratedNever();
             entity.Property(e => e.CreationDate).HasDefaultValueSql("GETDATE()");
@@ -149,6 +159,7 @@ public partial class AuthorizationContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastName)
                 .IsRequired()
                 .HasMaxLength(100)
@@ -215,10 +226,10 @@ public partial class AuthorizationContext : DbContext
 
             entity.HasIndex(e => e.IsSignatory, "IX_Role_IsSignatory");
 
-            entity.Property(e => e.ContactId).HasComment("L''identifiant technique du contact");
-            entity.Property(e => e.AccountId).HasComment("L''identifiant technique de l''entité");
+            entity.Property(e => e.ContactId).HasComment("L'identifiant technique du contact");
+            entity.Property(e => e.AccountId).HasComment("L'identifiant technique de l'entité");
             entity.Property(e => e.CreationDate).HasDefaultValueSql("GETDATE()");
-            entity.Property(e => e.IsDelegation).HasComment("Indique, dans les cas où c''est possible, si le role est lié à une délégation");
+            entity.Property(e => e.IsDelegation).HasComment("Indique, dans les cas où c'est possible, si le role est lié à une délégation");
             entity.Property(e => e.IsFavorite).HasComment("Le rôle est-il considéré comme un favori ou mis en avant comme tel");
             entity.Property(e => e.IsSignatory).HasComment("Le signataire");
 

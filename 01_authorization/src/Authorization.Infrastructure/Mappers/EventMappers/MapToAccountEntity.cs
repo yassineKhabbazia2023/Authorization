@@ -23,6 +23,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
                 AccountNumber = source.AccountNumber,
                 LegalName = source.LegalName,
                 Status = source.Status,
+                AccountType = source.AccountType,
                 IsActive = source.IsActive,
             };
         }
@@ -37,6 +38,7 @@ namespace Pulse.Authorization.Infrastructure.Mappers.EventMappers
             destination.AccountNumber = source.AccountNumber;
             destination.LegalName = source.LegalName;
             destination.Status = source.Status;
+            destination.AccountType = source.AccountType;
             destination.IsActive = source.IsActive;
             destination.LastUpdateDate = DateTime.UtcNow;
         }

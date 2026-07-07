@@ -8,12 +8,12 @@ namespace Pulse.Authorization.Infrastructure.Entities;
 public partial class RoleEntity
 {
     /// <summary>
-    /// L&apos;&apos;identifiant technique de l&apos;&apos;entité
+    /// L&apos;identifiant technique de l&apos;entité
     /// </summary>
     public int AccountId { get; set; }
 
     /// <summary>
-    /// L&apos;&apos;identifiant technique du contact
+    /// L&apos;identifiant technique du contact
     /// </summary>
     public int ContactId { get; set; }
 
@@ -28,7 +28,7 @@ public partial class RoleEntity
     public bool? IsSignatory { get; set; }
 
     /// <summary>
-    /// Indique, dans les cas où c&apos;&apos;est possible, si le role est lié à une délégation
+    /// Indique, dans les cas où c&apos;est possible, si le role est lié à une délégation
     /// </summary>
     public bool? IsDelegation { get; set; }
 

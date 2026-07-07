@@ -48,6 +48,7 @@ public class RoleCreatedEventHandlerTests
             AccountNumber = "ACC20240001",
             AccountGlobalUniqueId = Guid.NewGuid(),
             LegalName = "Test Account",
+            AccountType = null,
             IsActive = true,
         };
         _accountRepository.Setup(c => c.GetAccountByIdAsync(It.IsAny<int>()))

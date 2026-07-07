@@ -181,7 +181,8 @@ public class RoleEventRepositoryTests
             Email = "john.doe@test.com",
             Status = ContactStatus.Declared.ToString(),
             Type = "Collaborator",
-            PersonaName = "None"
+            PersonaName = "None",
+            IsActive = true
         };
         context.ContactEntity.Add(contact);
 
@@ -192,6 +193,7 @@ public class RoleEventRepositoryTests
             AccountNumber = "number",
             LegalName = "legal",
             Status = "Invited",
+            AccountType = null,
             IsActive = true,
             CreationDate = DateTime.UtcNow,
         };
@@ -229,7 +231,8 @@ public class RoleEventRepositoryTests
             Email = "john.doe@test.com",
             Status = ContactStatus.Declared.ToString(),
             Type = "Collaborator",
-            PersonaName = "None"
+            PersonaName = "None",
+            IsActive = true
         };
         context.ContactEntity.Add(contact);
 
@@ -240,6 +243,7 @@ public class RoleEventRepositoryTests
             AccountNumber = "number",
             LegalName = "legal",
             Status = "Invited",
+            AccountType = null,
             IsActive = true,
             CreationDate = DateTime.UtcNow,
         };
@@ -270,7 +274,8 @@ public class RoleEventRepositoryTests
             Email = "john.doe@test.com",
             Status = ContactStatus.Declared.ToString(),
             Type = "Collaborator",
-            PersonaName = "None"
+            PersonaName = "None",
+            IsActive = true
         };
         context.ContactEntity.Add(contact);
 
@@ -281,6 +286,7 @@ public class RoleEventRepositoryTests
             AccountNumber = "number",
             LegalName = "legal",
             IsActive = true,
+            AccountType = null,
             Status = "Invited",
             CreationDate = DateTime.UtcNow,
         };
@@ -314,7 +320,8 @@ public class RoleEventRepositoryTests
             Email = "john.doe@test.com",
             Status = ContactStatus.Declared.ToString(),
             Type = "Collaborator",
-            PersonaName = "None"
+            PersonaName = "None",
+            IsActive = true
         };
         context.ContactEntity.Add(contact);
 
@@ -325,6 +332,7 @@ public class RoleEventRepositoryTests
             AccountNumber = "number",
             LegalName = "legal",
             IsActive = true,
+            AccountType = null,
             Status = "Invited",
             CreationDate = DateTime.UtcNow,
         };

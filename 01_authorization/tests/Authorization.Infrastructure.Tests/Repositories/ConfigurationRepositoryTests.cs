@@ -23,6 +23,7 @@ public class ConfigurationRepositoryTests
         _fixture = new Fixture();
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture.Customize<AccountEntity>(c => c.With(a => a.AccountType, (string?)null));
     }
 
     [Fact]

@@ -33,6 +33,7 @@ public class AuthorizationRepositoryTests
         _fixture = new Fixture();
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture.Customize<AccountEntity>(c => c.With(a => a.AccountType, (string?)null));
     }
 
     [Fact]
@@ -110,7 +111,17 @@ public class AuthorizationRepositoryTests
                 LastName = "titi",
                 Email = "tititoto@email.fr",
                 PersonaName = "Client",
-                Type = "Customer"
+                Type = "Customer",
+                IsActive = true
+            });
+
+            context.AccountEntity.Add(new AccountEntity
+            {
+                AccountId = 1,
+                AccountNumber = "ACC001",
+                LegalName = "Test Account",
+                IsActive = true,
+                AccountType = null
             });
 
             var expectedAuthorization = authorizations.Select(c => c.Code);
@@ -154,7 +165,8 @@ public class AuthorizationRepositoryTests
                             AccountId = Random.Shared.Next(),
                             IsActive = true,
                             AccountNumber = Random.Shared.Next().ToString(),
-                            LegalName = Random.Shared.Next().ToString()
+                            LegalName = Random.Shared.Next().ToString(),
+                            AccountType = null
                         })
                         .CreateMany(3);
 

@@ -26,6 +26,7 @@ public static class AuthorizationTestHelpers
     {
         return fixture.Build<AccountEntity>()
             .With(a => a.AccountId, id)
+            .With(a => a.AccountType, (string?)null)
             .Without(a => a.AccountAuthorizationEntity)
             .Without(a => a.ContactAuthorizationEntity)
             .Without(a => a.RoleEntity)

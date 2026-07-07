@@ -24,6 +24,7 @@ public class ContactRepositoryTests
         _fixture = new Fixture();
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture.Customize<ContactEntity>(c => c.With(x => x.IsActive, true));
     }
 
     [Fact]
@@ -54,34 +55,46 @@ public class ContactRepositoryTests
         using var context = new AuthorizationContext(_options);
 
         var contactProperties = _fixture.Build<string>();
+
+        var contact1 = new ContactEntity
+        {
+            ContactId = 101,
+            Email = contactProperties.Create(),
+            FirstName = contactProperties.Create(),
+            LastName = contactProperties.Create(),
+            PersonaName = contactProperties.Create(),
+            Type = ContactType.Customer.ToString(),
+            IsActive = true,
+            CreationDate = DateTime.UtcNow
+        };
+
+        var contact2 = new ContactEntity
+        {
+            ContactId = 102,
+            Email = contactProperties.Create(),
+            FirstName = contactProperties.Create(),
+            LastName = contactProperties.Create(),
+            PersonaName = contactProperties.Create(),
+            Type = ContactType.Customer.ToString(),
+            IsActive = true,
+            CreationDate = DateTime.UtcNow
+        };
+
+        context.ContactEntity.AddRange(contact1, contact2);
+        await context.SaveChangesAsync();
+
         context.RoleEntity.AddRange(
             new RoleEntity
             {
                 AccountId = accountId,
-                IsSignatory = true,
-                Contact = new ContactEntity
-                {
-                    ContactId = 101,
-                    Email = contactProperties.Create(),
-                    FirstName = contactProperties.Create(),
-                    LastName = contactProperties.Create(),
-                    PersonaName = contactProperties.Create(),
-                    Type = ContactType.Customer.ToString(),
-                }
+                ContactId = 101,
+                IsSignatory = true
             },
             new RoleEntity
             {
                 AccountId = accountId,
-                IsSignatory = true,
-                Contact = new ContactEntity
-                {
-                    ContactId = 102,
-                    Email = contactProperties.Create(),
-                    FirstName = contactProperties.Create(),
-                    LastName = contactProperties.Create(),
-                    PersonaName = contactProperties.Create(),
-                    Type = ContactType.Customer.ToString(),
-                }
+                ContactId = 102,
+                IsSignatory = true
             });
         await context.SaveChangesAsync();
 
@@ -92,8 +105,8 @@ public class ContactRepositoryTests
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         Assert.Equal(2, result.Count());
-        Assert.Equal(101, result.First());
-        Assert.Equal(102, result.ElementAt(1));
+        Assert.Contains(101, result);
+        Assert.Contains(102, result);
     }
 
     [Theory]
@@ -133,7 +146,9 @@ public class ContactRepositoryTests
             PersonaName = "Marc",
             FirstName = "Marc",
             LastName = "DIBEH",
-            Type = ContactType.Customer.ToString()
+            Type = ContactType.Customer.ToString(),
+            IsActive = true,
+            CreationDate = DateTime.UtcNow
         };
         var collaboratorContact = new ContactEntity
         {
@@ -142,7 +157,9 @@ public class ContactRepositoryTests
             PersonaName = "Marc",
             FirstName = "Marc",
             LastName = "DIBEH",
-            Type = ContactType.Collaborator.ToString()
+            Type = ContactType.Collaborator.ToString(),
+            IsActive = true,
+            CreationDate = DateTime.UtcNow
         };
         var unrelatedContact = new ContactEntity
         {
@@ -151,7 +168,9 @@ public class ContactRepositoryTests
             FirstName = "Marc",
             LastName = "DIBEH",
             ContactId = 3,
-            Type = "Other"
+            Type = "Other",
+            IsActive = true,
+            CreationDate = DateTime.UtcNow
         };
 
         context.ContactEntity.AddRange(customerContact, collaboratorContact, unrelatedContact);
@@ -183,7 +202,9 @@ public class ContactRepositoryTests
             PersonaName = "Client1",
             FirstName = "John",
             LastName = "Doe",
-            Type = ContactType.Customer.ToString()
+            Type = ContactType.Customer.ToString(),
+            IsActive = true,
+            CreationDate = DateTime.UtcNow
         };
         var customer2 = new ContactEntity
         {
@@ -192,7 +213,9 @@ public class ContactRepositoryTests
             PersonaName = "Client2",
             FirstName = "Jane",
             LastName = "Smith",
-            Type = ContactType.Customer.ToString()
+            Type = ContactType.Customer.ToString(),
+            IsActive = true,
+            CreationDate = DateTime.UtcNow
         };
 
         context.ContactEntity.AddRange(customer1, customer2);
@@ -221,7 +244,9 @@ public class ContactRepositoryTests
             PersonaName = "Collab1",
             FirstName = "Alan",
             LastName = "Turing",
-            Type = ContactType.Collaborator.ToString()
+            Type = ContactType.Collaborator.ToString(),
+            IsActive = true,
+            CreationDate = DateTime.UtcNow
         };
         var collab2 = new ContactEntity
         {
@@ -230,7 +255,9 @@ public class ContactRepositoryTests
             PersonaName = "Collab2",
             FirstName = "Grace",
             LastName = "Hopper",
-            Type = ContactType.Collaborator.ToString()
+            Type = ContactType.Collaborator.ToString(),
+            IsActive = true,
+            CreationDate = DateTime.UtcNow
         };
 
         context.ContactEntity.AddRange(collab1, collab2);
@@ -293,6 +320,8 @@ public class ContactRepositoryTests
                     LastName = "lastName",
                     PersonaName = "personaName",
                     Type = ContactType.Collaborator.ToString(),
+                    IsActive = true,
+                    CreationDate = DateTime.UtcNow
                 }
             },
             {
@@ -306,6 +335,8 @@ public class ContactRepositoryTests
                     LastName = "lastName",
                     PersonaName = "personaName",
                     Type = ContactType.Customer.ToString(),
+                    IsActive = true,
+                    CreationDate = DateTime.UtcNow
                 }
             },
             {
@@ -319,6 +350,8 @@ public class ContactRepositoryTests
                     LastName = "lastName",
                     PersonaName = "personaName",
                     Type = ContactType.Customer.ToString(),
+                    IsActive = true,
+                    CreationDate = DateTime.UtcNow
                 }
             },
         };
