@@ -10,6 +10,7 @@ using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
+using Pulse.Authorization.Tests.Helpers;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Providers;
 
@@ -30,9 +31,7 @@ public class ReportCreatedEventHandlerTests
             .Returns(Task.CompletedTask)
             .Verifiable();
 
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
     }
 
     [Fact]

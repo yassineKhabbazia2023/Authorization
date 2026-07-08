@@ -6,6 +6,7 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using Pulse.Authorization.Infrastructure.Providers;
+using Pulse.Authorization.Tests.Helpers;
 using Pulse.Back.Events.Abstractions;
 using Pulse.Back.Events.IntegrationEvents.EventsData;
 
@@ -17,7 +18,7 @@ namespace Pulse.Account.Infrastructure.Tests.Providers
 
         public AccountEventPublisherTests()
         {
-            _fixture = new Fixture();
+            _fixture = EntityFixtureFactory.Create();
         }
 
         [Fact]

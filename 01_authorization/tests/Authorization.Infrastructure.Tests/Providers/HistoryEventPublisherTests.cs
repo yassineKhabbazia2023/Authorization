@@ -10,6 +10,7 @@ using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers;
+using Pulse.Authorization.Tests.Helpers;
 using Pulse.Back.Events.Abstractions;
 using Pulse.Back.Events.IntegrationEvents;
 using Pulse.Back.Events.IntegrationEvents.EventsData;
@@ -32,9 +33,7 @@ public class HistoryEventPublisherTests
         _accountRepository = new Mock<IAccountRepository>();
         _eventPublisher = new Mock<IEventPublisher>();
 
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
     }
 
     [Fact]

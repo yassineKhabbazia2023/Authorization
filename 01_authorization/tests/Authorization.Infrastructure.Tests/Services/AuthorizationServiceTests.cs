@@ -15,6 +15,7 @@ using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Repositories;
 using Pulse.Authorization.Infrastructure.Services;
+using Pulse.Authorization.Tests.Helpers;
 using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Services;
@@ -28,9 +29,7 @@ public class AuthorizationServiceTests
     public AuthorizationServiceTests()
     {
         _authorizationRepository = new Mock<IAuthorizationRepository>(MockBehavior.Strict);
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
     }
 
     [Fact]

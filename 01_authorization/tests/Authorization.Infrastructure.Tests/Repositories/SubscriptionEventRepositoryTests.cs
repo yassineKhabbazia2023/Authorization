@@ -13,6 +13,7 @@ using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Interfaces;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.Authorization.Infrastructure.Repositories;
+using Pulse.Authorization.Tests.Helpers;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
 
@@ -27,9 +28,7 @@ public class SubscriptionEventRepositoryTests
 
     public SubscriptionEventRepositoryTests()
     {
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
         _authRepoMock = new Mock<IAuthorizationRepository>();
         _contactRepoMock = new Mock<IContactRepository>();
         _roleEventRepoMock = new Mock<IRoleEventRepository>();

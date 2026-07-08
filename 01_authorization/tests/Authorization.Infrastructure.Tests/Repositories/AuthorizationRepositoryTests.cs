@@ -30,9 +30,7 @@ public class AuthorizationRepositoryTests
         _options = new DbContextOptionsBuilder<AuthorizationContext>()
                             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                             .Options;
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
         _fixture.Customize<AccountEntity>(c => c.With(a => a.AccountType, (string?)null));
         _fixture.Customize<AuthorizationEntity>(c => c.With(a => a.TargetAccountType, GlobalConstants.TargetAccountTypeClient));
     }
@@ -157,7 +155,7 @@ public class AuthorizationRepositoryTests
         };
         using var context = new AuthorizationContext(_options);
         var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
-                        .With(a => a.Authorization)
+                        .With(a => a.Authorization, () => _fixture.Create<AuthorizationEntity>())
                         .With(a => a.ContactId, contact.ContactId)
                         .With(a => a.AccountId, 458)
                         .With(a => a.Contact, contact)
@@ -189,7 +187,7 @@ public class AuthorizationRepositoryTests
         using (var context = new AuthorizationContext(_options))
         {
             var accountAuthorizationAccountEntity = _fixture.Build<AccountAuthorizationEntity>()
-                            .With(a => a.Authorization)
+                            .With(a => a.Authorization, () => _fixture.Create<AuthorizationEntity>())
                             .With(a => a.AccountId, 457)
                             .Without(a => a.Account)
                             .CreateMany(3);
@@ -218,7 +216,7 @@ public class AuthorizationRepositoryTests
         using (var context = new AuthorizationContext(_options))
         {
             var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
-                            .With(a => a.Authorization)
+                            .With(a => a.Authorization, () => _fixture.Create<AuthorizationEntity>())
                             .With(a => a.ContactId, 124)
                             .With(a => a.AccountId, 458)
                             .Without(a => a.Contact)
@@ -246,7 +244,7 @@ public class AuthorizationRepositoryTests
         using (var context = new AuthorizationContext(_options))
         {
             var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
-                            .With(a => a.Authorization)
+                            .With(a => a.Authorization, () => _fixture.Create<AuthorizationEntity>())
                             .With(a => a.ContactId, 125)
                             .With(a => a.AccountId, 459)
                             .Without(a => a.Contact)
@@ -275,7 +273,7 @@ public class AuthorizationRepositoryTests
         using (var context = new AuthorizationContext(_options))
         {
             var contactAuthorizationAccountEntity = _fixture.Build<ContactAuthorizationEntity>()
-                            .With(a => a.Authorization)
+                            .With(a => a.Authorization, () => _fixture.Create<AuthorizationEntity>())
                             .With(a => a.ContactId, 126)
                             .With(a => a.AccountId, 460)
                             .Without(a => a.Contact)

@@ -14,6 +14,7 @@ using Pulse.Authorization.Infrastructure.Enum;
 using Pulse.Authorization.Infrastructure.Providers.Interfaces;
 using Pulse.ExceptionMiddleware.Exceptions;
 using Pulse.Authorization.Infrastructure.Services;
+using Pulse.Authorization.Tests.Helpers;
 
 namespace Pulse.Authorization.Core.Tests.Services;
 
@@ -30,9 +31,7 @@ public class ConfigurationServiceTests
         _configurationRepository = new Mock<IConfigurationRepository>();
         _contactRepository = new Mock<IContactRepository>();
         _historyEventPublisherMock = new Mock<IHistoryEventPublisher>();
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
         _fixture.Customize<AccountEntity>(c => c.With(a => a.AccountType, (string?)null));
     }
 

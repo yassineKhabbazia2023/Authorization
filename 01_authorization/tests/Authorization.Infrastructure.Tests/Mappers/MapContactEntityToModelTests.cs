@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Pulse.Authorization.Core.Mappers;
 using Pulse.Authorization.Core.Models;
 using Pulse.Authorization.Infrastructure.Entities;
+using Pulse.Authorization.Tests.Helpers;
 
 namespace Pulse.Authorization.Core.Tests.Mappers;
 
@@ -16,9 +17,7 @@ public class MapContactEntityToModelTests
 
     public MapContactEntityToModelTests()
     {
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
     }
 
     [Fact]

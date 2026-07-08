@@ -10,6 +10,7 @@ using Pulse.Authorization.Infrastructure.Constants;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Repositories;
+using Pulse.Authorization.Tests.Helpers;
 using Pulse.ExceptionMiddleware.Exceptions;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
@@ -20,9 +21,7 @@ public class ConfigurationRepositoryTests
 
     public ConfigurationRepositoryTests()
     {
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
         _fixture.Customize<AccountEntity>(c => c.With(a => a.AccountType, (string?)null));
         _fixture.Customize<AuthorizationEntity>(c => c.With(a => a.TargetAccountType, GlobalConstants.TargetAccountTypeClient));
     }
@@ -188,7 +187,7 @@ public class ConfigurationRepositoryTests
                 .Create();
 
         var accountAuthorizations = _fixture.Build<AccountAuthorizationEntity>()
-                .With(a => a.Authorization)
+                .With(a => a.Authorization, () => _fixture.Create<AuthorizationEntity>())
                 .With(a => a.AccountId, accountId)
                 .With(a => a.Account, accountEntity)
                 .CreateMany(10);
@@ -235,7 +234,7 @@ public class ConfigurationRepositoryTests
                 .Create();
 
         var accountAuthorizations = _fixture.Build<AccountAuthorizationEntity>()
-                .With(a => a.Authorization)
+                .With(a => a.Authorization, () => _fixture.Create<AuthorizationEntity>())
                 .With(a => a.AccountId, accountId)
                 .With(a => a.Account, accountEntity)
                 .CreateMany(10);
@@ -271,7 +270,7 @@ public class ConfigurationRepositoryTests
         // Arrange
         using var context = new AuthorizationContext(options);
         var contactAuthorizations = _fixture.Build<ContactAuthorizationEntity>()
-                        .With(a => a.Authorization)
+                        .With(a => a.Authorization, () => _fixture.Create<AuthorizationEntity>())
                         .With(a => a.ContactId, 123)
                         .With(a => a.AccountId, 457)
                         .Without(a => a.Contact)

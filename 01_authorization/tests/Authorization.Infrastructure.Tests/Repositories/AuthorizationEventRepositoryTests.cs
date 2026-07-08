@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Providers;
+using Pulse.Authorization.Tests.Helpers;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
 
@@ -16,9 +17,7 @@ public class AuthorizationEventRepositoryTests
 
     public AuthorizationEventRepositoryTests()
     {
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
     }
 
     private DbContextOptions<AuthorizationContext> CreateNewContextOptions()

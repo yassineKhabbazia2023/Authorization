@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Pulse.Authorization.Infrastructure.Context;
 using Pulse.Authorization.Infrastructure.Entities;
 using Pulse.Authorization.Infrastructure.Repositories;
+using Pulse.Authorization.Tests.Helpers;
 
 namespace Pulse.Authorization.Infrastructure.Tests.Repositories;
 
@@ -20,9 +21,7 @@ public class AccountRepositoryTests
         _options = new DbContextOptionsBuilder<AuthorizationContext>()
                             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                             .Options;
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _fixture = EntityFixtureFactory.Create();
     }
 
     [Fact]
