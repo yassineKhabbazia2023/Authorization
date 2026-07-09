@@ -106,6 +106,7 @@
     <None Include="Scripts\PROD\0016_Script_Update_Permission_CLUSER004.sql" />
     <None Include="Scripts\PROD\0017_Script_Add_CORAP002_Permission.sql" />
     <None Include="Scripts\PROD\0020_Add_TargetAccountType_Column.sql" />
+    <None Include="Scripts\PROD\0021_Script_Update_Permission_CLUSER001.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
