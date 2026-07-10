@@ -58,6 +58,7 @@ INSERT INTO [auth].[Authorization] (
 	('Access Rydge Conseil', '', 'CLGEDPEN01', 'Accéder à l''espace documentaire Rydge Conseil', 'CLTGEDESC', '1', 'Partial', 'pennylaneaccess', 'customer', 'Client'),
 	('Manage booking page', '', 'CORDV001', 'Gérer ma page de rendez-vous avec booking', 'COLGESTION', '1', 'Global', NULL, 'collaborator', 'Client'),
 	-- Prospect permissions
+	('View Prospect Folders', '', 'COPROS001', 'Voir les dossiers prospects', 'COLPROS', '0', 'Global', NULL, 'collaborator', 'Prospect'),
 	('Access Beneficial Owners Section', '', 'CLPCONF001', 'Accéder à la section Bénéficiaires Effectifs', 'CLTPCONF', '1', 'Partial', NULL, 'customer', 'Prospect'),
 	('Access Documents Section', '', 'CLPCONF002', 'Accéder à la section Documents', 'CLTPCONF', '1', 'Partial', NULL, 'customer', 'Prospect'),
 	('Access Commercial Proposal Section', '', 'CLPCONF004', 'Accéder à la section Proposition commerciale', 'CLTPCONF', '1', 'Partial', NULL, 'customer', 'Prospect'),
