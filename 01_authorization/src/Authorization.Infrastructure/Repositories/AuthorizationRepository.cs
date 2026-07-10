@@ -196,7 +196,15 @@ public class AuthorizationRepository : IAuthorizationRepository
 
     public async Task<IEnumerable<string>> CreateDefaultAuthorizationsOnAccountAsync(int accountId)
     {
-        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => GlobalConstants.DefaultAccountPermissions.Contains(a.Code)).Distinct().ToListAsync();
+        var account = await _authorizationContext.AccountEntity
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.AccountId == accountId);
+
+        var defaultPermissions = account?.AccountType?.Equals(GlobalConstants.TargetAccountTypeProspect, StringComparison.OrdinalIgnoreCase) == true
+            ? GlobalConstants.DefaultProspectPermissions
+            : GlobalConstants.DefaultAccountPermissions;
+
+        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => defaultPermissions.Contains(a.Code)).Distinct().ToListAsync();
         _authorizationContext.AccountAuthorizationEntity.AddRange(authorizations.Where(a => !a.AccountAuthorizationEntity.Any(ac => ac.AuthorizationId == a.AuthorizationId && ac.AccountId == accountId))
             .Select(a =>
             {
@@ -210,7 +218,7 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         await _authorizationContext.SaveChangesAsync();
 
-        return GlobalConstants.DefaultAccountPermissions;
+        return defaultPermissions;
     }
 
     public async Task<IEnumerable<string>> CreateReportingAuthorizationsOnAccountAsync(int accountId, string[] codes)

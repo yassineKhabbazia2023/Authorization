@@ -314,7 +314,7 @@ public class ConfigurationRepository : IConfigurationRepository
     /// <returns>The resolved target account type.</returns>
     private static string ResolveTargetAccountType(string? targetAccountType)
     {
-        return targetAccountType == GlobalConstants.TargetAccountTypeProspect
+        return string.Equals(targetAccountType, GlobalConstants.TargetAccountTypeProspect, StringComparison.OrdinalIgnoreCase)
             ? GlobalConstants.TargetAccountTypeProspect
             : GlobalConstants.TargetAccountTypeClient;
     }

@@ -30,6 +30,14 @@ public static class GlobalConstants
         "COUSER002", "COOFF003", "COINFO001"
     ];
 
+    public static readonly string[] DefaultProspectPermissions =
+    [
+        "CLUSER001", "CLUSER002", "CLUSER003",
+        "CLUSER004", "CLINFO001",
+        "CLPCONF001", "CLPCONF002", "CLPCONF004",
+        "CLPCONF005", "CLPCONF006", "CLPDOCP001"
+    ];
+
     public static readonly string[] DefaultSignatoryPermissions =
     [
         "CLADMI001", "CLUSER001", "CLUSER002", "CLUSER003",

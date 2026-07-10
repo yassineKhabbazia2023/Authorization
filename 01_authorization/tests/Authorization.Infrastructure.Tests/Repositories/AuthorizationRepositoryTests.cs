@@ -628,7 +628,7 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
-    public async Task CreateDefaultAuthorizationsOnAccountAsync_Should_AddDefaultAccountAuthorizations_And_ReturnSaidAuthorizations()
+    public async Task CreateDefaultAuthorizationsOnAccountAsync_Should_AddDefaultAccountAuthorizations_And_ReturnSaidAuthorizations_ForClientAccount()
     {
         // Arrange
         var authorizationEntities = GlobalConstants.DefaultAccountPermissions.Select(p =>
@@ -640,6 +640,7 @@ public class AuthorizationRepositoryTests
 
         var account = _fixture.Build<AccountEntity>()
             .With(a => a.AccountId, 44)
+            .With(a => a.AccountType, "Client")
             .Create();
 
         using var context = new AuthorizationContext(_options);
@@ -654,6 +655,81 @@ public class AuthorizationRepositoryTests
         // Assert
         Assert.NotNull(result);
         result.Should().BeEquivalentTo(GlobalConstants.DefaultAccountPermissions);
+
+        var accountAuthorizations = context.AccountAuthorizationEntity
+            .Where(aa => aa.AccountId == account.AccountId)
+            .ToList();
+        accountAuthorizations.Should().HaveCount(GlobalConstants.DefaultAccountPermissions.Length);
+    }
+
+    [Fact]
+    public async Task CreateDefaultAuthorizationsOnAccountAsync_Should_AddDefaultProspectAuthorizations_And_ReturnSaidAuthorizations_ForProspectAccount()
+    {
+        // Arrange
+        var authorizationEntities = GlobalConstants.DefaultProspectPermissions.Select(p =>
+        {
+            var a = _fixture.Create<AuthorizationEntity>();
+            a.Code = p;
+            return a;
+        });
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 45)
+            .With(a => a.AccountType, "Prospect")
+            .Create();
+
+        using var context = new AuthorizationContext(_options);
+        context.AccountEntity.Add(account);
+        context.AuthorizationEntity.AddRange(authorizationEntities);
+        context.SaveChanges();
+        var repository = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repository.CreateDefaultAuthorizationsOnAccountAsync(account.AccountId);
+
+        // Assert
+        Assert.NotNull(result);
+        result.Should().BeEquivalentTo(GlobalConstants.DefaultProspectPermissions);
+
+        var accountAuthorizations = context.AccountAuthorizationEntity
+            .Where(aa => aa.AccountId == account.AccountId)
+            .ToList();
+        accountAuthorizations.Should().HaveCount(GlobalConstants.DefaultProspectPermissions.Length);
+    }
+
+    [Fact]
+    public async Task CreateDefaultAuthorizationsOnAccountAsync_Should_AddDefaultAccountAuthorizations_When_AccountType_IsNull()
+    {
+        // Arrange
+        var authorizationEntities = GlobalConstants.DefaultAccountPermissions.Select(p =>
+        {
+            var a = _fixture.Create<AuthorizationEntity>();
+            a.Code = p;
+            return a;
+        });
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 46)
+            .With(a => a.AccountType, (string?)null)
+            .Create();
+
+        using var context = new AuthorizationContext(_options);
+        context.AccountEntity.Add(account);
+        context.AuthorizationEntity.AddRange(authorizationEntities);
+        context.SaveChanges();
+        var repository = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repository.CreateDefaultAuthorizationsOnAccountAsync(account.AccountId);
+
+        // Assert
+        Assert.NotNull(result);
+        result.Should().BeEquivalentTo(GlobalConstants.DefaultAccountPermissions);
+
+        var accountAuthorizations = context.AccountAuthorizationEntity
+            .Where(aa => aa.AccountId == account.AccountId)
+            .ToList();
+        accountAuthorizations.Should().HaveCount(GlobalConstants.DefaultAccountPermissions.Length);
     }
 
 
