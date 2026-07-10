@@ -251,7 +251,15 @@ public class AuthorizationRepository : IAuthorizationRepository
 
     public async Task<IEnumerable<string>> CreateDefaultAuthorizationsOnSignatoryAsync(int contactId, int accountId)
     {
-        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => GlobalConstants.DefaultSignatoryPermissions.Contains(a.Code)).Distinct().ToListAsync();
+        var account = await _authorizationContext.AccountEntity
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.AccountId == accountId);
+
+        var defaultPermissions = account?.AccountType?.Equals(GlobalConstants.TargetAccountTypeProspect, StringComparison.OrdinalIgnoreCase) == true
+            ? GlobalConstants.DefaultProspectSignatoryPermissions
+            : GlobalConstants.DefaultSignatoryPermissions;
+
+        var authorizations = await _authorizationContext.AuthorizationEntity.AsNoTracking().Where(a => defaultPermissions.Contains(a.Code)).Distinct().ToListAsync();
         var filtered = authorizations.Where(a => !_authorizationContext.ContactAuthorizationEntity.Any(c => c.AuthorizationId == a.AuthorizationId
         && c.ContactId == contactId
         && c.AccountId == accountId));
@@ -269,7 +277,7 @@ public class AuthorizationRepository : IAuthorizationRepository
 
         await _authorizationContext.SaveChangesAsync();
 
-        return GlobalConstants.DefaultSignatoryPermissions;
+        return defaultPermissions;
     }
 
     public async Task SetContactAuthorizationFromAccountAuthorization(int accountId, int contactId)

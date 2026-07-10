@@ -763,7 +763,7 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
-    public async Task CreateDefaultAuthorizationsOnSignatoryAsync_Should_AddDefaultSignatoryAuthorizations_And_ReturnSaidAuthorizations()
+    public async Task CreateDefaultAuthorizationsOnSignatoryAsync_Should_AddDefaultSignatoryAuthorizations_And_ReturnSaidAuthorizations_ForClientAccount()
     {
         // Arrange
         var authorizationEntities = GlobalConstants.DefaultSignatoryPermissions.Select(p =>
@@ -773,17 +773,98 @@ public class AuthorizationRepositoryTests
             return a;
         });
 
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 50)
+            .With(a => a.AccountType, "Client")
+            .Create();
+
         using var context = new AuthorizationContext(_options);
+        context.AccountEntity.Add(account);
         context.AuthorizationEntity.AddRange(authorizationEntities);
         context.SaveChanges();
         var repository = new AuthorizationRepository(context);
 
         // Act
-        var result = await repository.CreateDefaultAuthorizationsOnSignatoryAsync(It.IsAny<int>(), It.IsAny<int>());
+        var result = await repository.CreateDefaultAuthorizationsOnSignatoryAsync(1, account.AccountId);
 
         // Assert
         Assert.NotNull(result);
         result.Should().BeEquivalentTo(GlobalConstants.DefaultSignatoryPermissions);
+
+        var contactAuthorizations = context.ContactAuthorizationEntity
+            .Where(ca => ca.AccountId == account.AccountId)
+            .ToList();
+        contactAuthorizations.Should().HaveCount(GlobalConstants.DefaultSignatoryPermissions.Length);
+    }
+
+    [Fact]
+    public async Task CreateDefaultAuthorizationsOnSignatoryAsync_Should_AddDefaultProspectSignatoryAuthorizations_And_ReturnSaidAuthorizations_ForProspectAccount()
+    {
+        // Arrange
+        var authorizationEntities = GlobalConstants.DefaultProspectSignatoryPermissions.Select(p =>
+        {
+            var a = _fixture.Create<AuthorizationEntity>();
+            a.Code = p;
+            return a;
+        });
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 51)
+            .With(a => a.AccountType, "Prospect")
+            .Create();
+
+        using var context = new AuthorizationContext(_options);
+        context.AccountEntity.Add(account);
+        context.AuthorizationEntity.AddRange(authorizationEntities);
+        context.SaveChanges();
+        var repository = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repository.CreateDefaultAuthorizationsOnSignatoryAsync(1, account.AccountId);
+
+        // Assert
+        Assert.NotNull(result);
+        result.Should().BeEquivalentTo(GlobalConstants.DefaultProspectSignatoryPermissions);
+
+        var contactAuthorizations = context.ContactAuthorizationEntity
+            .Where(ca => ca.AccountId == account.AccountId)
+            .ToList();
+        contactAuthorizations.Should().HaveCount(GlobalConstants.DefaultProspectSignatoryPermissions.Length);
+    }
+
+    [Fact]
+    public async Task CreateDefaultAuthorizationsOnSignatoryAsync_Should_AddDefaultSignatoryAuthorizations_When_AccountType_IsNull()
+    {
+        // Arrange
+        var authorizationEntities = GlobalConstants.DefaultSignatoryPermissions.Select(p =>
+        {
+            var a = _fixture.Create<AuthorizationEntity>();
+            a.Code = p;
+            return a;
+        });
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 52)
+            .With(a => a.AccountType, (string?)null)
+            .Create();
+
+        using var context = new AuthorizationContext(_options);
+        context.AccountEntity.Add(account);
+        context.AuthorizationEntity.AddRange(authorizationEntities);
+        context.SaveChanges();
+        var repository = new AuthorizationRepository(context);
+
+        // Act
+        var result = await repository.CreateDefaultAuthorizationsOnSignatoryAsync(1, account.AccountId);
+
+        // Assert
+        Assert.NotNull(result);
+        result.Should().BeEquivalentTo(GlobalConstants.DefaultSignatoryPermissions);
+
+        var contactAuthorizations = context.ContactAuthorizationEntity
+            .Where(ca => ca.AccountId == account.AccountId)
+            .ToList();
+        contactAuthorizations.Should().HaveCount(GlobalConstants.DefaultSignatoryPermissions.Length);
     }
 
     [Fact]

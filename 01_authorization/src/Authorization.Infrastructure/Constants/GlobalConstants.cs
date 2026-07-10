@@ -44,6 +44,14 @@ public static class GlobalConstants
         "CLUSER004", "CLOFF001", "CLINFO001",
     ];
 
+    public static readonly string[] DefaultProspectSignatoryPermissions =
+    [
+        "CLUSER001", "CLUSER002", "CLUSER003",
+        "CLUSER004", "CLINFO001",
+        "CLPCONF001", "CLPCONF002", "CLPCONF004",
+        "CLPCONF005", "CLPCONF006", "CLPDOCP001"
+    ];
+
     public static readonly string[] OnSignatoryRemovedPermissions =
     [
         "CLUSER001", "CLUSER002", "CLUSER003", "CLUSER004", "CLOFF001",
