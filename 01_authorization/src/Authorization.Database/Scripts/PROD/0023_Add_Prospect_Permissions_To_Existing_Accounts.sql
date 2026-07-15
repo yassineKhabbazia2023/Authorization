@@ -8,6 +8,11 @@ DECLARE @ProspectPermissionCodes TABLE (Code NVARCHAR(50));
 
 -- Codes permissions Prospect à ajouter
 INSERT INTO @ProspectPermissionCodes (Code) VALUES
+    ('CLUSER001'),
+    ('CLUSER002'),
+    ('CLUSER003'),
+    ('CLUSER004'),
+    ('CLINFO001'),
     ('CLPCONF001'),
     ('CLPCONF002'),
     ('CLPCONF004'),
