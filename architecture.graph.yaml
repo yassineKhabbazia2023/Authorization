@@ -1,0 +1,124 @@
+# Fragment d'architecture — genere par scripts/archgraph/generator.py
+# `managed_by_script` : NE PAS EDITER (regenere a chaque PR).
+# `managed_by_ai` : maintenu par l'agent IA (roles, appels autorises, notes).
+schema: pulse-archgraph/v1
+service: authorization
+repo: Pulse.Back.Authorization
+generated_at: '2026-07-20T10:06:49+00:00'
+managed_by_script:
+  projects:
+  - name: Authorization.API
+    path: 01_authorization/src/Authorization.API/Authorization.API.csproj
+    references:
+    - Authorization.Core
+    - Authorization.Infrastructure
+  - name: Authorization.Core
+    path: 01_authorization/src/Authorization.Core/Authorization.Core.csproj
+    references: []
+  - name: Authorization.Infrastructure
+    path: 01_authorization/src/Authorization.Infrastructure/Authorization.Infrastructure.csproj
+    references:
+    - Authorization.Core
+  internal_packages:
+  - name: Pulse.Back.Events
+    version: 2.74.179
+  - name: Pulse.ExceptionMiddleware
+    version: 2.73.53
+  infra:
+  - service-bus
+  - sql-server
+  endpoints:
+  - method: DELETE
+    route: /api/authorization
+    controller: AuthorizationController
+  - method: GET
+    route: /api/authorization
+    controller: AuthorizationController
+  - method: GET
+    route: /api/authorization/contacts
+    controller: AuthorizationController
+  - method: GET
+    route: /api/authorization/contacts/signatory
+    controller: AuthorizationController
+  - method: POST
+    route: /api/authorization/setPermission
+    controller: AuthorizationController
+  - method: GET
+    route: /api/authorizations
+    controller: AuthorizationController
+  - method: GET
+    route: /api/authorizations/configuration
+    controller: ConfigurationController
+  - method: POST
+    route: /api/authorizations/configuration
+    controller: ConfigurationController
+  - method: GET
+    route: /api/authorizations/configuration/account
+    controller: ConfigurationController
+  - method: POST
+    route: /api/authorizations/configuration/account
+    controller: ConfigurationController
+  events:
+    publishes:
+    - event: AuthorizationCreatedEvent
+      topics:
+      - authorization
+    - event: AuthorizationUpdatedEvent
+      topics:
+      - authorization
+    - event: HistoryCreatedEvent
+      topics:
+      - authorization
+    - event: OnboardingEvent
+      topics:
+      - authorization
+    consumes:
+    - event: AccountCreatedEvent
+      handler: AccountCreatedEventHandler
+    - event: AccountRemovedEvent
+      handler: AccountRemovedEventHandler
+    - event: AccountUpdatedEvent
+      handler: AccountUpdatedEventHandler
+    - event: ContactCreatedEvent
+      handler: ContactCreatedEventHandler
+    - event: ContactRemovedEvent
+      handler: ContactRemovedEventHandler
+    - event: ContactUpdatedEvent
+      handler: ContactUpdatedEventHandler
+    - event: ReportCreatedEvent
+      handler: ReportCreatedEventHandler
+    - event: RoleCreatedEvent
+      handler: RoleCreatedEventHandler
+    - event: RoleDeletedEvent
+      handler: RoleDeletedEventHandler
+    - event: RoleUpdatedEvent
+      handler: RoleUpdatedEventHandler
+    - event: SubscriptionValidatedEvent
+      handler: SubscriptionValidatedEventHandler
+    push_topics:
+    - authorization
+    pull_topics:
+    - topic: contact
+      subscriptions:
+      - contact-created-authorization
+      - contact-updated-authorization
+      - contact-removed-authorization
+    - topic: account
+      subscriptions:
+      - account-created-authorization
+      - account-updated-authorization
+      - account-removed-authorization
+      - role-created-authorization
+      - role-updated-authorization
+      - role-deleted-authorization
+    - topic: offer
+      subscriptions:
+      - subscription-validated-authorization
+  http_clients: []
+  feature_flags: []
+  gateway_routes: []
+managed_by_ai:
+  role: 'Gestion des habilitations (authorizations) des utilisateurs sur les dossiers : creation/mise a jour, propagation
+    par events AuthorizationCreated/Updated et onboarding.'
+  allowed_http_calls: []
+  notes: []
