@@ -11,7 +11,7 @@ parameters:
 - name: deployToItg
   displayName: 'Déployer sur ITG'
   type: boolean
-  default: false
+  default: true
 
 resources:
   repositories:

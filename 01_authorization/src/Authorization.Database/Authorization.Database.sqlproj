@@ -88,6 +88,9 @@
     <None Include="Scripts\PROD\0004_Add_ged_permissions_depending_on_persona.sql" />
     <None Include="Scripts\PROD\0005_Add_base_permissions_for_accounts.sql" />
     <None Include="Scripts\PROD\0006_Script_Init_Auth_PowerBi_Account.sql" />
+    <None Include="Scripts\PROD\0026_Update_CLINVO001_COINVO001_permissions.sql" />
+    <None Include="Scripts\PROD\0027_Grant_CLINVO001_to_signatories.sql" />
+    <None Include="Scripts\PROD\0028_Grant_COINVO001_to_ged_collaborators.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Authorization.Database.refactorlog" />
