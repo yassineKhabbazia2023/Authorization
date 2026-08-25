@@ -64,5 +64,9 @@ INSERT INTO [auth].[Authorization] (
 	('Access Commercial Proposal Section', '', 'CLPCONF004', 'Accéder à la section Proposition commerciale', 'CLTPCONF', '1', 'Partial', NULL, 'customer', 'Prospect'),
 	('Access Payment Method Section', '', 'CLPCONF005', 'Accéder à la section Moyen de paiement', 'CLTPCONF', '1', 'Partial', NULL, 'customer', 'Prospect'),
 	('Access Mission Letter Section', '', 'CLPCONF006', 'Accéder à la section Lettre de mission', 'CLTPCONF', '1', 'Partial', NULL, 'customer', 'Prospect'),
-	('Access Documents Folder', '', 'CLPDOCP001', 'Accéder au dossier Documents', 'CLTPDOCP', '1', 'Partial', NULL, 'customer', 'Prospect')
+	('Access Documents Folder', '', 'CLPDOCP001', 'Accéder au dossier Documents', 'CLTPDOCP', '1', 'Partial', NULL, 'customer', 'Prospect'),
+	-- Finthesis permissions
+	('Add Finthesis report', '', 'COFIN001', 'Déposer un rapport Finthesis', 'COLRAPPORT', '1', 'Partial', 'Finthesis', 'collaborator', 'Client'),
+	('Mirror Finthesis reports', '', 'COFINM001', 'Accéder aux rapports Finthesis', 'COLMIRROIR', '1', 'Partial', 'Finthesis', 'collaborator', 'Client'),
+	('View Finthesis reports', '', 'CLFIN001', 'Accéder aux rapports Finthesis', 'CLTPILOTAGE', '1', 'Partial', 'Finthesis', 'customer', 'Client')
 END
