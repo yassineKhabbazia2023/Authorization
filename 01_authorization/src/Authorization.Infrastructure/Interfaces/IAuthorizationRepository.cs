@@ -30,6 +30,8 @@ public interface IAuthorizationRepository
 
     public Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnAccountSignatoriesAsync(int accountId, IEnumerable<string> productCodes);
 
+    public Task<IEnumerable<Entities.ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnCollaboratorsAsync(int accountId, IEnumerable<int> collaboratorIds, IEnumerable<string> productCodes);
+
     Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationOnAccountContactsAsync(IEnumerable<ContactAuthorizationEntity> contactAuthorizationEntities, int accountId);
 
     public Task SetContactAuthorizationFromAccountAuthorization(int accountId, int contactId);

@@ -194,6 +194,28 @@ public class AuthorizationRepository : IAuthorizationRepository
         return toReturn;
     }
 
+    public async Task<IEnumerable<ContactAuthorizationEntity>> AddSubscriptionAuthorizationsOnCollaboratorsAsync(int accountId, IEnumerable<int> collaboratorIds, IEnumerable<string> productCodes)
+    {
+        var authorizations = await _authorizationContext.AuthorizationEntity
+            .Where(a => a.ProductCode != null
+                && productCodes.Contains(a.ProductCode)
+                && a.Type == ContactType.Collaborator.ToString())
+            .ToListAsync();
+
+        var entities = collaboratorIds
+            .Distinct()
+            .SelectMany(contactId => authorizations.Select(a => new ContactAuthorizationEntity
+            {
+                AccountId = accountId,
+                ContactId = contactId,
+                Authorization = a,
+                AuthorizationId = a.AuthorizationId,
+                CreationDate = DateTime.UtcNow,
+            }));
+
+        return await AddSubscriptionAuthorizationOnAccountContactsAsync(entities, accountId);
+    }
+
     public async Task<IEnumerable<string>> CreateDefaultAuthorizationsOnAccountAsync(int accountId)
     {
         var account = await _authorizationContext.AccountEntity

@@ -1729,6 +1729,149 @@ public class AuthorizationRepositoryTests
     }
 
     [Fact]
+    public async Task AddSubscriptionAuthorizationsOnCollaboratorsAsync_Should_ScopeToAccount_FilterByCollaboratorType_AndBeIdempotent()
+    {
+        using var context = new AuthorizationContext(_options);
+
+        var collabAuth1 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 501)
+            .With(a => a.Code, "COFIN001")
+            .With(a => a.ProductCode, "Finthesis")
+            .With(a => a.Type, ContactType.Collaborator.ToString())
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
+
+        var collabAuth2 = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 502)
+            .With(a => a.Code, "COFINM001")
+            .With(a => a.ProductCode, "Finthesis")
+            .With(a => a.Type, ContactType.Collaborator.ToString())
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
+
+        // Same ProductCode, customer type: must never be granted to collaborators
+        var customerAuth = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 503)
+            .With(a => a.Code, "CLFIN001")
+            .With(a => a.ProductCode, "Finthesis")
+            .With(a => a.Type, ContactType.Customer.ToString())
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 1)
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Without(a => a.RoleEntity)
+            .Create();
+
+        var collaborator = _fixture.Build<ContactEntity>()
+            .With(c => c.ContactId, 42)
+            .With(c => c.Type, ContactType.Collaborator.ToString())
+            .Without(c => c.RoleEntity)
+            .Without(c => c.ContactAuthorizationEntity)
+            .Create();
+
+        context.AuthorizationEntity.AddRange(collabAuth1, collabAuth2, customerAuth);
+        context.AccountEntity.Add(account);
+        context.ContactEntity.Add(collaborator);
+        await context.SaveChangesAsync();
+
+        var repo = new AuthorizationRepository(context);
+
+        var result = await repo.AddSubscriptionAuthorizationsOnCollaboratorsAsync(
+            accountId: 1,
+            collaboratorIds: new[] { 42 },
+            productCodes: new[] { "Finthesis" });
+
+        result.Should().HaveCount(2);
+        result.Should().OnlyContain(r => r.AccountId == 1 && r.ContactId == 42);
+        result.Select(r => r.Authorization.Code).Should().BeEquivalentTo(new[] { "COFIN001", "COFINM001" });
+
+        var linksInDb = context.ContactAuthorizationEntity
+            .Where(ca => ca.ContactId == 42)
+            .ToList();
+        linksInDb.Should().HaveCount(2);
+        linksInDb.Should().OnlyContain(l => l.AccountId == 1); // never -1 (global sentinel)
+        linksInDb.Should().NotContain(l => l.AuthorizationId == customerAuth.AuthorizationId);
+
+        // Replay to check idempotency
+        var replay = await repo.AddSubscriptionAuthorizationsOnCollaboratorsAsync(
+            accountId: 1,
+            collaboratorIds: new[] { 42 },
+            productCodes: new[] { "Finthesis" });
+
+        replay.Should().HaveCount(2);
+        var linksAfterReplay = context.ContactAuthorizationEntity.Where(ca => ca.ContactId == 42).ToList();
+        linksAfterReplay.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task AddSubscriptionAuthorizationsOnCollaboratorsAsync_Should_HandleDuplicateCollaboratorIds_WithoutThrowing()
+    {
+        using var context = new AuthorizationContext(_options);
+
+        var collabAuth = _fixture.Build<AuthorizationEntity>()
+            .With(a => a.AuthorizationId, 601)
+            .With(a => a.Code, "COFIN001")
+            .With(a => a.ProductCode, "Finthesis")
+            .With(a => a.Type, ContactType.Collaborator.ToString())
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Create();
+
+        var account = _fixture.Build<AccountEntity>()
+            .With(a => a.AccountId, 2)
+            .Without(a => a.AccountAuthorizationEntity)
+            .Without(a => a.ContactAuthorizationEntity)
+            .Without(a => a.RoleEntity)
+            .Create();
+
+        var collaborator = _fixture.Build<ContactEntity>()
+            .With(c => c.ContactId, 43)
+            .With(c => c.Type, ContactType.Collaborator.ToString())
+            .Without(c => c.RoleEntity)
+            .Without(c => c.ContactAuthorizationEntity)
+            .Create();
+
+        context.AuthorizationEntity.Add(collabAuth);
+        context.AccountEntity.Add(account);
+        context.ContactEntity.Add(collaborator);
+        await context.SaveChangesAsync();
+
+        var repo = new AuthorizationRepository(context);
+
+        var act = () => repo.AddSubscriptionAuthorizationsOnCollaboratorsAsync(
+            accountId: 2,
+            collaboratorIds: new[] { 43, 43 },
+            productCodes: new[] { "Finthesis" });
+
+        var result = await act.Should().NotThrowAsync();
+        result.Subject.Should().HaveCount(1);
+
+        var linksInDb = context.ContactAuthorizationEntity.Where(ca => ca.ContactId == 43).ToList();
+        linksInDb.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task AddSubscriptionAuthorizationsOnCollaboratorsAsync_Should_ReturnEmpty_WhenNoCollaboratorPermissionMatchesProductCode()
+    {
+        using var context = new AuthorizationContext(_options);
+        var repo = new AuthorizationRepository(context);
+
+        var result = await repo.AddSubscriptionAuthorizationsOnCollaboratorsAsync(
+            accountId: 1,
+            collaboratorIds: new[] { 42 },
+            productCodes: new[] { "UnknownProduct" });
+
+        result.Should().BeEmpty();
+        context.ContactAuthorizationEntity.Should().BeEmpty();
+    }
+
+    [Fact]
     public void RetrieveExistedProductCodes_Should_ReturnEmpty_WhenInputIsEmpty()
     {
         // – Arrange 
