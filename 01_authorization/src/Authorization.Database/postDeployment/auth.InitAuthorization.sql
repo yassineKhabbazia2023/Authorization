@@ -20,6 +20,7 @@ INSERT INTO [auth].[Authorization] (
 	('Access Pennylane', '', 'CLPEN001', 'Accéder à l''outil Pennylane', 'CLTESC', '1', 'Partial','pennylaneaccess', 'customer', 'Client'),
 	('View bi financial', '', 'CLRAPP001', 'Accéder aux rapports BI Financier', 'CLTPILOTAGE', '1', 'Partial',NULL, 'customer', 'Client'),
 	('View bi HR', '', 'CLRAPP002', 'Accéder aux rapports BI RH', 'CLTPILOTAGE', '0', 'Partial', NULL, 'customer', 'Client'),
+	('View monthly note', '', 'CLRAPNM001', 'Accéder à la note mensuelle comptable', 'CLTPILOTAGE', '1', 'Partial', 'monthlynote', 'customer', 'Client'),
 	('View kpi', '', 'CLKPI0001', 'Accéder aux indicateurs', 'CLTPILOTAGE', '0', 'Partial', NULL, 'customer', 'Client'),
 	('View bank', '', 'CLBANK001', 'Accéder aux données bancaires', 'CLTPILOTAGE', '0', 'Partial', NULL, 'customer', 'Client'),
 	('View collabs', '', 'COADMI001', 'Accéder à l''onglet collaborateurs', 'COLADMIN', '1', 'Global', NULL, 'collaborator', 'Client'),
